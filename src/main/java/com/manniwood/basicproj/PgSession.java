@@ -13,14 +13,14 @@ public class PgSession {
         Object obj = instantiateBean(type);
 
         String setterName = "setName";
-        String value = "Foo";
+        Object value = "Foo";
         String valueTypeStr = "java.lang.String";
         callSetter(obj, setterName, valueTypeStr, value);
 
         setterName = "setId";
-        UUID val = UUID.fromString("910c80af-a4fa-49fc-b6b4-62eca118fbf7");
+        value = UUID.fromString("910c80af-a4fa-49fc-b6b4-62eca118fbf7");
         valueTypeStr = "java.util.UUID";
-        callSetter(obj, setterName, valueTypeStr, val);
+        callSetter(obj, setterName, valueTypeStr, value);
 
         return type.cast(obj);
     }
@@ -41,7 +41,7 @@ public class PgSession {
         Method setter = null;
         try {
             setter = obj.getClass().getMethod(setterName, valueType);
-            setter.invoke(obj, value);
+            setter.invoke(obj, valueType.cast(value));
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException("Could not call method " + setterName, e);
         }
