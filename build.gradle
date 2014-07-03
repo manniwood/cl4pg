@@ -1,0 +1,28 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+group = 'com.manniwood'
+version = '1.0'
+description = "Manni's PostgreSQL JDBC Wrapper"
+mainClassName = 'com.manniwood.basicproj.HelloWorld'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'ch.qos.logback:logback-core:1.1.2'
+    compile 'ch.qos.logback:logback-classic:1.1.2'
+    compile 'org.slf4j:slf4j-api:1.7.7'
+    testCompile 'org.testng:testng:6.8.8'
+}
+
+test {
+    useTestNG()
+
+    options.suites("src/test/resources/testng.xml")
+
+    // show standard out and standard error of the test JVM(s) on the console
+    testLogging.showStandardStreams = true
+}
+
