@@ -22,6 +22,11 @@ public class PgSession {
         valueTypeStr = "java.util.UUID";
         callSetter(obj, setterName, valueTypeStr, value);
 
+        // what about primitive types? // we are presumably using resultSet.getObject for everything that we can...
+        // figure out how to set employee id
+        // Object obj = resultSet.getObject(1);
+        // Class clazz = obj.getClass();
+
         return type.cast(obj);
     }
 

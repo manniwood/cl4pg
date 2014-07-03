@@ -7,6 +7,7 @@ public class User {
     private UUID id;
     private String name;
     private String password;
+    private int employeeId;
 
     public User() {
     }
@@ -33,6 +34,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public int getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(int employeeId) {
+        this.employeeId = employeeId;
     }
 
 }
