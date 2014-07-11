@@ -12,6 +12,7 @@ public class PgSession {
     public <T> T selectOne(String sqlFile, Class<T> type) {
         Object obj = instantiateBean(type);
 
+        // resultSet.getObject("name")
         String setterName = "setName";
         Object value = "Foo";
         String valueTypeStr = "java.lang.String";
@@ -22,10 +23,10 @@ public class PgSession {
         valueTypeStr = "java.util.UUID";
         callSetter(obj, setterName, valueTypeStr, value);
 
-        // what about primitive types? // we are presumably using resultSet.getObject for everything that we can...
-        // figure out how to set employee id
-        // Object obj = resultSet.getObject(1);
-        // Class clazz = obj.getClass();
+        // resultSet.getInt("employee_id")
+        setterName = "setEmployeeId";
+        int intVal = 42;
+        callSetter(obj, setterName, intVal);
 
         return type.cast(obj);
     }
@@ -47,6 +48,16 @@ public class PgSession {
         try {
             setter = obj.getClass().getMethod(setterName, valueType);
             setter.invoke(obj, valueType.cast(value));
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new MPJWException("Could not call method " + setterName, e);
+        }
+    }
+
+    private void callSetter(Object obj, String setterName, int value) {
+        Method setter = null;
+        try {
+            setter = obj.getClass().getMethod(setterName, int.class);
+            setter.invoke(obj, value);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException("Could not call method " + setterName, e);
         }
