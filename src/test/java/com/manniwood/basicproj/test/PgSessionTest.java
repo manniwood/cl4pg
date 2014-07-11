@@ -16,5 +16,6 @@ public class PgSessionTest {
         User u = pgSession.selectOne("", User.class);
         Assert.assertEquals(u.getName(), "Foo");
         Assert.assertEquals(u.getId(), UUID.fromString("910c80af-a4fa-49fc-b6b4-62eca118fbf7"));
+        Assert.assertEquals(u.getEmployeeId(), 42);
     }
 }

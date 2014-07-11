@@ -28,7 +28,7 @@ public class PgSession {
     private String appName = "MPJW";
 
     public PgSession() {
-        String someSql = slurpFile("sql/create_test_table.sql");
+        String someSql = slurpFileFromClasspath("sql/create_test_table.sql");
         log.info("contents of file are: {}", someSql);
         try {
             Class.forName("org.postgresql.Driver");
@@ -114,7 +114,7 @@ public class PgSession {
         return clazz;
     }
 
-    private String slurpFile(String path) {
+    private String slurpFileFromClasspath(String path) {
         StringBuilder sb = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(path)));
         String line;
@@ -125,7 +125,13 @@ public class PgSession {
             }
         } catch (IOException e) {
             throw new MPJWException("Could not read file " + path, e);
-        }  // XXX: is there a finally here? any resource I have to clean up?
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                throw new MPJWException("Could not close file " + path, e);
+            }
+        }
         return sb.toString();
     }
 }
