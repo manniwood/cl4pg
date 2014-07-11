@@ -71,6 +71,33 @@ public class PgSession {
         return type.cast(obj);
     }
 
+    public void ddl(String ddl) {
+        String sql = resolveSQL(ddl);
+        PgExecutor.execute(new DDL(sql, conn));
+    }
+
+    public void commit() {
+        PgExecutor.execute(new Commit(conn));
+    }
+
+    /**
+     * Resolves sql to either a plain sql statement, or a
+     * file in the classpath that contains sql; which is
+     * slurped in an returned as sql.
+     * @param str
+     * @return
+     */
+    public String resolveSQL(String str) {
+        if (str == null
+                || str.length() < 2 /* leave room for '@' */) {
+            throw new MPJWException("SQL string null or too short.");
+        }
+        if (str.startsWith("@")) {
+            str = slurpFileFromClasspath(str.substring(1) /* remove leading '@' */);
+        }
+        return str;
+    }
+
     private <T> Object instantiateBean(Class<T> type) {
         Object obj = null;
         try {
