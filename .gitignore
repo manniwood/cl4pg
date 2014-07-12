@@ -2,6 +2,7 @@ bin
 build
 .classpath
 *.swp
+*~
 .gradle
 .project
 .settings

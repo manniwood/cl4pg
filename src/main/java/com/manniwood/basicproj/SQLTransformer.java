@@ -1,0 +1,47 @@
+package com.manniwood.basicproj;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class SQLTransformer {
+
+    private final static Logger log = LoggerFactory.getLogger(PgSession.class);
+
+    public static TransformedSQL transform(String sql) {
+        log.debug("incoming sql:\n{}", sql);
+        char[] chrs = sql.toCharArray();
+        int chrsLen = chrs.length;
+        List<String> getters = new ArrayList<>();
+        StringBuilder sqlSB = new StringBuilder();
+        for (int i = 0; i < chrsLen; i++) {
+            if (chrs[i] == '#') {
+                i++;
+                if (i >= chrsLen) {
+                    break;
+                }
+                if (chrs[i] == '{') {
+                    StringBuilder sb = new StringBuilder();
+                    while (i < chrsLen && chrs[i] != '}') {
+                        i++;
+                        if (chrs[i] != '}') {
+                            sb.append(chrs[i]);
+                        }
+                    }
+                    if (chrs[i] == '}') {
+                        log.debug("adding: {}", sb.toString());
+                        getters.add(sb.toString());
+                        sb = null;  // done with this; hint to gc
+                    }
+                }
+                sqlSB.append("?");
+            } else {
+                sqlSB.append(chrs[i]);
+            }
+        }
+        log.debug("outgoing sql:\n{}", sqlSB.toString());
+        return new TransformedSQL(sqlSB.toString(), getters);
+    }
+}

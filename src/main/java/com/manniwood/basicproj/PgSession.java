@@ -1,8 +1,5 @@
 package com.manniwood.basicproj;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -28,8 +25,6 @@ public class PgSession {
     private String appName = "MPJW";
 
     public PgSession() {
-        String someSql = slurpFileFromClasspath("sql/create_test_table.sql");
-        log.info("contents of file are: {}", someSql);
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
@@ -47,6 +42,16 @@ public class PgSession {
         } catch (SQLException e) {
             throw new MPJWException("Could not connect to db", e);
         }
+    }
+
+    public <T> void insert(String insert, T t) {
+        String sql = resolveSQL(insert);
+        // START HERE: will have to figure out how to
+        // make the Insert work; will first have to write class
+        // and test cases to take any sql insert statement
+        // and turn it into its #{} --> ? form, and a corresponding
+        // bean and introspect its get methods
+        PgExecutor.execute(new Insert(sql, conn, t));
     }
 
     public <T> T selectOne(String sqlFile, Class<T> type) {
@@ -93,7 +98,7 @@ public class PgSession {
             throw new MPJWException("SQL string null or too short.");
         }
         if (str.startsWith("@")) {
-            str = slurpFileFromClasspath(str.substring(1) /* remove leading '@' */);
+            str = ResourceUtil.slurpFileFromClasspath(str.substring(1) /* remove leading '@' */);
         }
         return str;
     }
@@ -141,24 +146,4 @@ public class PgSession {
         return clazz;
     }
 
-    private String slurpFileFromClasspath(String path) {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(path)));
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-                sb.append("\n");
-            }
-        } catch (IOException e) {
-            throw new MPJWException("Could not read file " + path, e);
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                throw new MPJWException("Could not close file " + path, e);
-            }
-        }
-        return sb.toString();
-    }
 }
