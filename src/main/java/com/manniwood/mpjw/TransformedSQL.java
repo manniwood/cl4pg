@@ -21,35 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.basicproj.test;
+package com.manniwood.mpjw;
 
-import java.util.UUID;
+import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.manniwood.basicproj.PgSession;
-import com.manniwood.basicproj.User;
-
-public class PgSessionTest {
-
-    @Test
-    public void testPgSesion() {
-        PgSession pgSession = new PgSession();
-
-        pgSession.ddl("@sql/create_test_table.sql");
-        pgSession.commit();
-
-        User insertUser = new User();
-        insertUser.setEmployeeId(13);
-        insertUser.setId(UUID.fromString("99999999-a4fa-49fc-b6b4-62eca118fbf7"));
-        insertUser.setName("Hubert");
-        insertUser.setPassword("passwd");
-        pgSession.insert("@sql/insert_user.sql", insertUser);
-
-        User u = pgSession.selectOne("", User.class);
-        Assert.assertEquals(u.getName(), "Foo");
-        Assert.assertEquals(u.getId(), UUID.fromString("910c80af-a4fa-49fc-b6b4-62eca118fbf7"));
-        Assert.assertEquals(u.getEmployeeId(), 42);
+public class TransformedSQL {
+    private final String sql;
+    private final List<String> getters;
+    public TransformedSQL(String sql, List<String> getters) {
+        super();
+        this.sql = sql;
+        this.getters = getters;
     }
+    public String getSql() {
+        return sql;
+    }
+    public List<String> getGetters() {
+        return getters;
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.manniwood.basicproj;
+package com.manniwood.mpjw;
 
 import java.util.ArrayList;
 import java.util.List;

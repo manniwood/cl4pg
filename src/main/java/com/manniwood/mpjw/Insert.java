@@ -1,3 +1,8 @@
+package com.manniwood.mpjw;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 /*
 The MIT License (MIT)
 
@@ -21,18 +26,41 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.basicproj.test.factory;
+public class Insert<T> implements PgExecutable {
 
-import org.testng.annotations.Factory;
+    private final String sql;
+    private final Connection conn;
+    private final T t;
+    private PreparedStatement pstmt;
 
-import com.manniwood.basicproj.test.TestHelloWorldEchoer;
+    public Insert(String sql, Connection conn, T t) {
+        super();
+        this.sql = sql;
+        this.conn = conn;
+        this.t = t;
+    }
 
-public class TestNGTestFactory {
-    @Factory
-    public Object[] allTests() {
-        return new Object[] {
-                new TestHelloWorldEchoer()
-        };
+    @Override
+    public String getSQL() {
+        return sql;
+    }
+
+    @Override
+    public void execute() throws SQLException {
+        // turn the sql into something legit here
+        pstmt = conn.prepareStatement(sql);
+        // set all the stuff here
+        pstmt.execute();
+    }
+
+    @Override
+    public Connection getConnection() {
+        return conn;
+    }
+
+    @Override
+    public PreparedStatement getPreparedStatement() {
+        return pstmt;
     }
 
 }

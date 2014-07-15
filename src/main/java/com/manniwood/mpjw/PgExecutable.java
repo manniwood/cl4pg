@@ -21,30 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.basicproj;
+package com.manniwood.mpjw;
 
-public class MPJWException extends RuntimeException {
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-    private static final long serialVersionUID = 1L;
-
-    public MPJWException() {
-        super();
-    }
-
-    public MPJWException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-
-    public MPJWException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public MPJWException(String message) {
-        super(message);
-    }
-
-    public MPJWException(Throwable cause) {
-        super(cause);
-    }
-
+public interface PgExecutable {
+    String getSQL();
+    void execute() throws SQLException;
+    Connection getConnection();
+    PreparedStatement getPreparedStatement();
 }

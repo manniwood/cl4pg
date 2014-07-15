@@ -1,8 +1,3 @@
-package com.manniwood.basicproj;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 /*
 The MIT License (MIT)
 
@@ -26,41 +21,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-public class Insert<T> implements PgExecutable {
+package com.manniwood.mpjw;
 
-    private final String sql;
-    private final Connection conn;
-    private final T t;
-    private PreparedStatement pstmt;
+import java.sql.SQLException;
 
-    public Insert(String sql, Connection conn, T t) {
-        super();
-        this.sql = sql;
-        this.conn = conn;
-        this.t = t;
+public class PgExecutor {
+    public static void execute(PgExecutable pg) {
+        try {
+            pg.execute();
+        } catch (SQLException e) {
+            try {
+                pg.getConnection().rollback();
+            } catch (SQLException e1) {
+                // XXX: do we put e inside e1, so the user has all of the exceptions?
+                throw new MPJWException("Could not roll back connection after catching exception trying to execute " + pg.getSQL(), e1);
+            }
+            throw new MPJWException("ROLLED BACK. Exception while trying to run this sql statement: " + pg.getSQL(), e);
+        } finally {
+            if (pg.getPreparedStatement() != null) {
+                try {
+                    pg.getPreparedStatement().close();
+                } catch (SQLException e) {
+                    throw new MPJWException("Could not close PreparedStatement for " + pg.getSQL(), e);
+                }
+            }
+        }
     }
-
-    @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
-    public void execute() throws SQLException {
-        // turn the sql into something legit here
-        pstmt = conn.prepareStatement(sql);
-        // set all the stuff here
-        pstmt.execute();
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
-    }
-
 }

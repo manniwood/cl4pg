@@ -1,10 +1,8 @@
 apply plugin: 'java'
-apply plugin: 'application'
 
 group = 'com.manniwood'
-version = '1.0'
+version = '1.0.0'
 description = "Manni's PostgreSQL JDBC Wrapper"
-mainClassName = 'com.manniwood.basicproj.HelloWorld'
 
 repositories {
     mavenCentral()

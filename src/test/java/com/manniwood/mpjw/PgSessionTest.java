@@ -21,27 +21,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.basicproj.test;
+package com.manniwood.mpjw;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.UUID;
+
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.manniwood.basicproj.ResourceUtil;
-import com.manniwood.basicproj.SQLTransformer;
-import com.manniwood.basicproj.TransformedSQL;
+import com.manniwood.mpjw.PgSession;
+import com.manniwood.mpjw.test.etc.User;
 
-public class SQLTransformerTest {
-
-    private final static Logger log = LoggerFactory.getLogger(SQLTransformerTest.class);
+public class PgSessionTest {
 
     @Test
-    public void test() {
-        String sql = ResourceUtil.slurpFileFromClasspath("sql/insert_user.sql");
-        TransformedSQL tsql = SQLTransformer.transform(sql);
-        for (String getter : tsql.getGetters()) {
-            log.info("getter: {}", getter);
-        }
-        log.info("sql:\n{}", tsql.getSql());
+    public void testPgSesion() {
+        PgSession pgSession = new PgSession();
+
+        pgSession.ddl("@sql/create_test_table.sql");
+        pgSession.commit();
+
+        User insertUser = new User();
+        insertUser.setEmployeeId(13);
+        insertUser.setId(UUID.fromString("99999999-a4fa-49fc-b6b4-62eca118fbf7"));
+        insertUser.setName("Hubert");
+        insertUser.setPassword("passwd");
+        pgSession.insert("@sql/insert_user.sql", insertUser);
+
+        User u = pgSession.selectOne("", User.class);
+        Assert.assertEquals(u.getName(), "Foo");
+        Assert.assertEquals(u.getId(), UUID.fromString("910c80af-a4fa-49fc-b6b4-62eca118fbf7"));
+        Assert.assertEquals(u.getEmployeeId(), 42);
     }
 }

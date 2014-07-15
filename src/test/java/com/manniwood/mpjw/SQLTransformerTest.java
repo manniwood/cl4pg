@@ -21,15 +21,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.basicproj;
+package com.manniwood.mpjw;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
-public interface PgExecutable {
-    String getSQL();
-    void execute() throws SQLException;
-    Connection getConnection();
-    PreparedStatement getPreparedStatement();
+import com.manniwood.mpjw.ResourceUtil;
+import com.manniwood.mpjw.SQLTransformer;
+import com.manniwood.mpjw.TransformedSQL;
+
+public class SQLTransformerTest {
+
+    private final static Logger log = LoggerFactory.getLogger(SQLTransformerTest.class);
+
+    @Test
+    public void test() {
+        String sql = ResourceUtil.slurpFileFromClasspath("sql/insert_user.sql");
+        TransformedSQL tsql = SQLTransformer.transform(sql);
+        for (String getter : tsql.getGetters()) {
+            log.info("getter: {}", getter);
+        }
+        log.info("sql:\n{}", tsql.getSql());
+    }
 }

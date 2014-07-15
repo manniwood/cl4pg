@@ -21,23 +21,42 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.basicproj;
+package com.manniwood.mpjw;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-public class Explore {
+public class Commit implements PgExecutable {
 
-    private final static Logger log = LoggerFactory.getLogger(Explore.class);
+    private final String sql;
+    private final Connection conn;
+    private PreparedStatement pstmt;
 
-    public static void main(String[] args) {
-        HelloWorldEchoer hwe = new HelloWorldEchoer();
-        log.info("Hello World Echoer says: {}", hwe.getMessage());
-        Object o = "Hello";
-        log.info("object class is {}", o.getClass().getSimpleName());
-
-        // get all methods
-        // collect those that begin with "set"
-        // put them in a map of <setterName, paramType>
+    public Commit(Connection conn) {
+        super();
+        this.sql = "commit;";
+        this.conn = conn;
     }
+
+    @Override
+    public String getSQL() {
+        return sql;
+    }
+
+    @Override
+    public void execute() throws SQLException {
+        conn.commit();
+    }
+
+    @Override
+    public Connection getConnection() {
+        return conn;
+    }
+
+    @Override
+    public PreparedStatement getPreparedStatement() {
+        return pstmt;
+    }
+
 }
