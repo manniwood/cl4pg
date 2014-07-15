@@ -1,4 +1,4 @@
-package com.manniwood.mpjw.util;
+package com.manniwood.mpjw.converters;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,23 +10,19 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.manniwood.mpjw.MPJWException;
-import com.manniwood.mpjw.converters.Converter;
-import com.manniwood.mpjw.converters.IntConverter;
-import com.manniwood.mpjw.converters.StringConverter;
-import com.manniwood.mpjw.converters.UUIDConverter;
 
-public class SetterUtil {
+public class ConverterStore {
 
-    private static Map<Class, Converter> converters;
+    private Map<Class, Converter> converters;
 
-    static {
+    public ConverterStore() {
         converters = new HashMap<>();
         converters.put(int.class, new IntConverter());
         converters.put(String.class, new StringConverter());
         converters.put(UUID.class, new UUIDConverter());
     }
 
-    public static <T> void setItems(PreparedStatement pstmt, T t, List<String> getters) throws SQLException {
+    public <T> void setItems(PreparedStatement pstmt, T t, List<String> getters) throws SQLException {
         int i = 0;
         Class<? extends Object> tclass = t.getClass();
         try {

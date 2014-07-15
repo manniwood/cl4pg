@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.DDL;
 import com.manniwood.mpjw.commands.Insert;
+import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 
 public class PGSession {
@@ -51,6 +52,8 @@ public class PGSession {
     private String dbPassword = "postgres";
     private int transactionIsolationLevel = Connection.TRANSACTION_READ_COMMITTED;
     private String appName = "MPJW";
+
+    private ConverterStore converterStore = new ConverterStore();
 
     public PGSession() {
         try {
@@ -79,7 +82,7 @@ public class PGSession {
         // and test cases to take any sql insert statement
         // and turn it into its #{} --> ? form, and a corresponding
         // bean and introspect its get methods
-        CommandRunner.execute(new Insert(sql, conn, t));
+        CommandRunner.execute(new Insert(converterStore, sql, conn, t));
     }
 
     public <T> T selectOne(String sqlFile, Class<T> type) {

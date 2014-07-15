@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
-import com.manniwood.mpjw.util.SetterUtil;
+import com.manniwood.mpjw.converters.ConverterStore;
 /*
 The MIT License (MIT)
 
@@ -32,13 +32,15 @@ THE SOFTWARE.
 */
 public class Insert<T> implements Command {
 
+    private final ConverterStore converterStore;
     private final String sql;
     private final Connection conn;
     private final T t;
     private PreparedStatement pstmt;
 
-    public Insert(String sql, Connection conn, T t) {
+    public Insert(ConverterStore converterStore, String sql, Connection conn, T t) {
         super();
+        this.converterStore = converterStore;
         this.sql = sql;
         this.conn = conn;
         this.t = t;
@@ -53,7 +55,7 @@ public class Insert<T> implements Command {
     public void execute() throws SQLException {
         TransformedSQL tsql = SQLTransformer.transform(sql);
         pstmt = conn.prepareStatement(tsql.getSql());
-        SetterUtil.setItems(pstmt, t, tsql.getGetters());
+        converterStore.setItems(pstmt, t, tsql.getGetters());
         pstmt.execute();
     }
 
