@@ -25,6 +25,7 @@ package com.manniwood.mpjw.test.factory;
 
 import org.testng.annotations.Factory;
 
+import com.manniwood.mpjw.ColumnLabelConverterTest;
 import com.manniwood.mpjw.PGSessionTest;
 import com.manniwood.mpjw.SQLTransformerTest;
 
@@ -32,6 +33,7 @@ public class TestNGTestFactory {
     @Factory
     public Object[] allTests() {
         return new Object[] {
+                new ColumnLabelConverterTest(),
                 new SQLTransformerTest(),
                 new PGSessionTest()
         };

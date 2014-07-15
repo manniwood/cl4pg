@@ -23,13 +23,10 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.DDL;
 import com.manniwood.mpjw.commands.Insert;
+import com.manniwood.mpjw.commands.SelectOne;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 
@@ -77,34 +75,14 @@ public class PGSession {
 
     public <T> void insert(String insert, T t) {
         String sql = resolveSQL(insert);
-        // START HERE: will have to figure out how to
-        // make the Insert work; will first have to write class
-        // and test cases to take any sql insert statement
-        // and turn it into its #{} --> ? form, and a corresponding
-        // bean and introspect its get methods
-        CommandRunner.execute(new Insert(converterStore, sql, conn, t));
+        CommandRunner.execute(new Insert<T>(converterStore, sql, conn, t));
     }
 
-    public <T> T selectOne(String sqlFile, Class<T> type) {
-        Object obj = instantiateBean(type);
-
-        // resultSet.getObject("name")
-        String setterName = "setName";
-        Object value = "Foo";
-        String valueTypeStr = "java.lang.String";
-        callSetter(obj, setterName, valueTypeStr, value);
-
-        setterName = "setId";
-        value = UUID.fromString("910c80af-a4fa-49fc-b6b4-62eca118fbf7");
-        valueTypeStr = "java.util.UUID";
-        callSetter(obj, setterName, valueTypeStr, value);
-
-        // resultSet.getInt("employee_id")
-        setterName = "setEmployeeId";
-        int intVal = 42;
-        callSetter(obj, setterName, intVal);
-
-        return type.cast(obj);
+    public <T, P> T selectOne(String sqlFile, Class<T> returnType, P parameter) {
+        String sql = resolveSQL(sqlFile);
+        SelectOne<T, P> so = new SelectOne<T, P>(converterStore, sql, conn, returnType, parameter);
+        CommandRunner.execute(so);
+        return so.getResult();
     }
 
     public void ddl(String ddl) {
@@ -132,49 +110,6 @@ public class PGSession {
             str = ResourceUtil.slurpFileFromClasspath(str.substring(1) /* remove leading '@' */);
         }
         return str;
-    }
-
-    private <T> Object instantiateBean(Class<T> type) {
-        Object obj = null;
-        try {
-            obj = type.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new MPJWException("Could not instantiate " + type, e);
-        }
-        return obj;
-    }
-
-    private <T> void callSetter(Object obj, String setterName, String valueTypeStr, T value) {
-        @SuppressWarnings("rawtypes")
-        Class valueType = classFromString(valueTypeStr);
-        Method setter = null;
-        try {
-            setter = obj.getClass().getMethod(setterName, valueType);
-            setter.invoke(obj, valueType.cast(value));
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new MPJWException("Could not call method " + setterName, e);
-        }
-    }
-
-    private void callSetter(Object obj, String setterName, int value) {
-        Method setter = null;
-        try {
-            setter = obj.getClass().getMethod(setterName, int.class);
-            setter.invoke(obj, value);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new MPJWException("Could not call method " + setterName, e);
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-    private Class classFromString(String className) {
-        Class clazz = null;
-        try {
-            clazz = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            throw new MPJWException("Could find value class " + className, e);
-        }
-        return clazz;
     }
 
 }
