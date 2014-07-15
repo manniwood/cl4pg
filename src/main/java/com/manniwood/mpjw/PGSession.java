@@ -34,9 +34,14 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PgSession {
+import com.manniwood.mpjw.commands.Commit;
+import com.manniwood.mpjw.commands.DDL;
+import com.manniwood.mpjw.commands.Insert;
+import com.manniwood.mpjw.util.ResourceUtil;
 
-    private final static Logger log = LoggerFactory.getLogger(PgSession.class);
+public class PGSession {
+
+    private final static Logger log = LoggerFactory.getLogger(PGSession.class);
 
     private Connection conn = null;
     private String hostname = "localhost";
@@ -47,7 +52,7 @@ public class PgSession {
     private int transactionIsolationLevel = Connection.TRANSACTION_READ_COMMITTED;
     private String appName = "MPJW";
 
-    public PgSession() {
+    public PGSession() {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
@@ -74,7 +79,7 @@ public class PgSession {
         // and test cases to take any sql insert statement
         // and turn it into its #{} --> ? form, and a corresponding
         // bean and introspect its get methods
-        PgExecutor.execute(new Insert(sql, conn, t));
+        CommandRunner.execute(new Insert(sql, conn, t));
     }
 
     public <T> T selectOne(String sqlFile, Class<T> type) {
@@ -101,11 +106,11 @@ public class PgSession {
 
     public void ddl(String ddl) {
         String sql = resolveSQL(ddl);
-        PgExecutor.execute(new DDL(sql, conn));
+        CommandRunner.execute(new DDL(sql, conn));
     }
 
     public void commit() {
-        PgExecutor.execute(new Commit(conn));
+        CommandRunner.execute(new Commit(conn));
     }
 
     /**

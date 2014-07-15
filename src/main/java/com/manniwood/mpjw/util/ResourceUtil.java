@@ -21,42 +21,34 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw;
+package com.manniwood.mpjw.util;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
-public class Commit implements PgExecutable {
+import com.manniwood.mpjw.MPJWException;
 
-    private final String sql;
-    private final Connection conn;
-    private PreparedStatement pstmt;
+public class ResourceUtil {
 
-    public Commit(Connection conn) {
-        super();
-        this.sql = "commit;";
-        this.conn = conn;
+    public static String slurpFileFromClasspath(String path) {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(ResourceUtil.class.getClassLoader().getResourceAsStream(path)));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+                sb.append("\n");
+            }
+        } catch (IOException e) {
+            throw new MPJWException("Could not read file " + path, e);
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                throw new MPJWException("Could not close file " + path, e);
+            }
+        }
+        return sb.toString();
     }
-
-    @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
-    public void execute() throws SQLException {
-        conn.commit();
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
-    }
-
 }

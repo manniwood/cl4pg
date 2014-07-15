@@ -27,9 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.manniwood.mpjw.ResourceUtil;
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
+import com.manniwood.mpjw.util.ResourceUtil;
 
 public class SQLTransformerTest {
 

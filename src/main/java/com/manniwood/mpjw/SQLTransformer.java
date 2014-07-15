@@ -31,7 +31,7 @@ THE SOFTWARE.
 */
 public class SQLTransformer {
 
-    private final static Logger log = LoggerFactory.getLogger(PgSession.class);
+    private final static Logger log = LoggerFactory.getLogger(PGSession.class);
 
     public static TransformedSQL transform(String sql) {
         log.debug("incoming sql:\n{}", sql);

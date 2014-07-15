@@ -25,8 +25,10 @@ package com.manniwood.mpjw;
 
 import java.sql.SQLException;
 
-public class PgExecutor {
-    public static void execute(PgExecutable pg) {
+import com.manniwood.mpjw.commands.Command;
+
+public class CommandRunner {
+    public static void execute(Command pg) {
         try {
             pg.execute();
         } catch (SQLException e) {
