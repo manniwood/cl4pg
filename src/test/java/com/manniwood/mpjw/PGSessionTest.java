@@ -88,4 +88,8 @@ public class PGSessionTest {
         Assert.assertNull(u.getName(), "Should be null");
         Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
     }
+
+    // XXX START HERE: test deletion code; then write and test update code;
+    // then write select that returns more than one row; then select
+    // that returns just one element.
 }

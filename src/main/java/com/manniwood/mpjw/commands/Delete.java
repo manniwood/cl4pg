@@ -2,17 +2,15 @@ package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.manniwood.mpjw.MoreThanOneResultException;
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 /*
 The MIT License (MIT)
 
-Copyright (t) 2014 Manni Wood
+Copyright (c) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,32 +30,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-public class SelectOne<T, P> implements Command {
+public class Delete<T> implements Command {
 
     private final ConverterStore converterStore;
     private final String sql;
     private final Connection conn;
-
-    /**
-     * Parameter
-     */
-    private final P parameter;
+    private final T t;
     private PreparedStatement pstmt;
+    private int numberOfRowsDeleted;
 
-    /**
-     * Return type.
-     */
-    private T t;
-
-    private Class<T> returnType;
-
-    public SelectOne(ConverterStore converterStore, String sql, Connection conn, Class<T> returnType, P parameter) {
+    public Delete(ConverterStore converterStore, String sql, Connection conn, T t) {
         super();
         this.converterStore = converterStore;
         this.sql = sql;
         this.conn = conn;
-        this.parameter = parameter;
-        this.returnType = returnType;
+        this.t = t;
     }
 
     @Override
@@ -69,20 +56,12 @@ public class SelectOne<T, P> implements Command {
     public void execute() throws SQLException {
         TransformedSQL tsql = SQLTransformer.transform(sql);
         pstmt = conn.prepareStatement(tsql.getSql());
-        converterStore.setItems(pstmt, parameter, tsql.getGetters());
-        ResultSet rs = pstmt.executeQuery();
-        if ( ! rs.next()) {
-            t = null;
-        } else {
-            t = converterStore.convertResultSet(rs, returnType);
-        }
-        if (rs.next()) {
-            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + tsql.getSql());
-        }
+        converterStore.setItems(pstmt, t, tsql.getGetters());
+        numberOfRowsDeleted = pstmt.executeUpdate();
     }
 
-    public T getResult() {
-        return t;
+    public int getNumberOfRowsDeleted() {
+        return numberOfRowsDeleted;
     }
 
     @Override

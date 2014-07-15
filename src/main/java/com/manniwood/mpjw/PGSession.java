@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.DDL;
+import com.manniwood.mpjw.commands.Delete;
 import com.manniwood.mpjw.commands.Insert;
 import com.manniwood.mpjw.commands.SelectOne;
 import com.manniwood.mpjw.converters.ConverterStore;
@@ -76,6 +77,13 @@ public class PGSession {
     public <T> void insert(String insert, T t) {
         String sql = resolveSQL(insert);
         CommandRunner.execute(new Insert<T>(converterStore, sql, conn, t));
+    }
+
+    public <T> int delete(String insert, T t) {
+        String sql = resolveSQL(insert);
+        Delete d = new Delete<T>(converterStore, sql, conn, t);
+        CommandRunner.execute(d);
+        return d.getNumberOfRowsDeleted();
     }
 
     public <T, P> T selectOne(String sqlFile, Class<T> returnType, P parameter) {
