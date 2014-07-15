@@ -26,6 +26,7 @@ package com.manniwood.mpjw;
 import java.util.UUID;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.manniwood.mpjw.test.etc.User;
@@ -37,12 +38,20 @@ public class PGSessionTest {
     public static final int TEST_EMPLOYEE_ID = 13;
     public static final String TEST_ID = "99999999-a4fa-49fc-b6b4-62eca118fbf7";
 
-    @Test
-    public void testPgSesion() {
-        PGSession pgSession = new PGSession();
+    public static final String ANOTHER_TEST_ID = "88888888-a4fa-49fc-b6b4-62eca118fbf7";
 
-        pgSession.ddl("@sql/create_test_table.sql");
+    private PGSession pgSession;
+
+    @BeforeClass
+    public void init() {
+        pgSession = new PGSession();
+        pgSession.ddl("@sql/create_temp_users_table.sql");
         pgSession.commit();
+    }
+
+    @Test(priority=0)
+    public void testPgSesion() {
+
 
         User insertUser = new User();
         insertUser.setEmployeeId(TEST_EMPLOYEE_ID);
@@ -59,5 +68,24 @@ public class PGSessionTest {
         Assert.assertEquals(u.getName(), TEST_USERNAME);
         Assert.assertEquals(u.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(u.getEmployeeId(), TEST_EMPLOYEE_ID);
+    }
+
+    @Test(priority=1)
+    public void testNulls() {
+
+        User anotherUser = new User();
+        anotherUser.setId(UUID.fromString(ANOTHER_TEST_ID));
+        // leave other fields null
+        pgSession.insert("@sql/insert_user.sql", anotherUser);
+        pgSession.commit();
+
+        User findAnotherUser = new User();
+        findAnotherUser.setId(UUID.fromString(ANOTHER_TEST_ID));
+
+        User u = pgSession.selectOne("@sql/select_user.sql", User.class, findAnotherUser);
+        Assert.assertEquals(u.getId(), UUID.fromString(ANOTHER_TEST_ID));
+        Assert.assertNull(u.getPassword(), "Should be null");
+        Assert.assertNull(u.getName(), "Should be null");
+        Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
     }
 }
