@@ -3,6 +3,10 @@ package com.manniwood.mpjw.commands;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import com.manniwood.mpjw.SQLTransformer;
+import com.manniwood.mpjw.TransformedSQL;
+import com.manniwood.mpjw.util.SetterUtil;
 /*
 The MIT License (MIT)
 
@@ -47,9 +51,9 @@ public class Insert<T> implements Command {
 
     @Override
     public void execute() throws SQLException {
-        // turn the sql into something legit here
-        pstmt = conn.prepareStatement(sql);
-        // set all the stuff here
+        TransformedSQL tsql = SQLTransformer.transform(sql);
+        pstmt = conn.prepareStatement(tsql.getSql());
+        SetterUtil.setItems(pstmt, t, tsql.getGetters());
         pstmt.execute();
     }
 

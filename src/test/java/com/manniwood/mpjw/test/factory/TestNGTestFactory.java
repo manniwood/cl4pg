@@ -25,7 +25,7 @@ package com.manniwood.mpjw.test.factory;
 
 import org.testng.annotations.Factory;
 
-import com.manniwood.mpjw.PgSessionTest;
+import com.manniwood.mpjw.PGSessionTest;
 import com.manniwood.mpjw.SQLTransformerTest;
 
 public class TestNGTestFactory {
@@ -33,7 +33,7 @@ public class TestNGTestFactory {
     public Object[] allTests() {
         return new Object[] {
                 new SQLTransformerTest(),
-                new PgSessionTest()
+                new PGSessionTest()
         };
     }
 

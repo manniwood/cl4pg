@@ -28,26 +28,26 @@ import java.util.UUID;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.manniwood.mpjw.PGSession;
 import com.manniwood.mpjw.test.etc.User;
 
-public class PgSessionTest {
+public class PGSessionTest {
 
     @Test
     public void testPgSesion() {
-        PGSession pGSession = new PGSession();
+        PGSession pgSession = new PGSession();
 
-        pGSession.ddl("@sql/create_test_table.sql");
-        pGSession.commit();
+        pgSession.ddl("@sql/create_test_table.sql");
+        pgSession.commit();
 
         User insertUser = new User();
         insertUser.setEmployeeId(13);
         insertUser.setId(UUID.fromString("99999999-a4fa-49fc-b6b4-62eca118fbf7"));
         insertUser.setName("Hubert");
         insertUser.setPassword("passwd");
-        pGSession.insert("@sql/insert_user.sql", insertUser);
+        pgSession.insert("@sql/insert_user.sql", insertUser);
+        pgSession.commit();
 
-        User u = pGSession.selectOne("", User.class);
+        User u = pgSession.selectOne("", User.class);
         Assert.assertEquals(u.getName(), "Foo");
         Assert.assertEquals(u.getId(), UUID.fromString("910c80af-a4fa-49fc-b6b4-62eca118fbf7"));
         Assert.assertEquals(u.getEmployeeId(), 42);

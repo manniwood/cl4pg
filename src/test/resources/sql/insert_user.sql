@@ -3,10 +3,10 @@ insert into users (
     name,  -- text
     password,  -- text
     employee_id)  -- int
-values (#{id},
-        #{name},
-        #{password},
-        #{employeeId})
+values (#{getId},
+        #{getName},
+        #{getPassword},
+        #{getEmployeeId})
 
 -- Would have do
 -- count the offset
