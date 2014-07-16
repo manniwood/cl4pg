@@ -27,25 +27,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.manniwood.mpjw.SQLTransformer;
-import com.manniwood.mpjw.TransformedSQL;
-import com.manniwood.mpjw.converters.ConverterStore;
+public class Rollback implements Command {
 
-public class Delete<T> implements Command {
-
-    private final ConverterStore converterStore;
     private final String sql;
     private final Connection conn;
-    private final T t;
     private PreparedStatement pstmt;
-    private int numberOfRowsDeleted;
 
-    public Delete(ConverterStore converterStore, String sql, Connection conn, T t) {
+    public Rollback(Connection conn) {
         super();
-        this.converterStore = converterStore;
-        this.sql = sql;
+        this.sql = "rollback;";
         this.conn = conn;
-        this.t = t;
     }
 
     @Override
@@ -55,14 +46,7 @@ public class Delete<T> implements Command {
 
     @Override
     public void execute() throws SQLException {
-        TransformedSQL tsql = SQLTransformer.transform(sql);
-        pstmt = conn.prepareStatement(tsql.getSql());
-        converterStore.setItems(pstmt, t, tsql.getGetters());
-        numberOfRowsDeleted = pstmt.executeUpdate();
-    }
-
-    public int getNumberOfRowsDeleted() {
-        return numberOfRowsDeleted;
+        conn.commit();
     }
 
     @Override

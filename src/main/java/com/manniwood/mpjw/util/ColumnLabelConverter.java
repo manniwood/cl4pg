@@ -1,6 +1,13 @@
 package com.manniwood.mpjw.util;
 
 public class ColumnLabelConverter {
+
+    /**
+     * Convert a column label, such as updated_on
+     * to a Java bean set method, such as setUpdatedOn.
+     * @param label
+     * @return
+     */
     public static String convert(String label) {
         StringBuilder sb = new StringBuilder();
         sb.append("set");

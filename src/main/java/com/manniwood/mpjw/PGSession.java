@@ -35,6 +35,7 @@ import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.DDL;
 import com.manniwood.mpjw.commands.Delete;
 import com.manniwood.mpjw.commands.Insert;
+import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.mpjw.commands.SelectOne;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
@@ -100,6 +101,10 @@ public class PGSession {
 
     public void commit() {
         CommandRunner.execute(new Commit(conn));
+    }
+
+    public void rollback() {
+        CommandRunner.execute(new Rollback(conn));
     }
 
     /**
