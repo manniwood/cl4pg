@@ -31,15 +31,16 @@ import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class Insert<T> implements Command {
+public class Update<T> implements Command {
 
     private final ConverterStore converterStore;
     private final String sql;
     private final Connection conn;
     private final T t;
     private PreparedStatement pstmt;
+    private int numberOfRowsUpdated;
 
-    public Insert(ConverterStore converterStore, String sql, Connection conn, T t) {
+    public Update(ConverterStore converterStore, String sql, Connection conn, T t) {
         super();
         this.converterStore = converterStore;
         this.sql = sql;
@@ -57,7 +58,11 @@ public class Insert<T> implements Command {
         TransformedSQL tsql = SQLTransformer.transform(sql);
         pstmt = conn.prepareStatement(tsql.getSql());
         converterStore.setItems(pstmt, t, tsql.getGetters());
-        pstmt.execute();
+        numberOfRowsUpdated = pstmt.executeUpdate();
+    }
+
+    public int getNumberOfRowsUpdated() {
+        return numberOfRowsUpdated;
     }
 
     @Override

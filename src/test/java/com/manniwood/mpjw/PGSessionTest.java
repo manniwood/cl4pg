@@ -45,6 +45,10 @@ public class PGSessionTest {
     public static final int THIRD_EMPLOYEE_ID = 12;
     public static final String THIRD_ID = "77777777-a4fa-49fc-b6b4-62eca118fbf7";
 
+    public static final String UPDATED_THIRD_PASSWORD = "updated blarg";
+    public static final String UPDATED_THIRD_USERNAME = "Updated Manni";
+    public static final int UPDATED_THIRD_EMPLOYEE_ID = 89;
+
 
     private PGSession pgSession;
 
@@ -56,7 +60,7 @@ public class PGSessionTest {
     }
 
     @Test(priority=0)
-    public void testPgSesion() {
+    public void testInsertAndSelectOneBare() {
 
 
         User insertUser = new User();
@@ -91,20 +95,19 @@ public class PGSessionTest {
         Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
     }
 
-    // XXX START HERE: then write and test update code;
-    // then write select that returns more than one row; then select
-    // that returns just one element.
+    // XXX START HERE: then write and test 1) update code;
+    // then write 2) select that returns more than one row; then 3) select
+    // that returns just one element. 4) More type converters
 
     @Test(priority=2)
     public void testDelete() {
-        User insertUser = new User();
-        insertUser.setEmployeeId(THIRD_EMPLOYEE_ID);
-        insertUser.setId(UUID.fromString(THIRD_ID));
-        insertUser.setName(THIRD_USERNAME);
-        insertUser.setPassword(THIRD_PASSWORD);
-        pgSession.insert("@sql/insert_user.sql", insertUser);
+        User user = new User();
+        user.setEmployeeId(THIRD_EMPLOYEE_ID);
+        user.setId(UUID.fromString(THIRD_ID));
+        user.setName(THIRD_USERNAME);
+        user.setPassword(THIRD_PASSWORD);
+        pgSession.insert("@sql/insert_user.sql", user);
         pgSession.commit();
-
 
         User foundUser = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(THIRD_ID));
         pgSession.rollback();
@@ -118,5 +121,35 @@ public class PGSessionTest {
         foundUser = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(THIRD_ID));
         pgSession.rollback();
         Assert.assertNull(foundUser, "User must be found.");
+    }
+
+    @Test(priority=3)
+    public void testUpdate() {
+        User user = new User();
+        user.setId(UUID.fromString(THIRD_ID));
+        user.setEmployeeId(THIRD_EMPLOYEE_ID);
+        user.setName(THIRD_USERNAME);
+        user.setPassword(THIRD_PASSWORD);
+        pgSession.insert("@sql/insert_user.sql", user);
+        pgSession.commit();
+
+        user.setEmployeeId(UPDATED_THIRD_EMPLOYEE_ID);
+        user.setName(UPDATED_THIRD_USERNAME);
+        user.setPassword(UPDATED_THIRD_PASSWORD);
+        int numberUpdated = pgSession.update("@sql/update_user.sql", user);
+        pgSession.commit();
+
+        User foundUser = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(THIRD_ID));
+        pgSession.rollback();
+
+        Assert.assertNotNull(foundUser, "User must be found.");
+
+        Assert.assertEquals(numberUpdated, 1, "One user must be updated.");
+
+        Assert.assertEquals(foundUser.getId(), UUID.fromString(THIRD_ID));
+        Assert.assertEquals(foundUser.getName(), UPDATED_THIRD_USERNAME);
+        Assert.assertEquals(foundUser.getEmployeeId(), UPDATED_THIRD_EMPLOYEE_ID);
+        Assert.assertEquals(foundUser.getPassword(), UPDATED_THIRD_PASSWORD);
+
     }
 }

@@ -8,8 +8,3 @@ values (#{getId},
         #{getPassword},
         #{getEmployeeId})
 
--- Would have do
--- count the offset
--- find getId()
--- find getId()'s return type
--- call pstmt.set$Type($offset, getId())

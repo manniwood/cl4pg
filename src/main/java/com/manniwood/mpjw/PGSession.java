@@ -28,9 +28,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.DDL;
 import com.manniwood.mpjw.commands.Delete;
@@ -39,12 +36,11 @@ import com.manniwood.mpjw.commands.Insert;
 import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.mpjw.commands.SelectOne;
 import com.manniwood.mpjw.commands.SelectOneBare;
+import com.manniwood.mpjw.commands.Update;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 
 public class PGSession {
-
-    private final static Logger log = LoggerFactory.getLogger(PGSession.class);
 
     private Connection conn = null;
     private String hostname = "localhost";
@@ -82,6 +78,13 @@ public class PGSession {
         CommandRunner.execute(new Insert<T>(converterStore, sql, conn, t));
     }
 
+    public <T> int update(String insert, T t) {
+        String sql = resolveSQL(insert);
+        Update<T> d = new Update<T>(converterStore, sql, conn, t);
+        CommandRunner.execute(d);
+        return d.getNumberOfRowsUpdated();
+    }
+
     public <T> int delete(String insert, T t) {
         String sql = resolveSQL(insert);
         Delete<T> d = new Delete<T>(converterStore, sql, conn, t);
@@ -115,6 +118,11 @@ public class PGSession {
         CommandRunner.execute(new DDL(sql, conn));
     }
 
+    public void dml(String dml) {
+        String sql = resolveSQL(dml);
+        CommandRunner.execute(new DDL(sql, conn));
+    }
+
     public void commit() {
         CommandRunner.execute(new Commit(conn));
     }
@@ -131,6 +139,9 @@ public class PGSession {
      * @return
      */
     public String resolveSQL(String str) {
+        // XXX: Keep a cache of file contents based on their file names
+        // so that you do not read them off disk
+        // whenever they are requested.
         if (str == null
                 || str.length() < 2 /* leave room for '@' */) {
             throw new MPJWException("SQL string null or too short.");
