@@ -67,10 +67,7 @@ public class PGSessionTest {
         pgSession.insert("@sql/insert_user.sql", insertUser);
         pgSession.commit();
 
-        User findUser = new User();
-        findUser.setId(UUID.fromString(TEST_ID));
-
-        User u = pgSession.selectOne("@sql/select_user.sql", User.class, findUser);
+        User u = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(u.getName(), TEST_USERNAME);
         Assert.assertEquals(u.getId(), UUID.fromString(TEST_ID));
@@ -86,10 +83,7 @@ public class PGSessionTest {
         pgSession.insert("@sql/insert_user.sql", anotherUser);
         pgSession.commit();
 
-        User findAnotherUser = new User();
-        findAnotherUser.setId(UUID.fromString(ANOTHER_TEST_ID));
-
-        User u = pgSession.selectOne("@sql/select_user.sql", User.class, findAnotherUser);
+        User u = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(ANOTHER_TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(u.getId(), UUID.fromString(ANOTHER_TEST_ID));
         Assert.assertNull(u.getPassword(), "Should be null");
@@ -97,11 +91,9 @@ public class PGSessionTest {
         Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
     }
 
-    // XXX START HERE: test deletion code; then write and test update code;
+    // XXX START HERE: then write and test update code;
     // then write select that returns more than one row; then select
-    // that returns just one element. // make selectOne not need entire
-    // user as search data type; ideally, even make it just take a scalar
-    // and do the right thing.
+    // that returns just one element.
 
     @Test(priority=2)
     public void testDelete() {
@@ -113,19 +105,17 @@ public class PGSessionTest {
         pgSession.insert("@sql/insert_user.sql", insertUser);
         pgSession.commit();
 
-        User findUser = new User();
-        findUser.setId(UUID.fromString(THIRD_ID));
 
-        User foundUser = pgSession.selectOne("@sql/select_user.sql", User.class, findUser);
+        User foundUser = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(THIRD_ID));
         pgSession.rollback();
 
         Assert.assertNotNull(foundUser, "User must be found.");
 
-        int numberDeleted = pgSession.delete("@sql/delete_user.sql", findUser);
+        int numberDeleted = pgSession.deleteBare("@sql/delete_user.sql", UUID.fromString(THIRD_ID));
         pgSession.commit();
         Assert.assertEquals(numberDeleted, 1, "One user must be deleted.");
 
-        foundUser = pgSession.selectOne("@sql/select_user.sql", User.class, findUser);
+        foundUser = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(THIRD_ID));
         pgSession.rollback();
         Assert.assertNull(foundUser, "User must be found.");
     }

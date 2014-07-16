@@ -3,6 +3,6 @@ select id,
        password,
        employee_id
   from users
- where id = #{getId}
+ where id = #{java.util.UUID}
 
 

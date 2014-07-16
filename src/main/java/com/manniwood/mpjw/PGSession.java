@@ -34,9 +34,11 @@ import org.slf4j.LoggerFactory;
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.DDL;
 import com.manniwood.mpjw.commands.Delete;
+import com.manniwood.mpjw.commands.DeleteBare;
 import com.manniwood.mpjw.commands.Insert;
 import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.mpjw.commands.SelectOne;
+import com.manniwood.mpjw.commands.SelectOneBare;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 
@@ -82,7 +84,14 @@ public class PGSession {
 
     public <T> int delete(String insert, T t) {
         String sql = resolveSQL(insert);
-        Delete d = new Delete<T>(converterStore, sql, conn, t);
+        Delete<T> d = new Delete<T>(converterStore, sql, conn, t);
+        CommandRunner.execute(d);
+        return d.getNumberOfRowsDeleted();
+    }
+
+    public int deleteBare(String insert, Object...params) {
+        String sql = resolveSQL(insert);
+        DeleteBare d = new DeleteBare(converterStore, sql, conn, params);
         CommandRunner.execute(d);
         return d.getNumberOfRowsDeleted();
     }
@@ -90,6 +99,13 @@ public class PGSession {
     public <T, P> T selectOne(String sqlFile, Class<T> returnType, P parameter) {
         String sql = resolveSQL(sqlFile);
         SelectOne<T, P> so = new SelectOne<T, P>(converterStore, sql, conn, returnType, parameter);
+        CommandRunner.execute(so);
+        return so.getResult();
+    }
+
+    public <T> T selectOneBare(String sqlFile, Class<T> returnType, Object... params) {
+        String sql = resolveSQL(sqlFile);
+        SelectOneBare<T> so = new SelectOneBare<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(so);
         return so.getResult();
     }

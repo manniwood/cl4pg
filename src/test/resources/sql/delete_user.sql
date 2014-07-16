@@ -1,5 +1,5 @@
 delete
   from users
- where id = #{getId}
+ where id = #{java.util.UUID}
 
 
