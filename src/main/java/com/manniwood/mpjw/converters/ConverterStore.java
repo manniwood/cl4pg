@@ -1,5 +1,6 @@
 package com.manniwood.mpjw.converters;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
@@ -11,10 +12,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.util.ColumnLabelConverter;
 
 public class ConverterStore {
+
+    private final static Logger log = LoggerFactory.getLogger(ConverterStore.class);
 
     @SuppressWarnings("rawtypes")
     private Map<Class, Converter> converters;
@@ -70,16 +76,40 @@ public class ConverterStore {
             t = returnType.newInstance();
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
-            for (int i = 1; i <= numCols; i++) {
+            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
                 String className = md.getColumnClassName(i);
                 String label = md.getColumnLabel(i);
                 Class parameterType = Class.forName(className);
                 String setterName = ColumnLabelConverter.convert(label);
                 Method m = findMethod(returnType, parameterType, setterName);
                 Converter converter = converters.get(parameterType);
-                // XXX handle setting null here?
                 m.invoke(t, converter.getItem(rs, i));
             }
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
+            throw new MPJWException(e);
+        }
+        return t;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <T> T convertResultSetToImmutableBean(ResultSet rs, Class<T> returnType) throws SQLException {
+        T t = null;
+        try {
+            ResultSetMetaData md = rs.getMetaData();
+            int numCols = md.getColumnCount();
+            Class[] parameterTypes = new Class[numCols];
+            Object[] params = new Object[numCols];
+            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
+                String className = md.getColumnClassName(i);
+                // String label = md.getColumnLabel(i);
+                Class parameterType = Class.forName(className);
+                parameterTypes[i - 1] = parameterType;
+                Converter converter = converters.get(parameterType);
+                params[i - 1] = converter.getItem(rs, i);
+                log.info("param {} == {}", i - 1, params[i - 1]);
+            }
+            Constructor constructor = returnType.getDeclaredConstructor(parameterTypes);
+            t = (T)constructor.newInstance(params);
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException(e);
         }

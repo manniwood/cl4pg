@@ -36,6 +36,7 @@ import com.manniwood.mpjw.commands.Insert;
 import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.mpjw.commands.SelectOne;
 import com.manniwood.mpjw.commands.SelectOneBare;
+import com.manniwood.mpjw.commands.SelectOneImmutableBare;
 import com.manniwood.mpjw.commands.Update;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
@@ -109,6 +110,13 @@ public class PGSession {
     public <T> T selectOneBare(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
         SelectOneBare<T> so = new SelectOneBare<T>(converterStore, sql, conn, returnType, params);
+        CommandRunner.execute(so);
+        return so.getResult();
+    }
+
+    public <T> T selectOneImmutableBare(String sqlFile, Class<T> returnType, Object... params) {
+        String sql = resolveSQL(sqlFile);
+        SelectOneImmutableBare<T> so = new SelectOneImmutableBare<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(so);
         return so.getResult();
     }

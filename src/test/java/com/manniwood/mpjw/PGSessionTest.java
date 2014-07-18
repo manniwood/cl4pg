@@ -29,6 +29,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.User;
 
 public class PGSessionTest {
@@ -76,6 +77,12 @@ public class PGSessionTest {
         Assert.assertEquals(u.getName(), TEST_USERNAME);
         Assert.assertEquals(u.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(u.getEmployeeId(), TEST_EMPLOYEE_ID);
+
+        ImmutableUser iu = pgSession.selectOneImmutableBare("@sql/select_user.sql", ImmutableUser.class, UUID.fromString(TEST_ID));
+        pgSession.rollback();
+        Assert.assertEquals(iu.getName(), TEST_USERNAME);
+        Assert.assertEquals(iu.getId(), UUID.fromString(TEST_ID));
+        Assert.assertEquals(iu.getEmployeeId(), TEST_EMPLOYEE_ID);
     }
 
     @Test(priority=1)
@@ -95,9 +102,19 @@ public class PGSessionTest {
         Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
     }
 
-    // XXX START HERE: then write and test 1) update code;
-    // then write 2) select that returns more than one row; then 3) select
-    // that returns just one element. 4) More type converters
+    // XXX START HERE: then write and test
+    // 1) select that uses constructor to set all values, using explicit types
+    // 2) select that returns more than one row;
+    // 3) select that returns just one element.
+    // 4) More type converters
+    // 5) manual conversion, for complexity and performance reasons
+    // 6) row listener that can be fed to select methods
+    // 7) find and document that JVM setting that makes java turn
+    // refliction calls into compiled code faster (instead of waiting
+    // for the default number of invocations).
+    // 8) selectReport that returns map of string:colname string:value
+    // for use in quick reporting displays where all values
+    // would end up being cast to string anyway.
 
     @Test(priority=2)
     public void testDelete() {
