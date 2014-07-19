@@ -31,12 +31,11 @@ import java.util.Properties;
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.DDL;
 import com.manniwood.mpjw.commands.Delete;
-import com.manniwood.mpjw.commands.DeleteBare;
+import com.manniwood.mpjw.commands.DeleteVariadic;
 import com.manniwood.mpjw.commands.Insert;
 import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.mpjw.commands.SelectOne;
-import com.manniwood.mpjw.commands.SelectOneBare;
-import com.manniwood.mpjw.commands.SelectOneImmutableBare;
+import com.manniwood.mpjw.commands.SelectOneVariadic;
 import com.manniwood.mpjw.commands.Update;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
@@ -93,30 +92,23 @@ public class PGSession {
         return d.getNumberOfRowsDeleted();
     }
 
-    public int deleteBare(String insert, Object...params) {
+    public int deleteV(String insert, Object...params) {
         String sql = resolveSQL(insert);
-        DeleteBare d = new DeleteBare(converterStore, sql, conn, params);
+        DeleteVariadic d = new DeleteVariadic(converterStore, sql, conn, params);
         CommandRunner.execute(d);
         return d.getNumberOfRowsDeleted();
     }
 
-    public <T, P> T selectOne(String sqlFile, Class<T> returnType, P parameter) {
+    public <T, P> T selectOne(String sqlFile, Class<T> returnType, BeanBuildStyle beanBuildStyle, P parameter) {
         String sql = resolveSQL(sqlFile);
-        SelectOne<T, P> so = new SelectOne<T, P>(converterStore, sql, conn, returnType, parameter);
+        SelectOne<T, P> so = new SelectOne<T, P>(converterStore, sql, conn, returnType, beanBuildStyle, parameter);
         CommandRunner.execute(so);
         return so.getResult();
     }
 
-    public <T> T selectOneBare(String sqlFile, Class<T> returnType, Object... params) {
+    public <T> T selectOneV(String sqlFile, Class<T> returnType, BeanBuildStyle beanBuildStyle, Object... params) {
         String sql = resolveSQL(sqlFile);
-        SelectOneBare<T> so = new SelectOneBare<T>(converterStore, sql, conn, returnType, params);
-        CommandRunner.execute(so);
-        return so.getResult();
-    }
-
-    public <T> T selectOneImmutableBare(String sqlFile, Class<T> returnType, Object... params) {
-        String sql = resolveSQL(sqlFile);
-        SelectOneImmutableBare<T> so = new SelectOneImmutableBare<T>(converterStore, sql, conn, returnType, params);
+        SelectOneVariadic<T> so = new SelectOneVariadic<T>(converterStore, sql, conn, returnType, beanBuildStyle, params);
         CommandRunner.execute(so);
         return so.getResult();
     }

@@ -72,13 +72,13 @@ public class PGSessionTest {
         pgSession.insert("@sql/insert_user.sql", insertUser);
         pgSession.commit();
 
-        User u = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(TEST_ID));
+        User u = pgSession.selectOneV("@sql/select_user.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(u.getName(), TEST_USERNAME);
         Assert.assertEquals(u.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(u.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        ImmutableUser iu = pgSession.selectOneImmutableBare("@sql/select_user.sql", ImmutableUser.class, UUID.fromString(TEST_ID));
+        ImmutableUser iu = pgSession.selectOneV("@sql/select_user.sql", ImmutableUser.class, BeanBuildStyle.GUESS_CONSTRUCTOR, UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu.getName(), TEST_USERNAME);
         Assert.assertEquals(iu.getId(), UUID.fromString(TEST_ID));
@@ -94,7 +94,7 @@ public class PGSessionTest {
         pgSession.insert("@sql/insert_user.sql", anotherUser);
         pgSession.commit();
 
-        User u = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(ANOTHER_TEST_ID));
+        User u = pgSession.selectOneV("@sql/select_user.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(ANOTHER_TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(u.getId(), UUID.fromString(ANOTHER_TEST_ID));
         Assert.assertNull(u.getPassword(), "Should be null");
@@ -126,16 +126,16 @@ public class PGSessionTest {
         pgSession.insert("@sql/insert_user.sql", user);
         pgSession.commit();
 
-        User foundUser = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(THIRD_ID));
+        User foundUser = pgSession.selectOneV("@sql/select_user.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(THIRD_ID));
         pgSession.rollback();
 
         Assert.assertNotNull(foundUser, "User must be found.");
 
-        int numberDeleted = pgSession.deleteBare("@sql/delete_user.sql", UUID.fromString(THIRD_ID));
+        int numberDeleted = pgSession.deleteV("@sql/delete_user.sql", UUID.fromString(THIRD_ID));
         pgSession.commit();
         Assert.assertEquals(numberDeleted, 1, "One user must be deleted.");
 
-        foundUser = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(THIRD_ID));
+        foundUser = pgSession.selectOneV("@sql/select_user.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(THIRD_ID));
         pgSession.rollback();
         Assert.assertNull(foundUser, "User must be found.");
     }
@@ -156,7 +156,7 @@ public class PGSessionTest {
         int numberUpdated = pgSession.update("@sql/update_user.sql", user);
         pgSession.commit();
 
-        User foundUser = pgSession.selectOneBare("@sql/select_user.sql", User.class, UUID.fromString(THIRD_ID));
+        User foundUser = pgSession.selectOneV("@sql/select_user.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(THIRD_ID));
         pgSession.rollback();
 
         Assert.assertNotNull(foundUser, "User must be found.");

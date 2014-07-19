@@ -67,7 +67,7 @@ public class ConverterStore {
     }
 
     @SuppressWarnings("rawtypes")
-    public <T> T convertResultSet(ResultSet rs, Class<T> returnType) throws SQLException {
+    public <T> T guessSetters(ResultSet rs, Class<T> returnType) throws SQLException {
         T t = null;
         // XXX: lots of opportunity for speedups here;
         // don't want to look up the methods for any result
@@ -92,7 +92,7 @@ public class ConverterStore {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public <T> T convertResultSetToImmutableBean(ResultSet rs, Class<T> returnType) throws SQLException {
+    public <T> T guessConstructor(ResultSet rs, Class<T> returnType) throws SQLException {
         T t = null;
         try {
             ResultSetMetaData md = rs.getMetaData();

@@ -32,7 +32,7 @@ import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class DeleteBare implements Command {
+public class DeleteVariadic implements Command {
 
     private final ConverterStore converterStore;
     private final String sql;
@@ -41,7 +41,7 @@ public class DeleteBare implements Command {
     private int numberOfRowsDeleted;
     private Object[] params;
 
-    public DeleteBare(ConverterStore converterStore, String sql, Connection conn, Object... params) {
+    public DeleteVariadic(ConverterStore converterStore, String sql, Connection conn, Object... params) {
         super();
         this.converterStore = converterStore;
         this.sql = sql;

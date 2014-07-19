@@ -29,16 +29,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.manniwood.mpjw.BeanBuildStyle;
+import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.MoreThanOneResultException;
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectOneImmutableBare<T> implements Command {
+// TODO: SelectOne and SelectOneVariadic are too similar; make a parent
+// class with all the similar functionality
+public class SelectOneVariadic<T> implements Command {
 
     private final ConverterStore converterStore;
     private final String sql;
     private final Connection conn;
+    private final BeanBuildStyle beanBuildStyle;
 
     private PreparedStatement pstmt;
 
@@ -51,12 +56,19 @@ public class SelectOneImmutableBare<T> implements Command {
 
     private Object[] params;
 
-    public SelectOneImmutableBare(ConverterStore converterStore, String sql, Connection conn, Class<T> returnType, Object... params) {
+    public SelectOneVariadic(
+            ConverterStore converterStore,
+            String sql,
+            Connection conn,
+            Class<T> returnType,
+            BeanBuildStyle beanBuildStyle,
+            Object... params) {
         super();
         this.converterStore = converterStore;
         this.sql = sql;
         this.conn = conn;
         this.returnType = returnType;
+        this.beanBuildStyle = beanBuildStyle;
         this.params = params;
     }
 
@@ -77,7 +89,24 @@ public class SelectOneImmutableBare<T> implements Command {
         if ( ! rs.next()) {
             t = null;
         } else {
-            t = converterStore.convertResultSetToImmutableBean(rs, returnType);
+            switch (beanBuildStyle) {
+            case GUESS_SETTERS:
+                t = converterStore.guessSetters(rs, returnType);
+                break;
+            case GUESS_CONSTRUCTOR:
+                t = converterStore.guessConstructor(rs, returnType);
+                break;
+            case USE_NAMED_SETTERS:
+                // TODO
+                t = converterStore.guessConstructor(rs, returnType);
+                break;
+            case USE_NAMED_CLASSES_FOR_CONSTRUCTOR:
+                // TODO
+                t = converterStore.guessConstructor(rs, returnType);
+                break;
+            default:
+                throw new MPJWException("unknown beanBuildStyle");
+            }
         }
         if (rs.next()) {
             throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + tsql.getSql());
