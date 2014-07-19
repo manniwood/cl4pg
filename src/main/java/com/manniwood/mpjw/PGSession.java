@@ -28,6 +28,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.DDL;
 import com.manniwood.mpjw.commands.Delete;
@@ -41,6 +44,8 @@ import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 
 public class PGSession {
+
+    private final static Logger log = LoggerFactory.getLogger(PGSession.class);
 
     private Connection conn = null;
     private String hostname = "localhost";
@@ -64,6 +69,7 @@ public class PGSession {
         props.setProperty("user", dbUser);
         props.setProperty("password", dbPassword);
         props.setProperty("ApplicationName", appName);
+        log.info("Application Name: {}", appName);
         try {
             conn = DriverManager.getConnection(url, props);
             conn.setTransactionIsolation(transactionIsolationLevel);

@@ -24,36 +24,15 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.manniwood.mpjw.BeanBuildStyle;
-import com.manniwood.mpjw.MPJWException;
-import com.manniwood.mpjw.MoreThanOneResultException;
-import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectOne<T, P> implements Command {
+public class SelectOne<T, P> extends SelectOneBase<T> implements Command {
 
-    private final ConverterStore converterStore;
-    private final String sql;
-    private final Connection conn;
-    private final BeanBuildStyle beanBuildStyle;
-
-    /**
-     * Parameter
-     */
-    private final P parameter;
-    private PreparedStatement pstmt;
-
-    /**
-     * Return type.
-     */
-    private T t;
-
-    private Class<T> returnType;
+    protected final P parameter;
 
     public SelectOne(
             ConverterStore converterStore,
@@ -62,65 +41,13 @@ public class SelectOne<T, P> implements Command {
             Class<T> returnType,
             BeanBuildStyle beanBuildStyle,
             P parameter) {
-        super();
-        this.converterStore = converterStore;
-        this.sql = sql;
-        this.conn = conn;
+        super(converterStore, sql, conn, returnType, beanBuildStyle);
         this.parameter = parameter;
-        this.beanBuildStyle = beanBuildStyle;
-        this.returnType = returnType;
     }
 
     @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
-    public void execute() throws SQLException {
-        TransformedSQL tsql = SQLTransformer.transform(sql);
-        pstmt = conn.prepareStatement(tsql.getSql());
+    protected void convertItems(TransformedSQL tsql) throws SQLException {
         converterStore.setItems(pstmt, parameter, tsql.getGetters());
-        ResultSet rs = pstmt.executeQuery();
-        if ( ! rs.next()) {
-            t = null;
-        } else {
-            switch (beanBuildStyle) {
-            case GUESS_SETTERS:
-                t = converterStore.guessSetters(rs, returnType);
-                break;
-            case GUESS_CONSTRUCTOR:
-                t = converterStore.guessConstructor(rs, returnType);
-                break;
-            case USE_NAMED_SETTERS:
-                // TODO
-                t = converterStore.guessConstructor(rs, returnType);
-                break;
-            case USE_NAMED_CLASSES_FOR_CONSTRUCTOR:
-                // TODO
-                t = converterStore.guessConstructor(rs, returnType);
-                break;
-            default:
-                throw new MPJWException("unknown beanBuildStyle");
-            }
-        }
-        if (rs.next()) {
-            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + tsql.getSql());
-        }
-    }
-
-    public T getResult() {
-        return t;
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
     }
 
 }

@@ -24,37 +24,16 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 import com.manniwood.mpjw.BeanBuildStyle;
-import com.manniwood.mpjw.MPJWException;
-import com.manniwood.mpjw.MoreThanOneResultException;
-import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-// TODO: SelectOne and SelectOneVariadic are too similar; make a parent
-// class with all the similar functionality
-public class SelectOneVariadic<T> implements Command {
+public class SelectOneVariadic<T> extends SelectOneBase<T> implements Command {
 
-    private final ConverterStore converterStore;
-    private final String sql;
-    private final Connection conn;
-    private final BeanBuildStyle beanBuildStyle;
-
-    private PreparedStatement pstmt;
-
-    /**
-     * Return type.
-     */
-    private T t;
-
-    private Class<T> returnType;
-
-    private Object[] params;
+    private final Object[] params;
 
     public SelectOneVariadic(
             ConverterStore converterStore,
@@ -63,68 +42,17 @@ public class SelectOneVariadic<T> implements Command {
             Class<T> returnType,
             BeanBuildStyle beanBuildStyle,
             Object... params) {
-        super();
-        this.converterStore = converterStore;
-        this.sql = sql;
-        this.conn = conn;
-        this.returnType = returnType;
-        this.beanBuildStyle = beanBuildStyle;
+        super(converterStore, sql, conn, returnType, beanBuildStyle);
         this.params = params;
     }
 
     @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
-    public void execute() throws SQLException {
-        TransformedSQL tsql = SQLTransformer.transform(sql);
-        pstmt = conn.prepareStatement(tsql.getSql());
+    protected void convertItems(TransformedSQL tsql) throws SQLException {
         List<String> types = tsql.getGetters();
         for (int i = 0; i < types.size(); i++) {
             converterStore.setBare(pstmt, i + 1, params[i], types.get(i));
         }
-        ResultSet rs = pstmt.executeQuery();
-        if ( ! rs.next()) {
-            t = null;
-        } else {
-            switch (beanBuildStyle) {
-            case GUESS_SETTERS:
-                t = converterStore.guessSetters(rs, returnType);
-                break;
-            case GUESS_CONSTRUCTOR:
-                t = converterStore.guessConstructor(rs, returnType);
-                break;
-            case USE_NAMED_SETTERS:
-                // TODO
-                t = converterStore.guessConstructor(rs, returnType);
-                break;
-            case USE_NAMED_CLASSES_FOR_CONSTRUCTOR:
-                // TODO
-                t = converterStore.guessConstructor(rs, returnType);
-                break;
-            default:
-                throw new MPJWException("unknown beanBuildStyle");
-            }
-        }
-        if (rs.next()) {
-            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + tsql.getSql());
-        }
     }
 
-    public T getResult() {
-        return t;
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
-    }
 
 }

@@ -47,6 +47,34 @@ public class ConverterStore {
         wrappersToPrimitives.put(Character.class, char.class);
     }
 
+    @SuppressWarnings("rawtypes")
+    public static Map<Class, Class> primitivesToWrappers = new HashMap<>();
+
+    static {
+        primitivesToWrappers.put(byte.class, Byte.class);
+        primitivesToWrappers.put(boolean.class, Boolean.class);
+        primitivesToWrappers.put(short.class, Short.class);
+        primitivesToWrappers.put(int.class, Integer.class);
+        primitivesToWrappers.put(long.class, Long.class);
+        primitivesToWrappers.put(float.class, Float.class);
+        primitivesToWrappers.put(double.class, Double.class);
+        primitivesToWrappers.put(char.class, Character.class);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static Map<String, Class> primitiveNamesToClasses = new HashMap<>();
+
+    static {
+        primitiveNamesToClasses.put("byte", byte.class);
+        primitiveNamesToClasses.put("boolean", boolean.class);
+        primitiveNamesToClasses.put("short", short.class);
+        primitiveNamesToClasses.put("int", int.class);
+        primitiveNamesToClasses.put("long", long.class);
+        primitiveNamesToClasses.put("float", float.class);
+        primitiveNamesToClasses.put("double", double.class);
+        primitiveNamesToClasses.put("char", char.class);
+    }
+
     @SuppressWarnings("unchecked")
     public <T> void setItems(PreparedStatement pstmt, T t, List<String> getters) throws SQLException {
         int i = 0;
@@ -106,7 +134,7 @@ public class ConverterStore {
                 parameterTypes[i - 1] = parameterType;
                 Converter converter = converters.get(parameterType);
                 params[i - 1] = converter.getItem(rs, i);
-                log.info("param {} == {}", i - 1, params[i - 1]);
+                log.debug("param {} == {}", i - 1, params[i - 1]);
             }
             Constructor constructor = returnType.getDeclaredConstructor(parameterTypes);
             t = (T)constructor.newInstance(params);
@@ -114,6 +142,40 @@ public class ConverterStore {
             throw new MPJWException(e);
         }
         return t;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <T> T specifyConstructorArgs(ResultSet rs, Class<T> returnType) throws SQLException {
+        T t = null;
+        try {
+            ResultSetMetaData md = rs.getMetaData();
+            int numCols = md.getColumnCount();
+            Class[] parameterTypes = new Class[numCols];
+            Object[] params = new Object[numCols];
+            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
+                // String className = md.getColumnClassName(i);
+                String label = md.getColumnLabel(i);
+                Class parameterType = className2Class(label);
+                parameterTypes[i - 1] = parameterType;
+                Converter converter = converters.get(parameterType);
+                params[i - 1] = converter.getItem(rs, i);
+                log.debug("param {} == {}", i - 1, params[i - 1]);
+            }
+            Constructor constructor = returnType.getDeclaredConstructor(parameterTypes);
+            t = (T)constructor.newInstance(params);
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
+            throw new MPJWException(e);
+        }
+        return t;
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static Class className2Class(String className) throws ClassNotFoundException {
+        Class c = primitiveNamesToClasses.get(className);
+        if (c != null) {
+            return c;
+        }
+        return Class.forName(className);
     }
 
     @SuppressWarnings("rawtypes")

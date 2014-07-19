@@ -40,6 +40,14 @@ public class ImmutableUser {
         this.employeeId = employeeId.intValue();
     }
 
+    public ImmutableUser(UUID id, String name, String password, int employeeId) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.password = password;
+        this.employeeId = employeeId;
+    }
+
     public UUID getId() {
         return id;
     }
