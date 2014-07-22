@@ -80,8 +80,7 @@ public abstract class SelectOneBase<T> implements Command {
                 t = converterStore.guessConstructor(rs, returnType);
                 break;
             case SPECIFY_SETTERS:
-                // TODO
-                t = converterStore.guessConstructor(rs, returnType);
+                t = converterStore.specifySetters(rs, returnType);
                 break;
             case SPECIFY_CONSTRUCTOR:
                 t = converterStore.specifyConstructorArgs(rs, returnType);

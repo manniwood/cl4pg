@@ -61,7 +61,7 @@ public class PGSessionTest {
     }
 
     @Test(priority=0)
-    public void testInsertAndSelectOneBare() {
+    public void testInsertAndSelectOne() {
 
 
         User insertUser = new User();
@@ -72,7 +72,7 @@ public class PGSessionTest {
         pgSession.insert("@sql/insert_user.sql", insertUser);
         pgSession.commit();
 
-        User u = pgSession.selectOneV("@sql/select_user.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(TEST_ID));
+        User u = pgSession.selectOneV("@sql/select_user_guess_setters.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(u.getName(), TEST_USERNAME);
         Assert.assertEquals(u.getId(), UUID.fromString(TEST_ID));
@@ -80,17 +80,23 @@ public class PGSessionTest {
 
         // When constructors are guessed, primitive types are never
         // guessed, only wrapper types; TODO: document this
-        ImmutableUser iu = pgSession.selectOneV("@sql/select_user.sql", ImmutableUser.class, BeanBuildStyle.GUESS_CONSTRUCTOR, UUID.fromString(TEST_ID));
+        ImmutableUser iu = pgSession.selectOneV("@sql/select_user_guess_setters.sql", ImmutableUser.class, BeanBuildStyle.GUESS_CONSTRUCTOR, UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu.getName(), TEST_USERNAME);
         Assert.assertEquals(iu.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        ImmutableUser iu2 = pgSession.selectOneV("@sql/select_immutable_user.sql", ImmutableUser.class, BeanBuildStyle.SPECIFY_CONSTRUCTOR, UUID.fromString(TEST_ID));
+        ImmutableUser iu2 = pgSession.selectOneV("@sql/select_user_use_constructor.sql", ImmutableUser.class, BeanBuildStyle.SPECIFY_CONSTRUCTOR, UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu2.getName(), TEST_USERNAME);
         Assert.assertEquals(iu2.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu2.getEmployeeId(), TEST_EMPLOYEE_ID);
+
+        User iu3 = pgSession.selectOneV("@sql/select_user_use_setters.sql", User.class, BeanBuildStyle.SPECIFY_SETTERS, UUID.fromString(TEST_ID));
+        pgSession.rollback();
+        Assert.assertEquals(iu3.getName(), TEST_USERNAME);
+        Assert.assertEquals(iu3.getId(), UUID.fromString(TEST_ID));
+        Assert.assertEquals(iu3.getEmployeeId(), TEST_EMPLOYEE_ID);
     }
 
     @Test(priority=1)
@@ -102,7 +108,7 @@ public class PGSessionTest {
         pgSession.insert("@sql/insert_user.sql", anotherUser);
         pgSession.commit();
 
-        User u = pgSession.selectOneV("@sql/select_user.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(ANOTHER_TEST_ID));
+        User u = pgSession.selectOneV("@sql/select_user_guess_setters.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(ANOTHER_TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(u.getId(), UUID.fromString(ANOTHER_TEST_ID));
         Assert.assertNull(u.getPassword(), "Should be null");
@@ -111,18 +117,17 @@ public class PGSessionTest {
     }
 
     // XXX START HERE: then write and test
-    // 1) select that uses setters to set all values, using explicit setter names
     // 2) select that returns more than one row;
     // 3) select that returns just one element.
-    // 4) More type converters
-    // 5) manual conversion, for complexity and performance reasons
     // 6) row listener that can be fed to select methods
-    // 7) find and document that JVM setting that makes java turn
-    // reflection calls into compiled code faster (instead of waiting
-    // for the default number of invocations).
     // 8) selectReport that returns map of string:colname string:value
     // for use in quick reporting displays where all values
     // would end up being cast to string anyway.
+    // 4) More type converters
+    // 5) manual conversion, for complexity and performance reasons
+    // 7) find and document that JVM setting that makes java turn
+    // reflection calls into compiled code faster (instead of waiting
+    // for the default number of invocations).
 
     @Test(priority=2)
     public void testDelete() {
@@ -134,7 +139,7 @@ public class PGSessionTest {
         pgSession.insert("@sql/insert_user.sql", user);
         pgSession.commit();
 
-        User foundUser = pgSession.selectOneV("@sql/select_user.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(THIRD_ID));
+        User foundUser = pgSession.selectOneV("@sql/select_user_guess_setters.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(THIRD_ID));
         pgSession.rollback();
 
         Assert.assertNotNull(foundUser, "User must be found.");
@@ -143,7 +148,7 @@ public class PGSessionTest {
         pgSession.commit();
         Assert.assertEquals(numberDeleted, 1, "One user must be deleted.");
 
-        foundUser = pgSession.selectOneV("@sql/select_user.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(THIRD_ID));
+        foundUser = pgSession.selectOneV("@sql/select_user_guess_setters.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(THIRD_ID));
         pgSession.rollback();
         Assert.assertNull(foundUser, "User must be found.");
     }
@@ -164,7 +169,7 @@ public class PGSessionTest {
         int numberUpdated = pgSession.update("@sql/update_user.sql", user);
         pgSession.commit();
 
-        User foundUser = pgSession.selectOneV("@sql/select_user.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(THIRD_ID));
+        User foundUser = pgSession.selectOneV("@sql/select_user_guess_setters.sql", User.class, BeanBuildStyle.GUESS_SETTERS, UUID.fromString(THIRD_ID));
         pgSession.rollback();
 
         Assert.assertNotNull(foundUser, "User must be found.");

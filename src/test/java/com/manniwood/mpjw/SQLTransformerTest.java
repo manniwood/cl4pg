@@ -72,7 +72,7 @@ public class SQLTransformerTest {
 
     @Test
     public void testScalar() {
-        String sql = ResourceUtil.slurpFileFromClasspath("sql/select_user.sql");
+        String sql = ResourceUtil.slurpFileFromClasspath("sql/select_user_guess_setters.sql");
         TransformedSQL tsql = SQLTransformer.transform(sql);
         List<String> getters = tsql.getGetters();
         Assert.assertEquals(getters.size(), correctScalarGetters.size(), "Must have all getters.");

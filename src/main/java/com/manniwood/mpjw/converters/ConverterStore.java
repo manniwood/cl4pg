@@ -114,6 +114,30 @@ public class ConverterStore {
         return t;
     }
 
+    public <T> T specifySetters(ResultSet rs, Class<T> returnType) throws SQLException {
+        T t = null;
+        // XXX: lots of opportunity for speedups here;
+        // don't want to look up the methods for any result
+        // set larger than 1; cache methods found.
+        try {
+            t = returnType.newInstance();
+            ResultSetMetaData md = rs.getMetaData();
+            int numCols = md.getColumnCount();
+            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
+                String className = md.getColumnClassName(i);
+                String setterName = md.getColumnLabel(i);
+                Class<?> parameterType = Class.forName(className);
+                Method m = findMethod(returnType, parameterType, setterName);
+                @SuppressWarnings("unchecked")
+                Converter<T> converter = (Converter<T>)converters.get(parameterType);
+                m.invoke(t, converter.getItem(rs, i));
+            }
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
+            throw new MPJWException(e);
+        }
+        return t;
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T guessConstructor(ResultSet rs, Class<T> returnType) throws SQLException {
         T t = null;
