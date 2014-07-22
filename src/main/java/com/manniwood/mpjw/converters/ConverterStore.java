@@ -22,8 +22,7 @@ public class ConverterStore {
 
     private final static Logger log = LoggerFactory.getLogger(ConverterStore.class);
 
-    @SuppressWarnings("rawtypes")
-    private Map<Class, Converter> converters;
+    private Map<Class<?>, Converter<?>> converters;
 
     public ConverterStore() {
         converters = new HashMap<>();
@@ -33,8 +32,7 @@ public class ConverterStore {
         converters.put(UUID.class, new UUIDConverter());
     }
 
-    @SuppressWarnings("rawtypes")
-    public static Map<Class, Class> wrappersToPrimitives = new HashMap<>();
+    public static Map<Class<?>, Class<?>> wrappersToPrimitives = new HashMap<>();
 
     static {
         wrappersToPrimitives.put(Byte.class, byte.class);
@@ -47,8 +45,7 @@ public class ConverterStore {
         wrappersToPrimitives.put(Character.class, char.class);
     }
 
-    @SuppressWarnings("rawtypes")
-    public static Map<Class, Class> primitivesToWrappers = new HashMap<>();
+    public static Map<Class<?>, Class<?>> primitivesToWrappers = new HashMap<>();
 
     static {
         primitivesToWrappers.put(byte.class, Byte.class);
@@ -61,8 +58,7 @@ public class ConverterStore {
         primitivesToWrappers.put(char.class, Character.class);
     }
 
-    @SuppressWarnings("rawtypes")
-    public static Map<String, Class> primitiveNamesToClasses = new HashMap<>();
+    public static Map<String, Class<?>> primitiveNamesToClasses = new HashMap<>();
 
     static {
         primitiveNamesToClasses.put("byte", byte.class);
@@ -78,15 +74,14 @@ public class ConverterStore {
     @SuppressWarnings("unchecked")
     public <T> void setItems(PreparedStatement pstmt, T t, List<String> getters) throws SQLException {
         int i = 0;
-        Class<? extends Object> tclass = t.getClass();
+        Class<?> tclass = t.getClass();
         try {
             for (String getter : getters) {
                 i++;
                 Method m = tclass.getMethod(getter);
                 Object o = m.invoke(t);
-                // XXX: handle setting null here?
                 Class<?> returnClass = m.getReturnType();
-                Converter<T> converter = converters.get(returnClass);
+                Converter<T> converter = (Converter<T>)converters.get(returnClass);
                 converter.setItem(pstmt, i, (T)o);
             }
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -94,7 +89,6 @@ public class ConverterStore {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     public <T> T guessSetters(ResultSet rs, Class<T> returnType) throws SQLException {
         T t = null;
         // XXX: lots of opportunity for speedups here;
@@ -107,10 +101,11 @@ public class ConverterStore {
             for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
                 String className = md.getColumnClassName(i);
                 String label = md.getColumnLabel(i);
-                Class parameterType = Class.forName(className);
+                Class<?> parameterType = Class.forName(className);
                 String setterName = ColumnLabelConverter.convert(label);
                 Method m = findMethod(returnType, parameterType, setterName);
-                Converter converter = converters.get(parameterType);
+                @SuppressWarnings("unchecked")
+                Converter<T> converter = (Converter<T>)converters.get(parameterType);
                 m.invoke(t, converter.getItem(rs, i));
             }
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
@@ -119,24 +114,24 @@ public class ConverterStore {
         return t;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     public <T> T guessConstructor(ResultSet rs, Class<T> returnType) throws SQLException {
         T t = null;
         try {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
-            Class[] parameterTypes = new Class[numCols];
+            Class<?>[] parameterTypes = new Class[numCols];
             Object[] params = new Object[numCols];
             for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
                 String className = md.getColumnClassName(i);
                 // String label = md.getColumnLabel(i);
-                Class parameterType = Class.forName(className);
+                Class<?> parameterType = Class.forName(className);
                 parameterTypes[i - 1] = parameterType;
-                Converter converter = converters.get(parameterType);
+                Converter<T> converter = (Converter<T>)converters.get(parameterType);
                 params[i - 1] = converter.getItem(rs, i);
                 log.debug("param {} == {}", i - 1, params[i - 1]);
             }
-            Constructor constructor = returnType.getDeclaredConstructor(parameterTypes);
+            Constructor<?> constructor = returnType.getDeclaredConstructor(parameterTypes);
             t = (T)constructor.newInstance(params);
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException(e);
@@ -144,24 +139,24 @@ public class ConverterStore {
         return t;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     public <T> T specifyConstructorArgs(ResultSet rs, Class<T> returnType) throws SQLException {
         T t = null;
         try {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
-            Class[] parameterTypes = new Class[numCols];
+            Class<?>[] parameterTypes = new Class[numCols];
             Object[] params = new Object[numCols];
             for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
                 // String className = md.getColumnClassName(i);
                 String label = md.getColumnLabel(i);
-                Class parameterType = className2Class(label);
+                Class<?> parameterType = className2Class(label);
                 parameterTypes[i - 1] = parameterType;
-                Converter converter = converters.get(parameterType);
+                Converter<T> converter = (Converter<T>)converters.get(parameterType);
                 params[i - 1] = converter.getItem(rs, i);
                 log.debug("param {} == {}", i - 1, params[i - 1]);
             }
-            Constructor constructor = returnType.getDeclaredConstructor(parameterTypes);
+            Constructor<?> constructor = returnType.getDeclaredConstructor(parameterTypes);
             t = (T)constructor.newInstance(params);
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException(e);
@@ -169,17 +164,15 @@ public class ConverterStore {
         return t;
     }
 
-    @SuppressWarnings("rawtypes")
-    public static Class className2Class(String className) throws ClassNotFoundException {
-        Class c = primitiveNamesToClasses.get(className);
+    public static Class<?> className2Class(String className) throws ClassNotFoundException {
+        Class<?> c = primitiveNamesToClasses.get(className);
         if (c != null) {
             return c;
         }
         return Class.forName(className);
     }
 
-    @SuppressWarnings("rawtypes")
-    private <T> Method findMethod(Class<T> returnType, Class parameterType, String setterName) throws NoSuchMethodException {
+    private <T> Method findMethod(Class<T> returnType, Class<?> parameterType, String setterName) throws NoSuchMethodException {
         Method m;
         try {
             // Usually, this will succeed, but sometimes we are looking
@@ -190,7 +183,7 @@ public class ConverterStore {
         } catch (NoSuchMethodException e) {
             // Just in case we got here looking for setFoo(Integer),
             // when really we need setFoo(int), try find setFoo(int)
-            Class primitiveType = wrappersToPrimitives.get(parameterType);
+            Class<?> primitiveType = wrappersToPrimitives.get(parameterType);
             if (primitiveType == null) {
                 // Nope. There is no primitive type. The method
                 // really isn't there.
@@ -205,7 +198,7 @@ public class ConverterStore {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setBare(PreparedStatement pstmt, int i, Object param, String className) throws SQLException {
-        Class parameterType = null;
+        Class<?> parameterType = null;
         try {
             parameterType = Class.forName(className);
         } catch (ClassNotFoundException e) {
