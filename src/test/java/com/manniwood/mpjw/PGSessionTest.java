@@ -23,6 +23,8 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.testng.Assert;
@@ -49,6 +51,20 @@ public class PGSessionTest {
     public static final String UPDATED_THIRD_PASSWORD = "updated blarg";
     public static final String UPDATED_THIRD_USERNAME = "Updated Manni";
     public static final int UPDATED_THIRD_EMPLOYEE_ID = 89;
+
+    public static final String ID_1 = "11111111-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String ID_2 = "22222222-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String ID_3 = "33333333-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String USERNAME_1 = "user one";
+    public static final String USERNAME_2 = "user two";
+    public static final String USERNAME_3 = "user three";
+    public static final String PASSWORD_1 = "password one";
+    public static final String PASSWORD_2 = "password two";
+    public static final String PASSWORD_3 = "password three";
+    public static final int EMPLOYEE_ID_1 = 1;
+    public static final int EMPLOYEE_ID_2 = 2;
+    public static final int EMPLOYEE_ID_3 = 3;
+
 
 
     private PGSession pgSession;
@@ -117,6 +133,7 @@ public class PGSessionTest {
     }
 
     // XXX START HERE: then write and test
+    // 1) This creates a lot of command beans; explicitly set them to null when done with them, as hint to gc
     // 2) select that returns more than one row;
     // 3) select that returns just one element.
     // 6) row listener that can be fed to select methods
@@ -180,6 +197,26 @@ public class PGSessionTest {
         Assert.assertEquals(foundUser.getName(), UPDATED_THIRD_USERNAME);
         Assert.assertEquals(foundUser.getEmployeeId(), UPDATED_THIRD_EMPLOYEE_ID);
         Assert.assertEquals(foundUser.getPassword(), UPDATED_THIRD_PASSWORD);
+    }
 
+    @Test(priority=4)
+    public void testSelectMany() {
+        pgSession.dml("truncate table users");
+        pgSession.commit();
+
+        List<ImmutableUser> expected = new ArrayList<>();
+        expected.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
+        expected.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
+        expected.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        for (ImmutableUser u : expected) {
+            pgSession.insert("@sql/insert_user.sql", u);
+        }
+        pgSession.commit();
+        // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
+
+        List<ImmutableUser> found = pgSession.selectListV("@sql/select_all_users.sql", ImmutableUser.class, BeanBuildStyle.GUESS_CONSTRUCTOR);
+        pgSession.rollback();
+        // XXX: do a deep compare; already provided by List or Collections?
+        Assert.assertTrue(expected.equals(found), "List of users must be the same");
     }
 }

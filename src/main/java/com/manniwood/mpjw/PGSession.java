@@ -26,6 +26,7 @@ package com.manniwood.mpjw;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import com.manniwood.mpjw.commands.Delete;
 import com.manniwood.mpjw.commands.DeleteVariadic;
 import com.manniwood.mpjw.commands.Insert;
 import com.manniwood.mpjw.commands.Rollback;
+import com.manniwood.mpjw.commands.SelectListVariadic;
 import com.manniwood.mpjw.commands.SelectOne;
 import com.manniwood.mpjw.commands.SelectOneVariadic;
 import com.manniwood.mpjw.commands.Update;
@@ -117,6 +119,13 @@ public class PGSession {
         SelectOneVariadic<T> so = new SelectOneVariadic<T>(converterStore, sql, conn, returnType, beanBuildStyle, params);
         CommandRunner.execute(so);
         return so.getResult();
+    }
+
+    public <T> List<T> selectListV(String sqlFile, Class<T> returnType, BeanBuildStyle beanBuildStyle, Object... params) {
+        String sql = resolveSQL(sqlFile);
+        SelectListVariadic<T> sl = new SelectListVariadic<T>(converterStore, sql, conn, returnType, beanBuildStyle, params);
+        CommandRunner.execute(sl);
+        return sl.getResult();
     }
 
     public void ddl(String ddl) {

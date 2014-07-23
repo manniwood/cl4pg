@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw.test.etc;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class ImmutableUser {
@@ -64,4 +65,23 @@ public class ImmutableUser {
         return employeeId;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, password, employeeId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ImmutableUser other = (ImmutableUser) obj;
+        return Objects.equals(id, other.id)
+                && Objects.equals(name, other.name)
+                && Objects.equals(password, other.password)
+                && employeeId == other.employeeId;
+    }
 }
