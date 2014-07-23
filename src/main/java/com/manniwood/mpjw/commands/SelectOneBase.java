@@ -74,7 +74,7 @@ public abstract class SelectOneBase<T> implements Command {
             // XXX: Switch statements are usually opportunities for sub-classing.
             switch (beanBuildStyle) {
             case GUESS_SETTERS:
-                t = converterStore.guessSetters(rs, returnType);
+                t = converterStore.guessSettersAndInvoke(rs, returnType);
                 break;
             case GUESS_CONSTRUCTOR:
                 t = converterStore.guessConstructor(rs, returnType);

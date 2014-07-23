@@ -134,6 +134,7 @@ public class PGSessionTest {
 
     // XXX START HERE: then write and test
     // 1) This creates a lot of command beans; explicitly set them to null when done with them, as hint to gc
+    // Or, should each instance of a PGSession instantiate an instance of each command for re-use? Or, is that overengineering?
     // 2) select that returns more than one row;
     // 3) select that returns just one element.
     // 6) row listener that can be fed to select methods

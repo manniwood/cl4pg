@@ -78,7 +78,7 @@ public abstract class SelectListBase<T> implements Command {
             // and then use throughout the loop.
             switch (beanBuildStyle) {
             case GUESS_SETTERS:
-                list.add(converterStore.guessSetters(rs, returnType));
+                list.add(converterStore.guessSettersAndInvoke(rs, returnType));
                 break;
             case GUESS_CONSTRUCTOR:
                 list.add(converterStore.guessConstructor(rs, returnType));

@@ -89,7 +89,30 @@ public class ConverterStore {
         }
     }
 
-    public <T> T guessSetters(ResultSet rs, Class<T> returnType) throws SQLException {
+    // XXX: This is doing more than guessing the setters; it's invoking them, too; we need to de-couple that
+    public <T> void guessSetters(ResultSet rs, Class<T> returnType) throws SQLException {
+        // XXX: lots of opportunity for speedups here;
+        // don't want to look up the methods for any result
+        // set larger than 1; cache methods found.
+        try {
+            ResultSetMetaData md = rs.getMetaData();
+            int numCols = md.getColumnCount();
+            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
+                String className = md.getColumnClassName(i);
+                String label = md.getColumnLabel(i);
+                Class<?> parameterType = Class.forName(className);
+                String setterName = ColumnLabelConverter.convert(label);
+                Method m = findMethod(returnType, parameterType, setterName);
+                @SuppressWarnings("unchecked")
+                Converter<?> converter = converters.get(parameterType);
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
+            throw new MPJWException(e);
+        }
+    }
+
+    // XXX: This is doing more than guessing the setters; it's invoking them, too; we need to de-couple that
+    public <T> T guessSettersAndInvoke(ResultSet rs, Class<T> returnType) throws SQLException {
         T t = null;
         // XXX: lots of opportunity for speedups here;
         // don't want to look up the methods for any result
@@ -104,8 +127,7 @@ public class ConverterStore {
                 Class<?> parameterType = Class.forName(className);
                 String setterName = ColumnLabelConverter.convert(label);
                 Method m = findMethod(returnType, parameterType, setterName);
-                @SuppressWarnings("unchecked")
-                Converter<T> converter = (Converter<T>)converters.get(parameterType);
+                Converter<?> converter = converters.get(parameterType);
                 m.invoke(t, converter.getItem(rs, i));
             }
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
@@ -128,8 +150,7 @@ public class ConverterStore {
                 String setterName = md.getColumnLabel(i);
                 Class<?> parameterType = Class.forName(className);
                 Method m = findMethod(returnType, parameterType, setterName);
-                @SuppressWarnings("unchecked")
-                Converter<T> converter = (Converter<T>)converters.get(parameterType);
+                Converter<?> converter = converters.get(parameterType);
                 m.invoke(t, converter.getItem(rs, i));
             }
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
@@ -151,7 +172,7 @@ public class ConverterStore {
                 // String label = md.getColumnLabel(i);
                 Class<?> parameterType = Class.forName(className);
                 parameterTypes[i - 1] = parameterType;
-                Converter<T> converter = (Converter<T>)converters.get(parameterType);
+                Converter<?> converter = converters.get(parameterType);
                 params[i - 1] = converter.getItem(rs, i);
                 log.debug("param {} == {}", i - 1, params[i - 1]);
             }
@@ -176,7 +197,7 @@ public class ConverterStore {
                 String label = md.getColumnLabel(i);
                 Class<?> parameterType = className2Class(label);
                 parameterTypes[i - 1] = parameterType;
-                Converter<T> converter = (Converter<T>)converters.get(parameterType);
+                Converter<?> converter = converters.get(parameterType);
                 params[i - 1] = converter.getItem(rs, i);
                 log.debug("param {} == {}", i - 1, params[i - 1]);
             }
