@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,11 +90,8 @@ public class ConverterStore {
         }
     }
 
-    // XXX: This is doing more than guessing the setters; it's invoking them, too; we need to de-couple that
-    public <T> void guessSetters(ResultSet rs, Class<T> returnType) throws SQLException {
-        // XXX: lots of opportunity for speedups here;
-        // don't want to look up the methods for any result
-        // set larger than 1; cache methods found.
+    public <T> List<SetterAndConverter> guessSetters(ResultSet rs, Class<T> returnType) throws SQLException {
+        List<SetterAndConverter> settersAndConverters = new ArrayList<>();
         try {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
@@ -102,13 +100,29 @@ public class ConverterStore {
                 String label = md.getColumnLabel(i);
                 Class<?> parameterType = Class.forName(className);
                 String setterName = ColumnLabelConverter.convert(label);
-                Method m = findMethod(returnType, parameterType, setterName);
-                @SuppressWarnings("unchecked")
+                Method setter = findMethod(returnType, parameterType, setterName);
                 Converter<?> converter = converters.get(parameterType);
+                settersAndConverters.add(new SetterAndConverter(converter, setter));
             }
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
             throw new MPJWException(e);
         }
+        return settersAndConverters;
+    }
+
+    public <T> T buildBeanUsingSetters(ResultSet rs, Class<T> returnType, List<SetterAndConverter> settersAndConverters) throws SQLException {
+        T t = null;
+        try {
+            t = returnType.newInstance();
+            int col = 1;  // JDBC cols start at 1, not zero
+            for (SetterAndConverter sac : settersAndConverters) {
+                sac.getSetter().invoke(t, sac.getConverter().getItem(rs, col));
+                col++;
+            }
+        } catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
+            throw new MPJWException(e);
+        }
+        return t;
     }
 
     // XXX: This is doing more than guessing the setters; it's invoking them, too; we need to de-couple that
@@ -159,8 +173,48 @@ public class ConverterStore {
         return t;
     }
 
+    public <T> ConstructorAndConverters guessConstructor(ResultSet rs, Class<T> returnType) throws SQLException {
+        Constructor<?> constructor = null;
+        List<Converter<?>> convs = new ArrayList<>();
+        try {
+            ResultSetMetaData md = rs.getMetaData();
+            int numCols = md.getColumnCount();
+            Class<?>[] parameterTypes = new Class[numCols];
+            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
+                String className = md.getColumnClassName(i);
+                Class<?> parameterType = Class.forName(className);
+                parameterTypes[i - 1] = parameterType;
+                Converter<?> converter = converters.get(parameterType);
+                convs.add(converter);
+            }
+            constructor = returnType.getDeclaredConstructor(parameterTypes);
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
+            throw new MPJWException(e);
+        }
+        return new ConstructorAndConverters(constructor, convs);
+    }
+
     @SuppressWarnings("unchecked")
-    public <T> T guessConstructor(ResultSet rs, Class<T> returnType) throws SQLException {
+    public <T> T buildBeanUsingConstructor(ResultSet rs, Class<T> returnType, ConstructorAndConverters cac) throws SQLException {
+        T t = null;
+        try {
+            Object[] params = new Object[cac.getConverters().size()];
+            int col = 1;  // JDBC cols start at 1
+            for (Converter<?> converter : cac.getConverters()) {
+                params[col- 1] = converter.getItem(rs, col);
+                log.debug("param {} == {}", col - 1, params[col - 1]);
+                col++;
+            }
+            Constructor<?> constructor = cac.getConstructor();
+            t = (T)constructor.newInstance(params);
+        } catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
+            throw new MPJWException(e);
+        }
+        return t;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T guessConstructorAndInvoke(ResultSet rs, Class<T> returnType) throws SQLException {
         T t = null;
         try {
             ResultSetMetaData md = rs.getMetaData();

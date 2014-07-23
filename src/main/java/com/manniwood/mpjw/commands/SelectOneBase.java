@@ -77,7 +77,7 @@ public abstract class SelectOneBase<T> implements Command {
                 t = converterStore.guessSettersAndInvoke(rs, returnType);
                 break;
             case GUESS_CONSTRUCTOR:
-                t = converterStore.guessConstructor(rs, returnType);
+                t = converterStore.guessConstructorAndInvoke(rs, returnType);
                 break;
             case SPECIFY_SETTERS:
                 t = converterStore.specifySetters(rs, returnType);
