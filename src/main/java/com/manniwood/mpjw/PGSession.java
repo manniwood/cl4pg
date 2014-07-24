@@ -124,6 +124,29 @@ public class PGSession {
         return so.getResult();
     }
 
+    public <T> T selectOneVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
+        List<T> list = selectListVGuessSetters(sqlFile, returnType, params);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+    public <T> T selectOneVGuessConstructor(String sqlFile, Class<T> returnType, Object... params) {
+        List<T> list = selectListVGuessConstructor(sqlFile, returnType, params);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+
     @SuppressWarnings("unchecked")
     public <T> List<T> selectListVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
