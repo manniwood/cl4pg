@@ -65,8 +65,6 @@ public class PGSessionTest {
     public static final int EMPLOYEE_ID_2 = 2;
     public static final int EMPLOYEE_ID_3 = 3;
 
-
-
     private PGSession pgSession;
 
     @BeforeClass

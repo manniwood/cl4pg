@@ -1,11 +1,3 @@
-package com.manniwood.mpjw;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /*
 The MIT License (MIT)
 
@@ -29,6 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+package com.manniwood.mpjw;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SQLTransformer {
 
     private final static Logger log = LoggerFactory.getLogger(PGSession.class);
