@@ -168,31 +168,6 @@ public class ConverterStore {
         return t;
     }
 
-    // XXX: This is doing more than guessing the setters; it's invoking them, too; we need to de-couple that
-    public <T> T guessSettersAndInvoke(ResultSet rs, Class<T> returnType) throws SQLException {
-        T t = null;
-        // XXX: lots of opportunity for speedups here;
-        // don't want to look up the methods for any result
-        // set larger than 1; cache methods found.
-        try {
-            t = returnType.newInstance();
-            ResultSetMetaData md = rs.getMetaData();
-            int numCols = md.getColumnCount();
-            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
-                String className = md.getColumnClassName(i);
-                String label = md.getColumnLabel(i);
-                Class<?> parameterType = Class.forName(className);
-                String setterName = ColumnLabelConverter.convert(label);
-                Method m = findMethod(returnType, parameterType, setterName);
-                Converter<?> converter = converters.get(parameterType);
-                m.invoke(t, converter.getItem(rs, i));
-            }
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-            throw new MPJWException(e);
-        }
-        return t;
-    }
-
     public <T> ConstructorAndConverters guessConstructor(ResultSet rs, Class<T> returnType) throws SQLException {
         Constructor<?> constructor = null;
         List<Converter<?>> convs = new ArrayList<>();
@@ -250,31 +225,6 @@ public class ConverterStore {
             Constructor<?> constructor = cac.getConstructor();
             t = (T)constructor.newInstance(params);
         } catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-            throw new MPJWException(e);
-        }
-        return t;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T guessConstructorAndInvoke(ResultSet rs, Class<T> returnType) throws SQLException {
-        T t = null;
-        try {
-            ResultSetMetaData md = rs.getMetaData();
-            int numCols = md.getColumnCount();
-            Class<?>[] parameterTypes = new Class[numCols];
-            Object[] params = new Object[numCols];
-            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
-                String className = md.getColumnClassName(i);
-                // String label = md.getColumnLabel(i);
-                Class<?> parameterType = Class.forName(className);
-                parameterTypes[i - 1] = parameterType;
-                Converter<?> converter = converters.get(parameterType);
-                params[i - 1] = converter.getItem(rs, i);
-                log.debug("param {} == {}", i - 1, params[i - 1]);
-            }
-            Constructor<?> constructor = returnType.getDeclaredConstructor(parameterTypes);
-            t = (T)constructor.newInstance(params);
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException(e);
         }
         return t;

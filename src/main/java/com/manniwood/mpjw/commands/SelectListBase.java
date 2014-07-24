@@ -54,11 +54,11 @@ public abstract class SelectListBase<T> implements Command {
     public void execute() throws SQLException {
         TransformedSQL tsql = SQLTransformer.transform(sql);
         pstmt = conn.prepareStatement(tsql.getSql());
-        convertItems(tsql);
+        setSQLArguments(tsql);
         populateList();
     }
 
-    protected abstract void convertItems(TransformedSQL tsql) throws SQLException;
+    protected abstract void setSQLArguments(TransformedSQL tsql) throws SQLException;
     protected abstract void populateList() throws SQLException;
 
     public List<T> getResult() {

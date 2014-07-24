@@ -84,19 +84,19 @@ public class PGSession {
         }
     }
 
-    public <T> void insert(String insert, T t) {
+    public <T> void insertB(String insert, T t) {
         String sql = resolveSQL(insert);
         CommandRunner.execute(new Insert<T>(converterStore, sql, conn, t));
     }
 
-    public <T> int update(String insert, T t) {
+    public <T> int updateB(String insert, T t) {
         String sql = resolveSQL(insert);
         Update<T> d = new Update<T>(converterStore, sql, conn, t);
         CommandRunner.execute(d);
         return d.getNumberOfRowsUpdated();
     }
 
-    public <T> int delete(String insert, T t) {
+    public <T> int deleteB(String insert, T t) {
         String sql = resolveSQL(insert);
         Delete<T> d = new Delete<T>(converterStore, sql, conn, t);
         CommandRunner.execute(d);

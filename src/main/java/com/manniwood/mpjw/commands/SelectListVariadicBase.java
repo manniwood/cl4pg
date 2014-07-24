@@ -45,7 +45,7 @@ public abstract class SelectListVariadicBase<T> extends SelectListBase<T> implem
     }
 
     @Override
-    protected void convertItems(TransformedSQL tsql) throws SQLException {
+    protected void setSQLArguments(TransformedSQL tsql) throws SQLException {
         List<String> types = tsql.getGetters();
         if (types == null || types.isEmpty()) {
             return;
