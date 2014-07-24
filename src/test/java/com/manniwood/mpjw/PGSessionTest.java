@@ -133,6 +133,8 @@ public class PGSessionTest {
     }
 
     // XXX START HERE: then write and test
+    // 0) Clean up other select commands to divide column discovery / method
+    // finding from method execution.
     // 1) This creates a lot of command beans; explicitly set them to null when done with them, as hint to gc
     // Or, should each instance of a PGSession instantiate an instance of each command for re-use? Or, is that overengineering?
     // 2) select that returns more than one row;
