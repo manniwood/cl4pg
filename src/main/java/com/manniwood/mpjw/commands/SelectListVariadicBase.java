@@ -27,7 +27,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.manniwood.mpjw.BeanBuildStyle;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
@@ -40,9 +39,8 @@ public abstract class SelectListVariadicBase<T> extends SelectListBase<T> implem
             String sql,
             Connection conn,
             Class<T> returnType,
-            BeanBuildStyle beanBuildStyle,
             Object... params) {
-        super(converterStore, sql, conn, returnType, beanBuildStyle);
+        super(converterStore, sql, conn, returnType);
         this.params = params;
     }
 

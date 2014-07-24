@@ -217,7 +217,7 @@ public class PGSessionTest {
         pgSession.commit();
         // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
 
-        List<ImmutableUser> found = pgSession.selectListV("@sql/select_all_users.sql", ImmutableUser.class, BeanBuildStyle.GUESS_CONSTRUCTOR);
+        List<ImmutableUser> found = pgSession.selectListVGuessConstructor("@sql/select_all_users.sql", ImmutableUser.class);
         pgSession.rollback();
         // XXX: do a deep compare; already provided by List or Collections?
         Assert.assertTrue(expected.equals(found), "List of users must be the same");

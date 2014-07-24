@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.manniwood.mpjw.BeanBuildStyle;
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
@@ -16,7 +15,6 @@ public abstract class SelectListBase<T> implements Command {
     protected final String sql;
     protected final Connection conn;
     protected final Class<T> returnType;
-    protected final BeanBuildStyle beanBuildStyle;
 
     protected PreparedStatement pstmt;
 
@@ -29,13 +27,11 @@ public abstract class SelectListBase<T> implements Command {
             ConverterStore converterStore,
             String sql,
             Connection conn,
-            Class<T> returnType,
-            BeanBuildStyle beanBuildStyle) {
+            Class<T> returnType) {
         super();
         this.converterStore = converterStore;
         this.sql = sql;
         this.conn = conn;
-        this.beanBuildStyle = beanBuildStyle;
         this.returnType = returnType;
     }
 

@@ -125,27 +125,19 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> selectListV(String sqlFile, Class<T> returnType, BeanBuildStyle beanBuildStyle, Object... params) {
+    public <T> List<T> selectListVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
-        Command sl = null;
-        switch (beanBuildStyle) {
-        case GUESS_SETTERS:
-            sl = new SelectListVariadicGuessingSetters<T>(converterStore, sql, conn, returnType, beanBuildStyle, params);
-            break;
-        case GUESS_CONSTRUCTOR:
-            sl = new SelectListVariadicGuessingConstructor<T>(converterStore, sql, conn, returnType, beanBuildStyle, params);
-            break;
-        case SPECIFY_SETTERS:
-            // TODO
-            break;
-        case SPECIFY_CONSTRUCTOR:
-            // TODO
-            break;
-        default:
-            throw new MPJWException("unknown beanBuildStyle");
-        }
-        CommandRunner.execute(sl);
-        return ((SelectListBase<T>)sl).getResult();
+        Command command = new SelectListVariadicGuessingSetters<T>(converterStore, sql, conn, returnType, params);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> selectListVGuessConstructor(String sqlFile, Class<T> returnType, Object... params) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListVariadicGuessingConstructor<T>(converterStore, sql, conn, returnType, params);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
     }
 
     public void ddl(String ddl) {

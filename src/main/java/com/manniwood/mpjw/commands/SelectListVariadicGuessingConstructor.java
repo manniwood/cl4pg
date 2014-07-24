@@ -28,32 +28,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.manniwood.mpjw.BeanBuildStyle;
 import com.manniwood.mpjw.converters.ConstructorAndConverters;
 import com.manniwood.mpjw.converters.ConverterStore;
 
 public class SelectListVariadicGuessingConstructor<T> extends SelectListVariadicBase<T> implements Command {
-
-    private final static Logger log = LoggerFactory.getLogger(SelectListVariadicGuessingConstructor.class);
 
     public SelectListVariadicGuessingConstructor(
             ConverterStore converterStore,
             String sql,
             Connection conn,
             Class<T> returnType,
-            BeanBuildStyle beanBuildStyle,
             Object... params) {
-        super(converterStore, sql, conn, returnType, beanBuildStyle, params);
+        super(converterStore, sql, conn, returnType, params);
     }
 
     @Override
     public void populateList() throws SQLException {
         ResultSet rs = pstmt.executeQuery();
         list = new ArrayList<T>();
-        log.debug("beanBuildStyle: {}", beanBuildStyle);
         ConstructorAndConverters cac = null;
         cac = converterStore.guessConstructor(rs, returnType);
         while (rs.next()) {
