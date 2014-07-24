@@ -102,13 +102,13 @@ public class PGSessionTest {
         Assert.assertEquals(iu.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        ImmutableUser iu2 = pgSession.selectOneV("@sql/select_user_use_constructor.sql", ImmutableUser.class, BeanBuildStyle.SPECIFY_CONSTRUCTOR, UUID.fromString(TEST_ID));
+        ImmutableUser iu2 = pgSession.selectOneVSpecifyConstructor("@sql/select_user_use_constructor.sql", ImmutableUser.class, UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu2.getName(), TEST_USERNAME);
         Assert.assertEquals(iu2.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu2.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        User iu3 = pgSession.selectOneV("@sql/select_user_use_setters.sql", User.class, BeanBuildStyle.SPECIFY_SETTERS, UUID.fromString(TEST_ID));
+        User iu3 = pgSession.selectOneVSpecifySetters("@sql/select_user_use_setters.sql", User.class, UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu3.getName(), TEST_USERNAME);
         Assert.assertEquals(iu3.getId(), UUID.fromString(TEST_ID));
@@ -133,6 +133,7 @@ public class PGSessionTest {
     }
 
     // XXX START HERE: then write and test
+    // -1) Write and test selects that take a single bean param instead of variadic obj
     // 0) Clean up other select commands to divide column discovery / method
     // finding from method execution.
     // 1) This creates a lot of command beans; explicitly set them to null when done with them, as hint to gc

@@ -24,30 +24,38 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.manniwood.mpjw.BeanBuildStyle;
-import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.mpjw.converters.SetterAndConverter;
 
-public class SelectOne<T, P> extends SelectOneBase<T> implements Command {
+public class SelectListVariadicSpecifySetters<T> extends SelectListVariadicBase<T> implements Command {
 
-    protected final P parameter;
-
-    public SelectOne(
+    public SelectListVariadicSpecifySetters(
             ConverterStore converterStore,
             String sql,
             Connection conn,
             Class<T> returnType,
-            BeanBuildStyle beanBuildStyle,
-            P parameter) {
-        super(converterStore, sql, conn, returnType, beanBuildStyle);
-        this.parameter = parameter;
+            Object... params) {
+        super(converterStore, sql, conn, returnType, params);
     }
 
     @Override
-    protected void convertItems(TransformedSQL tsql) throws SQLException {
-        converterStore.setItems(pstmt, parameter, tsql.getGetters());
+    public void populateList() throws SQLException {
+        ResultSet rs = pstmt.executeQuery();
+        list = new ArrayList<T>();
+        List<SetterAndConverter> settersAndConverters = null;
+        settersAndConverters = converterStore.specifySetters(rs, returnType);
+        while (rs.next()) {
+            list.add(converterStore.buildBeanUsingSetters(rs, returnType, settersAndConverters));
+        }
+        // Empty results should just return null
+        if (list.isEmpty()) {
+            list = null;
+        }
     }
 
 }

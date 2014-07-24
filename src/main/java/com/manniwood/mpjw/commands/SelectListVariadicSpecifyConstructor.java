@@ -24,35 +24,37 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.ArrayList;
 
-import com.manniwood.mpjw.BeanBuildStyle;
-import com.manniwood.mpjw.TransformedSQL;
+import com.manniwood.mpjw.converters.ConstructorAndConverters;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectOneVariadic<T> extends SelectOneBase<T> implements Command {
+public class SelectListVariadicSpecifyConstructor<T> extends SelectListVariadicBase<T> implements Command {
 
-    private final Object[] params;
-
-    public SelectOneVariadic(
+    public SelectListVariadicSpecifyConstructor(
             ConverterStore converterStore,
             String sql,
             Connection conn,
             Class<T> returnType,
-            BeanBuildStyle beanBuildStyle,
             Object... params) {
-        super(converterStore, sql, conn, returnType, beanBuildStyle);
-        this.params = params;
+        super(converterStore, sql, conn, returnType, params);
     }
 
     @Override
-    protected void convertItems(TransformedSQL tsql) throws SQLException {
-        List<String> types = tsql.getGetters();
-        for (int i = 0; i < types.size(); i++) {
-            converterStore.setBare(pstmt, i + 1, params[i], types.get(i));
+    public void populateList() throws SQLException {
+        ResultSet rs = pstmt.executeQuery();
+        list = new ArrayList<T>();
+        ConstructorAndConverters cac = null;
+        cac = converterStore.specifyConstructorArgs(rs, returnType);
+        while (rs.next()) {
+            list.add(converterStore.buildBeanUsingConstructor(rs, returnType, cac));
+        }
+        // Empty results should just return null
+        if (list.isEmpty()) {
+            list = null;
         }
     }
-
 
 }

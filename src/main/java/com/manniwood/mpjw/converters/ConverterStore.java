@@ -133,6 +133,26 @@ public class ConverterStore {
         return settersAndConverters;
     }
 
+    public <T> List<SetterAndConverter> specifySetters(ResultSet rs, Class<T> returnType) throws SQLException {
+        List<SetterAndConverter> settersAndConverters = new ArrayList<>();
+        try {
+            ResultSetMetaData md = rs.getMetaData();
+            int numCols = md.getColumnCount();
+            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
+                String className = md.getColumnClassName(i);
+                String setterName = md.getColumnLabel(i);
+                Class<?> parameterType = Class.forName(className);
+                Method setter = findMethod(returnType, parameterType, setterName);
+                Converter<?> converter = converters.get(parameterType);
+                settersAndConverters.add(new SetterAndConverter(converter, setter));
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
+            throw new MPJWException(e);
+        }
+        return settersAndConverters;
+    }
+
+
     public <T> T buildBeanUsingSetters(ResultSet rs, Class<T> returnType, List<SetterAndConverter> settersAndConverters) throws SQLException {
         T t = null;
         try {
@@ -173,29 +193,6 @@ public class ConverterStore {
         return t;
     }
 
-    public <T> T specifySetters(ResultSet rs, Class<T> returnType) throws SQLException {
-        T t = null;
-        // XXX: lots of opportunity for speedups here;
-        // don't want to look up the methods for any result
-        // set larger than 1; cache methods found.
-        try {
-            t = returnType.newInstance();
-            ResultSetMetaData md = rs.getMetaData();
-            int numCols = md.getColumnCount();
-            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
-                String className = md.getColumnClassName(i);
-                String setterName = md.getColumnLabel(i);
-                Class<?> parameterType = Class.forName(className);
-                Method m = findMethod(returnType, parameterType, setterName);
-                Converter<?> converter = converters.get(parameterType);
-                m.invoke(t, converter.getItem(rs, i));
-            }
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-            throw new MPJWException(e);
-        }
-        return t;
-    }
-
     public <T> ConstructorAndConverters guessConstructor(ResultSet rs, Class<T> returnType) throws SQLException {
         Constructor<?> constructor = null;
         List<Converter<?>> convs = new ArrayList<>();
@@ -216,6 +213,28 @@ public class ConverterStore {
         }
         return new ConstructorAndConverters(constructor, convs);
     }
+
+    public <T> ConstructorAndConverters specifyConstructorArgs(ResultSet rs, Class<T> returnType) throws SQLException {
+        Constructor<?> constructor = null;
+        List<Converter<?>> convs = new ArrayList<>();
+        try {
+            ResultSetMetaData md = rs.getMetaData();
+            int numCols = md.getColumnCount();
+            Class<?>[] parameterTypes = new Class[numCols];
+            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
+                String label = md.getColumnLabel(i);
+                Class<?> parameterType = className2Class(label);
+                parameterTypes[i - 1] = parameterType;
+                Converter<?> converter = converters.get(parameterType);
+                convs.add(converter);
+            }
+            constructor = returnType.getDeclaredConstructor(parameterTypes);
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
+            throw new MPJWException(e);
+        }
+        return new ConstructorAndConverters(constructor, convs);
+    }
+
 
     @SuppressWarnings("unchecked")
     public <T> T buildBeanUsingConstructor(ResultSet rs, Class<T> returnType, ConstructorAndConverters cac) throws SQLException {
@@ -248,31 +267,6 @@ public class ConverterStore {
                 String className = md.getColumnClassName(i);
                 // String label = md.getColumnLabel(i);
                 Class<?> parameterType = Class.forName(className);
-                parameterTypes[i - 1] = parameterType;
-                Converter<?> converter = converters.get(parameterType);
-                params[i - 1] = converter.getItem(rs, i);
-                log.debug("param {} == {}", i - 1, params[i - 1]);
-            }
-            Constructor<?> constructor = returnType.getDeclaredConstructor(parameterTypes);
-            t = (T)constructor.newInstance(params);
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-            throw new MPJWException(e);
-        }
-        return t;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T specifyConstructorArgs(ResultSet rs, Class<T> returnType) throws SQLException {
-        T t = null;
-        try {
-            ResultSetMetaData md = rs.getMetaData();
-            int numCols = md.getColumnCount();
-            Class<?>[] parameterTypes = new Class[numCols];
-            Object[] params = new Object[numCols];
-            for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
-                // String className = md.getColumnClassName(i);
-                String label = md.getColumnLabel(i);
-                Class<?> parameterType = className2Class(label);
                 parameterTypes[i - 1] = parameterType;
                 Converter<?> converter = converters.get(parameterType);
                 params[i - 1] = converter.getItem(rs, i);

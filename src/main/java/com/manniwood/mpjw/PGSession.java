@@ -42,8 +42,8 @@ import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.mpjw.commands.SelectListBase;
 import com.manniwood.mpjw.commands.SelectListVariadicGuessingConstructor;
 import com.manniwood.mpjw.commands.SelectListVariadicGuessingSetters;
-import com.manniwood.mpjw.commands.SelectOne;
-import com.manniwood.mpjw.commands.SelectOneVariadic;
+import com.manniwood.mpjw.commands.SelectListVariadicSpecifyConstructor;
+import com.manniwood.mpjw.commands.SelectListVariadicSpecifySetters;
 import com.manniwood.mpjw.commands.Update;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
@@ -110,20 +110,6 @@ public class PGSession {
         return d.getNumberOfRowsDeleted();
     }
 
-    public <T, P> T selectOne(String sqlFile, Class<T> returnType, BeanBuildStyle beanBuildStyle, P parameter) {
-        String sql = resolveSQL(sqlFile);
-        SelectOne<T, P> so = new SelectOne<T, P>(converterStore, sql, conn, returnType, beanBuildStyle, parameter);
-        CommandRunner.execute(so);
-        return so.getResult();
-    }
-
-    public <T> T selectOneV(String sqlFile, Class<T> returnType, BeanBuildStyle beanBuildStyle, Object... params) {
-        String sql = resolveSQL(sqlFile);
-        SelectOneVariadic<T> so = new SelectOneVariadic<T>(converterStore, sql, conn, returnType, beanBuildStyle, params);
-        CommandRunner.execute(so);
-        return so.getResult();
-    }
-
     public <T> T selectOneVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
         List<T> list = selectListVGuessSetters(sqlFile, returnType, params);
         if (list == null || list.isEmpty()) {
@@ -146,6 +132,28 @@ public class PGSession {
         return list.get(0);
     }
 
+    public <T> T selectOneVSpecifySetters(String sqlFile, Class<T> returnType, Object... params) {
+        List<T> list = selectListVSpecifySetters(sqlFile, returnType, params);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+    public <T> T selectOneVSpecifyConstructor(String sqlFile, Class<T> returnType, Object... params) {
+        List<T> list = selectListVSpecifyConstructor(sqlFile, returnType, params);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
 
     @SuppressWarnings("unchecked")
     public <T> List<T> selectListVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
@@ -159,6 +167,22 @@ public class PGSession {
     public <T> List<T> selectListVGuessConstructor(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListVariadicGuessingConstructor<T>(converterStore, sql, conn, returnType, params);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> selectListVSpecifySetters(String sqlFile, Class<T> returnType, Object... params) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListVariadicSpecifySetters<T>(converterStore, sql, conn, returnType, params);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> selectListVSpecifyConstructor(String sqlFile, Class<T> returnType, Object... params) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListVariadicSpecifyConstructor<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(command);
         return ((SelectListBase<T>)command).getResult();
     }
