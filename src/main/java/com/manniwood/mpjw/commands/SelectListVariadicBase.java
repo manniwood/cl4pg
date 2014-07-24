@@ -31,11 +31,11 @@ import com.manniwood.mpjw.BeanBuildStyle;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectListVariadic<T> extends SelectListBase<T> implements Command {
+public abstract class SelectListVariadicBase<T> extends SelectListBase<T> implements Command {
 
     private final Object[] params;
 
-    public SelectListVariadic(
+    public SelectListVariadicBase(
             ConverterStore converterStore,
             String sql,
             Connection conn,
@@ -57,5 +57,7 @@ public class SelectListVariadic<T> extends SelectListBase<T> implements Command 
         }
     }
 
+    @Override
+    protected abstract void populateList() throws SQLException;
 
 }

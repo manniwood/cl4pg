@@ -32,13 +32,16 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.manniwood.mpjw.commands.Command;
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.DDL;
 import com.manniwood.mpjw.commands.Delete;
 import com.manniwood.mpjw.commands.DeleteVariadic;
 import com.manniwood.mpjw.commands.Insert;
 import com.manniwood.mpjw.commands.Rollback;
-import com.manniwood.mpjw.commands.SelectListVariadic;
+import com.manniwood.mpjw.commands.SelectListBase;
+import com.manniwood.mpjw.commands.SelectListVariadicGuessingConstructor;
+import com.manniwood.mpjw.commands.SelectListVariadicGuessingSetters;
 import com.manniwood.mpjw.commands.SelectOne;
 import com.manniwood.mpjw.commands.SelectOneVariadic;
 import com.manniwood.mpjw.commands.Update;
@@ -121,11 +124,28 @@ public class PGSession {
         return so.getResult();
     }
 
+    @SuppressWarnings("unchecked")
     public <T> List<T> selectListV(String sqlFile, Class<T> returnType, BeanBuildStyle beanBuildStyle, Object... params) {
         String sql = resolveSQL(sqlFile);
-        SelectListVariadic<T> sl = new SelectListVariadic<T>(converterStore, sql, conn, returnType, beanBuildStyle, params);
+        Command sl = null;
+        switch (beanBuildStyle) {
+        case GUESS_SETTERS:
+            sl = new SelectListVariadicGuessingSetters<T>(converterStore, sql, conn, returnType, beanBuildStyle, params);
+            break;
+        case GUESS_CONSTRUCTOR:
+            sl = new SelectListVariadicGuessingConstructor<T>(converterStore, sql, conn, returnType, beanBuildStyle, params);
+            break;
+        case SPECIFY_SETTERS:
+            // TODO
+            break;
+        case SPECIFY_CONSTRUCTOR:
+            // TODO
+            break;
+        default:
+            throw new MPJWException("unknown beanBuildStyle");
+        }
         CommandRunner.execute(sl);
-        return sl.getResult();
+        return ((SelectListBase<T>)sl).getResult();
     }
 
     public void ddl(String ddl) {
@@ -147,7 +167,7 @@ public class PGSession {
     }
 
     /**
-     * Resolves sql to either a plain sql statement, or a
+     * Resolves str to either a plain sql statement, or a
      * file in the classpath that contains sql; which is
      * slurped in an returned as sql.
      * @param str
