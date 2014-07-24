@@ -263,7 +263,7 @@ public class ConverterStore {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void setBare(PreparedStatement pstmt, int i, Object param, String className) throws SQLException {
+    public void setSQLArgument(PreparedStatement pstmt, int i, Object param, String className) throws SQLException {
         Class<?> parameterType = null;
         try {
             parameterType = Class.forName(className);

@@ -60,7 +60,7 @@ public class DeleteVariadic implements Command {
         pstmt = conn.prepareStatement(tsql.getSql());
         List<String> types = tsql.getGetters();
         for (int i = 0; i < types.size(); i++) {
-            converterStore.setBare(pstmt, i + 1, params[i], types.get(i));
+            converterStore.setSQLArgument(pstmt, i + 1, params[i], types.get(i));
         }
         numberOfRowsDeleted = pstmt.executeUpdate();
     }

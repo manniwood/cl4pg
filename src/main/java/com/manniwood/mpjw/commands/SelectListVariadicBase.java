@@ -51,7 +51,7 @@ public abstract class SelectListVariadicBase<T> extends SelectListBase<T> implem
             return;
         }
         for (int i = 0; i < types.size(); i++) {
-            converterStore.setBare(pstmt, i + 1, params[i], types.get(i));
+            converterStore.setSQLArgument(pstmt, i + 1, params[i], types.get(i));
         }
     }
 
