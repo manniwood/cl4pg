@@ -40,8 +40,12 @@ import com.manniwood.mpjw.commands.DeleteVariadic;
 import com.manniwood.mpjw.commands.Insert;
 import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.mpjw.commands.SelectListBase;
-import com.manniwood.mpjw.commands.SelectListVariadicGuessingConstructor;
-import com.manniwood.mpjw.commands.SelectListVariadicGuessingSetters;
+import com.manniwood.mpjw.commands.SelectListBeanGuessConstructor;
+import com.manniwood.mpjw.commands.SelectListBeanGuessSetters;
+import com.manniwood.mpjw.commands.SelectListBeanSpecifyConstructor;
+import com.manniwood.mpjw.commands.SelectListBeanSpecifySetters;
+import com.manniwood.mpjw.commands.SelectListVariadicGuessConstructor;
+import com.manniwood.mpjw.commands.SelectListVariadicGuessSetters;
 import com.manniwood.mpjw.commands.SelectListVariadicSpecifyConstructor;
 import com.manniwood.mpjw.commands.SelectListVariadicSpecifySetters;
 import com.manniwood.mpjw.commands.Update;
@@ -155,10 +159,55 @@ public class PGSession {
     }
 
 
+    public <T, P> T selectOneBGuessSetters(String sqlFile, Class<T> returnType, P p) {
+        List<T> list = selectListBGuessSetters(sqlFile, returnType, p);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+    public <T, P> T selectOneBGuessConstructor(String sqlFile, Class<T> returnType, P p) {
+        List<T> list = selectListBGuessConstructor(sqlFile, returnType, p);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+    public <T, P> T selectOneBSpecifySetters(String sqlFile, Class<T> returnType, P p) {
+        List<T> list = selectListBSpecifySetters(sqlFile, returnType, p);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+    public <T, P> T selectOneBSpecifyConstructor(String sqlFile, Class<T> returnType, P p) {
+        List<T> list = selectListBSpecifyConstructor(sqlFile, returnType, p);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+
     @SuppressWarnings("unchecked")
     public <T> List<T> selectListVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
-        Command command = new SelectListVariadicGuessingSetters<T>(converterStore, sql, conn, returnType, params);
+        Command command = new SelectListVariadicGuessSetters<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(command);
         return ((SelectListBase<T>)command).getResult();
     }
@@ -166,7 +215,7 @@ public class PGSession {
     @SuppressWarnings("unchecked")
     public <T> List<T> selectListVGuessConstructor(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
-        Command command = new SelectListVariadicGuessingConstructor<T>(converterStore, sql, conn, returnType, params);
+        Command command = new SelectListVariadicGuessConstructor<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(command);
         return ((SelectListBase<T>)command).getResult();
     }
@@ -183,6 +232,38 @@ public class PGSession {
     public <T> List<T> selectListVSpecifyConstructor(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListVariadicSpecifyConstructor<T>(converterStore, sql, conn, returnType, params);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T, P> List<T> selectListBGuessSetters(String sqlFile, Class<T> returnType, P p) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListBeanGuessSetters<T, P>(converterStore, sql, conn, returnType, p);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T, P> List<T> selectListBGuessConstructor(String sqlFile, Class<T> returnType, P p) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListBeanGuessConstructor<T, P>(converterStore, sql, conn, returnType, p);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T, P> List<T> selectListBSpecifySetters(String sqlFile, Class<T> returnType, P p) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListBeanSpecifySetters<T, P>(converterStore, sql, conn, returnType, p);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T, P> List<T> selectListBSpecifyConstructor(String sqlFile, Class<T> returnType, P p) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListBeanSpecifyConstructor<T, P>(converterStore, sql, conn, returnType, p);
         CommandRunner.execute(command);
         return ((SelectListBase<T>)command).getResult();
     }

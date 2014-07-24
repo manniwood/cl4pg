@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2014 Manni Wood
+Copyright (t) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,50 +24,38 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.manniwood.mpjw.SQLTransformer;
-import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.mpjw.converters.SetterAndConverter;
 
-public class Insert<T> implements Command {
+public class SelectListBeanGuessSetters<T, P> extends SelectListBeanBase<T, P> implements Command {
 
-    private final ConverterStore converterStore;
-    private final String sql;
-    private final Connection conn;
-    private final T t;
-    private PreparedStatement pstmt;
-
-    public Insert(ConverterStore converterStore, String sql, Connection conn, T t) {
-        super();
-        this.converterStore = converterStore;
-        this.sql = sql;
-        this.conn = conn;
-        this.t = t;
+    public SelectListBeanGuessSetters(
+            ConverterStore converterStore,
+            String sql,
+            Connection conn,
+            Class<T> returnType,
+            P p) {
+        super(converterStore, sql, conn, returnType, p);
     }
 
     @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
-    public void execute() throws SQLException {
-        TransformedSQL tsql = SQLTransformer.transform(sql);
-        pstmt = conn.prepareStatement(tsql.getSql());
-        converterStore.setSQLArguments(pstmt, t, tsql.getGetters());
-        pstmt.execute();
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
+    public void populateList() throws SQLException {
+        ResultSet rs = pstmt.executeQuery();
+        list = new ArrayList<T>();
+        List<SetterAndConverter> settersAndConverters = null;
+        settersAndConverters = converterStore.guessSetters(rs, returnType);
+        while (rs.next()) {
+            list.add(converterStore.buildBeanUsingSetters(rs, returnType, settersAndConverters));
+        }
+        // Empty results should just return null
+        if (list.isEmpty()) {
+            list = null;
+        }
     }
 
 }

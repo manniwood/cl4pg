@@ -96,22 +96,35 @@ public class ConverterStore {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> void setItems(PreparedStatement pstmt, T t, List<String> getters) throws SQLException {
+    public <P> void setSQLArguments(PreparedStatement pstmt, P p, List<String> getters) throws SQLException {
         int i = 0;
-        Class<?> tclass = t.getClass();
+        Class<?> tclass = p.getClass();
         try {
             for (String getter : getters) {
                 i++;
                 Method m = tclass.getMethod(getter);
-                Object o = m.invoke(t);
+                Object o = m.invoke(p);
                 Class<?> returnClass = m.getReturnType();
-                Converter<T> converter = (Converter<T>)converters.get(returnClass);
-                converter.setItem(pstmt, i, (T)o);
+                Converter<P> converter = (Converter<P>)converters.get(returnClass);
+                converter.setItem(pstmt, i, (P)o);
             }
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException(e);
         }
     }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void setSQLArgument(PreparedStatement pstmt, int i, Object param, String className) throws SQLException {
+        Class<?> parameterType = null;
+        try {
+            parameterType = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new MPJWException(e);
+        }
+        Converter converter = converters.get(parameterType);
+        converter.setItem(pstmt, i, parameterType.cast(param));
+    }
+
 
     public <T> List<SetterAndConverter> guessSetters(ResultSet rs, Class<T> returnType) throws SQLException {
         List<SetterAndConverter> settersAndConverters = new ArrayList<>();
@@ -260,18 +273,6 @@ public class ConverterStore {
             m = returnType.getMethod(setterName, primitiveType);
         }
         return m;
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void setSQLArgument(PreparedStatement pstmt, int i, Object param, String className) throws SQLException {
-        Class<?> parameterType = null;
-        try {
-            parameterType = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            throw new MPJWException(e);
-        }
-        Converter converter = converters.get(parameterType);
-        converter.setItem(pstmt, i, parameterType.cast(param));
     }
 
 }

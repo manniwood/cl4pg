@@ -111,6 +111,37 @@ public class PGSessionTest {
         Assert.assertEquals(iu3.getName(), TEST_USERNAME);
         Assert.assertEquals(iu3.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu3.getEmployeeId(), TEST_EMPLOYEE_ID);
+
+
+        User searchParam = new User();
+        searchParam.setId(UUID.fromString(TEST_ID));
+        // intentionally leave other attributes of searchParam blank
+
+        User u4 = pgSession.selectOneBGuessSetters("@sql/select_user_guess_setters_bean_param.sql", User.class, searchParam);
+        pgSession.rollback();
+        Assert.assertEquals(u4.getName(), TEST_USERNAME);
+        Assert.assertEquals(u4.getId(), UUID.fromString(TEST_ID));
+        Assert.assertEquals(u4.getEmployeeId(), TEST_EMPLOYEE_ID);
+
+        // When constructors are guessed, primitive types are never
+        // guessed, only wrapper types; TODO: document this
+        ImmutableUser iu5 = pgSession.selectOneBGuessConstructor("@sql/select_user_guess_setters_bean_param.sql", ImmutableUser.class, searchParam);
+        pgSession.rollback();
+        Assert.assertEquals(iu5.getName(), TEST_USERNAME);
+        Assert.assertEquals(iu5.getId(), UUID.fromString(TEST_ID));
+        Assert.assertEquals(iu5.getEmployeeId(), TEST_EMPLOYEE_ID);
+
+        ImmutableUser iu6 = pgSession.selectOneBSpecifyConstructor("@sql/select_user_use_constructor_bean_param.sql", ImmutableUser.class, searchParam);
+        pgSession.rollback();
+        Assert.assertEquals(iu6.getName(), TEST_USERNAME);
+        Assert.assertEquals(iu6.getId(), UUID.fromString(TEST_ID));
+        Assert.assertEquals(iu6.getEmployeeId(), TEST_EMPLOYEE_ID);
+
+        User iu7 = pgSession.selectOneBSpecifySetters("@sql/select_user_use_setters_bean_param.sql", User.class, searchParam);
+        pgSession.rollback();
+        Assert.assertEquals(iu7.getName(), TEST_USERNAME);
+        Assert.assertEquals(iu7.getId(), UUID.fromString(TEST_ID));
+        Assert.assertEquals(iu7.getEmployeeId(), TEST_EMPLOYEE_ID);
     }
 
     @Test(priority=1)
@@ -131,7 +162,7 @@ public class PGSessionTest {
     }
 
     // XXX START HERE: then write and test
-    // -1) Write and test selects that take a single bean param instead of variadic obj
+    // -2) Write better comments in files
     // 0) Clean up other select commands to divide column discovery / method
     // finding from method execution.
     // 1) This creates a lot of command beans; explicitly set them to null when done with them, as hint to gc
@@ -147,6 +178,9 @@ public class PGSessionTest {
     // 7) find and document that JVM setting that makes java turn
     // reflection calls into compiled code faster (instead of waiting
     // for the default number of invocations).
+    // 8) get stored procs working
+    // 9) get copy to/from working
+    // 10) get listen/notify working
 
     @Test(priority=2)
     public void testDelete() {

@@ -57,7 +57,7 @@ public class Update<T> implements Command {
     public void execute() throws SQLException {
         TransformedSQL tsql = SQLTransformer.transform(sql);
         pstmt = conn.prepareStatement(tsql.getSql());
-        converterStore.setItems(pstmt, t, tsql.getGetters());
+        converterStore.setSQLArguments(pstmt, t, tsql.getGetters());
         numberOfRowsUpdated = pstmt.executeUpdate();
     }
 

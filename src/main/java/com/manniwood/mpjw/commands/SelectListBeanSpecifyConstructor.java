@@ -31,15 +31,15 @@ import java.util.ArrayList;
 import com.manniwood.mpjw.converters.ConstructorAndConverters;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectListVariadicGuessingConstructor<T> extends SelectListVariadicBase<T> implements Command {
+public class SelectListBeanSpecifyConstructor<T, P> extends SelectListBeanBase<T, P> implements Command {
 
-    public SelectListVariadicGuessingConstructor(
+    public SelectListBeanSpecifyConstructor(
             ConverterStore converterStore,
             String sql,
             Connection conn,
             Class<T> returnType,
-            Object... params) {
-        super(converterStore, sql, conn, returnType, params);
+            P p) {
+        super(converterStore, sql, conn, returnType, p);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class SelectListVariadicGuessingConstructor<T> extends SelectListVariadic
         ResultSet rs = pstmt.executeQuery();
         list = new ArrayList<T>();
         ConstructorAndConverters cac = null;
-        cac = converterStore.guessConstructor(rs, returnType);
+        cac = converterStore.specifyConstructorArgs(rs, returnType);
         while (rs.next()) {
             list.add(converterStore.buildBeanUsingConstructor(rs, returnType, cac));
         }
