@@ -41,8 +41,10 @@ import com.manniwood.mpjw.commands.Insert;
 import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.mpjw.commands.SelectListBase;
 import com.manniwood.mpjw.commands.SelectListBeanGuessConstructor;
+import com.manniwood.mpjw.commands.SelectListBeanGuessScalar;
 import com.manniwood.mpjw.commands.SelectListBeanGuessSetters;
 import com.manniwood.mpjw.commands.SelectListBeanSpecifyConstructor;
+import com.manniwood.mpjw.commands.SelectListBeanSpecifyScalar;
 import com.manniwood.mpjw.commands.SelectListBeanSpecifySetters;
 import com.manniwood.mpjw.commands.SelectListVariadicGuessConstructor;
 import com.manniwood.mpjw.commands.SelectListVariadicGuessScalar;
@@ -283,6 +285,22 @@ public class PGSession {
     public <T> List<T> selectListVSpecifyScalar(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListVariadicSpecifyScalar<T>(converterStore, sql, conn, returnType, params);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T, P> List<T> selectListBGuessScalar(String sqlFile, Class<T> returnType, P p) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListBeanGuessScalar<T, P>(converterStore, sql, conn, returnType, p);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T, P> List<T> selectListBSpecifyScalar(String sqlFile, Class<T> returnType, P p) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListBeanSpecifyScalar<T, P>(converterStore, sql, conn, returnType, p);
         CommandRunner.execute(command);
         return ((SelectListBase<T>)command).getResult();
     }

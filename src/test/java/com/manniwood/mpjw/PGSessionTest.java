@@ -277,14 +277,24 @@ public class PGSessionTest {
         expected.add(2);
         expected.add(3);
 
-        List<Integer> found = pgSession.selectListVGuessScalar("@sql/select_employee_ids_guess_scalar.sql", Integer.class, 1);
+        List<Integer> found1 = pgSession.selectListVGuessScalar("@sql/select_employee_ids_guess_scalar.sql", Integer.class, 1);
         pgSession.rollback();
-        // XXX: do a deep compare; already provided by List or Collections?
-        Assert.assertTrue(expected.equals(found), "List of employee_ids must be the same");
+        Assert.assertTrue(expected.equals(found1), "List of employee_ids must be the same");
 
         List<Integer> found2 = pgSession.selectListVSpecifyScalar("@sql/select_employee_ids_specify_scalar.sql", Integer.class, 1);
         pgSession.rollback();
-        // XXX: do a deep compare; already provided by List or Collections?
         Assert.assertTrue(expected.equals(found2), "List of employee_ids must be the same");
+
+        User findUser = new User();
+        findUser.setEmployeeId(1);
+        // purposefully leave other attribs unset
+
+        List<Integer> found3 = pgSession.selectListBGuessScalar("@sql/select_employee_ids_guess_scalar_bean_param.sql", Integer.class, findUser);
+        pgSession.rollback();
+        Assert.assertTrue(expected.equals(found3), "List of employee_ids must be the same");
+
+        List<Integer> found4 = pgSession.selectListBSpecifyScalar("@sql/select_employee_ids_specify_scalar_bean_param.sql", Integer.class, findUser);
+        pgSession.rollback();
+        Assert.assertTrue(expected.equals(found4), "List of employee_ids must be the same");
     }
 }
