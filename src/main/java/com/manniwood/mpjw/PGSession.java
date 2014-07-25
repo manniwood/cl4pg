@@ -306,6 +306,51 @@ public class PGSession {
     }
 
 
+    public <T> T selectOneVGuessScalar(String sqlFile, Class<T> returnType, Object... params) {
+        List<T> list = selectListVGuessScalar(sqlFile, returnType, params);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+    public <T> T selectOneVSpecifyScalar(String sqlFile, Class<T> returnType, Object... params) {
+        List<T> list = selectListVSpecifyScalar(sqlFile, returnType, params);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+    public <T, P> T selectOneBGuessScalar(String sqlFile, Class<T> returnType, P p) {
+        List<T> list = selectListBGuessScalar(sqlFile, returnType, p);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+    public <T, P> T selectOneBSpecifyScalar(String sqlFile, Class<T> returnType, P p) {
+        List<T> list = selectListBSpecifyScalar(sqlFile, returnType, p);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+
 
     public void ddl(String ddl) {
         String sql = resolveSQL(ddl);

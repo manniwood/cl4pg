@@ -297,4 +297,41 @@ public class PGSessionTest {
         pgSession.rollback();
         Assert.assertTrue(expected.equals(found4), "List of employee_ids must be the same");
     }
+
+    public void testSelectScalar() {
+        pgSession.dml("truncate table users");
+        pgSession.commit();
+
+        List<ImmutableUser> usersToLoad = new ArrayList<>();
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        for (ImmutableUser u : usersToLoad) {
+            pgSession.insertB("@sql/insert_user.sql", u);
+        }
+        pgSession.commit();
+        // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
+
+        Integer expected = 2;
+
+        Integer found1 = pgSession.selectOneVGuessScalar("@sql/select_employee_count_guess_scalar.sql", Integer.class, 1);
+        pgSession.rollback();
+        Assert.assertEquals(found1, expected, "List of employee_ids must be the same");
+
+        Integer found2 = pgSession.selectOneVSpecifyScalar("@sql/select_employee_count_specify_scalar.sql", Integer.class, 1);
+        pgSession.rollback();
+        Assert.assertEquals(found2, expected, "List of employee_ids must be the same");
+
+        User findUser = new User();
+        findUser.setEmployeeId(1);
+        // purposefully leave other attribs unset
+
+        Integer found3 = pgSession.selectOneBGuessScalar("@sql/select_employee_count_guess_scalar_bean_param.sql", Integer.class, findUser);
+        pgSession.rollback();
+        Assert.assertEquals(found3, expected, "List of employee_ids must be the same");
+
+        Integer found4 = pgSession.selectOneBSpecifyScalar("@sql/select_employee_count_specify_scalar_bean_param.sql", Integer.class, findUser);
+        pgSession.rollback();
+        Assert.assertEquals(found4, expected, "List of employee_ids must be the same");
+    }
 }
