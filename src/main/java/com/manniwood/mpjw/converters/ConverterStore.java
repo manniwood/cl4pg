@@ -165,6 +165,41 @@ public class ConverterStore {
         return settersAndConverters;
     }
 
+    public <T> Converter<?> guessConverter(ResultSet rs, Class<T> returnType) throws SQLException {
+        Converter<?> converter = null;
+        try {
+            ResultSetMetaData md = rs.getMetaData();
+            int numCols = md.getColumnCount();
+            if (numCols > 1) {
+                throw new MPJWException("Only one column is allowed to be in the result set.");
+            }
+            String className = md.getColumnClassName(1);
+            Class<?> parameterType = Class.forName(className);
+            converter = converters.get(parameterType);
+        } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
+            throw new MPJWException(e);
+        }
+        return converter;
+    }
+
+    public <T> Converter<?> specifyConverter(ResultSet rs, Class<T> returnType) throws SQLException {
+        Converter<?> converter = null;
+        try {
+            ResultSetMetaData md = rs.getMetaData();
+            int numCols = md.getColumnCount();
+            if (numCols > 1) {
+                throw new MPJWException("Only one column is allowed to be in the result set.");
+            }
+            String className = md.getColumnLabel(1);
+            Class<?> parameterType = className2Class(className);
+            converter = converters.get(parameterType);
+        } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
+            throw new MPJWException(e);
+        }
+        return converter;
+    }
+
+
 
     public <T> T buildBeanUsingSetters(ResultSet rs, Class<T> returnType, List<SetterAndConverter> settersAndConverters) throws SQLException {
         T t = null;
@@ -210,8 +245,8 @@ public class ConverterStore {
             int numCols = md.getColumnCount();
             Class<?>[] parameterTypes = new Class[numCols];
             for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
-                String label = md.getColumnLabel(i);
-                Class<?> parameterType = className2Class(label);
+                String className = md.getColumnLabel(i);
+                Class<?> parameterType = className2Class(className);
                 parameterTypes[i - 1] = parameterType;
                 Converter<?> converter = converters.get(parameterType);
                 convs.add(converter);

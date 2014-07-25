@@ -45,8 +45,10 @@ import com.manniwood.mpjw.commands.SelectListBeanGuessSetters;
 import com.manniwood.mpjw.commands.SelectListBeanSpecifyConstructor;
 import com.manniwood.mpjw.commands.SelectListBeanSpecifySetters;
 import com.manniwood.mpjw.commands.SelectListVariadicGuessConstructor;
+import com.manniwood.mpjw.commands.SelectListVariadicGuessScalar;
 import com.manniwood.mpjw.commands.SelectListVariadicGuessSetters;
 import com.manniwood.mpjw.commands.SelectListVariadicSpecifyConstructor;
+import com.manniwood.mpjw.commands.SelectListVariadicSpecifyScalar;
 import com.manniwood.mpjw.commands.SelectListVariadicSpecifySetters;
 import com.manniwood.mpjw.commands.Update;
 import com.manniwood.mpjw.converters.ConverterStore;
@@ -267,6 +269,25 @@ public class PGSession {
         CommandRunner.execute(command);
         return ((SelectListBase<T>)command).getResult();
     }
+
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> selectListVGuessScalar(String sqlFile, Class<T> returnType, Object... params) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListVariadicGuessScalar<T>(converterStore, sql, conn, returnType, params);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> selectListVSpecifyScalar(String sqlFile, Class<T> returnType, Object... params) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectListVariadicSpecifyScalar<T>(converterStore, sql, conn, returnType, params);
+        CommandRunner.execute(command);
+        return ((SelectListBase<T>)command).getResult();
+    }
+
+
 
     public void ddl(String ddl) {
         String sql = resolveSQL(ddl);

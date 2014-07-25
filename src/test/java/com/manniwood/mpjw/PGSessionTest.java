@@ -162,6 +162,8 @@ public class PGSessionTest {
     }
 
     // XXX START HERE: then write and test
+    // -3) Do lists_of_scalar bean variants
+    // -3.5) Do all scalar variadic and bean variants
     // -2) Write better comments in files
     // 0) Clean up other select commands to divide column discovery / method
     // finding from method execution.
@@ -254,5 +256,35 @@ public class PGSessionTest {
         pgSession.rollback();
         // XXX: do a deep compare; already provided by List or Collections?
         Assert.assertTrue(expected.equals(found), "List of users must be the same");
+    }
+
+    @Test(priority=5)
+    public void testSelectListOfScalar() {
+        pgSession.dml("truncate table users");
+        pgSession.commit();
+
+        List<ImmutableUser> usersToLoad = new ArrayList<>();
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        for (ImmutableUser u : usersToLoad) {
+            pgSession.insertB("@sql/insert_user.sql", u);
+        }
+        pgSession.commit();
+        // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
+
+        List<Integer> expected = new ArrayList<>();
+        expected.add(2);
+        expected.add(3);
+
+        List<Integer> found = pgSession.selectListVGuessScalar("@sql/select_employee_ids_guess_scalar.sql", Integer.class, 1);
+        pgSession.rollback();
+        // XXX: do a deep compare; already provided by List or Collections?
+        Assert.assertTrue(expected.equals(found), "List of employee_ids must be the same");
+
+        List<Integer> found2 = pgSession.selectListVSpecifyScalar("@sql/select_employee_ids_specify_scalar.sql", Integer.class, 1);
+        pgSession.rollback();
+        // XXX: do a deep compare; already provided by List or Collections?
+        Assert.assertTrue(expected.equals(found2), "List of employee_ids must be the same");
     }
 }
