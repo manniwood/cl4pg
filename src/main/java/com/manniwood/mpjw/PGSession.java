@@ -118,6 +118,82 @@ public class PGSession {
         return d.getNumberOfRowsDeleted();
     }
 
+    public <T> T selectOne(ReturnStyle returnStyle, String sqlFile, Class<T> returnType, Object... params) {
+        switch (returnStyle) {
+        case SCALAR_EXPLICIT:
+            return selectOneVSpecifyScalar(sqlFile, returnType, params);
+        case SCALAR_GUESSED:
+            return selectOneVGuessScalar(sqlFile, returnType, params);
+        case BEAN_EXPLICIT_CONS_ARGS:
+            return selectOneVSpecifyConstructor(sqlFile, returnType, params);
+        case BEAN_EXPLICIT_SETTERS:
+            return selectOneVSpecifySetters(sqlFile, returnType, params);
+        case BEAN_GUESSED_CONS_ARGS:
+            return selectOneVGuessConstructor(sqlFile, returnType, params);
+        case BEAN_GUESSED_SETTERS:
+            return selectOneVGuessSetters(sqlFile, returnType, params);
+        default:
+            throw new MPJWException("Invalid returnStyle: " + returnStyle);
+        }
+    }
+
+    public <T, P> T selectOne(String sqlFile, Class<T> returnType, P p, ReturnStyle returnStyle) {
+        switch (returnStyle) {
+        case SCALAR_EXPLICIT:
+            return selectOneBSpecifyScalar(sqlFile, returnType, p);
+        case SCALAR_GUESSED:
+            return selectOneBGuessScalar(sqlFile, returnType, p);
+        case BEAN_EXPLICIT_CONS_ARGS:
+            return selectOneBSpecifyConstructor(sqlFile, returnType, p);
+        case BEAN_EXPLICIT_SETTERS:
+            return selectOneBSpecifySetters(sqlFile, returnType, p);
+        case BEAN_GUESSED_CONS_ARGS:
+            return selectOneBGuessConstructor(sqlFile, returnType, p);
+        case BEAN_GUESSED_SETTERS:
+            return selectOneBGuessSetters(sqlFile, returnType, p);
+        default:
+            throw new MPJWException("Invalid returnStyle: " + returnStyle);
+        }
+    }
+
+    public <T> List<T> selectList(ReturnStyle returnStyle, String sqlFile, Class<T> returnType, Object... params) {
+        switch (returnStyle) {
+        case SCALAR_EXPLICIT:
+            return selectListVSpecifyScalar(sqlFile, returnType, params);
+        case SCALAR_GUESSED:
+            return selectListVGuessScalar(sqlFile, returnType, params);
+        case BEAN_EXPLICIT_CONS_ARGS:
+            return selectListVSpecifyConstructor(sqlFile, returnType, params);
+        case BEAN_EXPLICIT_SETTERS:
+            return selectListVSpecifySetters(sqlFile, returnType, params);
+        case BEAN_GUESSED_CONS_ARGS:
+            return selectListVGuessConstructor(sqlFile, returnType, params);
+        case BEAN_GUESSED_SETTERS:
+            return selectListVGuessSetters(sqlFile, returnType, params);
+        default:
+            throw new MPJWException("Invalid returnStyle: " + returnStyle);
+        }
+    }
+
+    public <T, P> List<T> selectList(String sqlFile, Class<T> returnType, P p, ReturnStyle returnStyle) {
+        switch (returnStyle) {
+        case SCALAR_EXPLICIT:
+            return selectListBSpecifyScalar(sqlFile, returnType, p);
+        case SCALAR_GUESSED:
+            return selectListBGuessScalar(sqlFile, returnType, p);
+        case BEAN_EXPLICIT_CONS_ARGS:
+            return selectListBSpecifyConstructor(sqlFile, returnType, p);
+        case BEAN_EXPLICIT_SETTERS:
+            return selectListBSpecifySetters(sqlFile, returnType, p);
+        case BEAN_GUESSED_CONS_ARGS:
+            return selectListBGuessConstructor(sqlFile, returnType, p);
+        case BEAN_GUESSED_SETTERS:
+            return selectListBGuessSetters(sqlFile, returnType, p);
+        default:
+            throw new MPJWException("Invalid returnStyle: " + returnStyle);
+        }
+    }
+
     public <T> T selectOneVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
         List<T> list = selectListVGuessSetters(sqlFile, returnType, params);
         if (list == null || list.isEmpty()) {

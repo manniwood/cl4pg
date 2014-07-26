@@ -86,7 +86,11 @@ public class PGSessionTest {
         pgSession.insertB("@sql/insert_user.sql", insertUser);
         pgSession.commit();
 
-        User u = pgSession.selectOneVGuessSetters("@sql/select_user_guess_setters.sql", User.class, UUID.fromString(TEST_ID));
+        User u = pgSession.selectOne(
+                ReturnStyle.BEAN_GUESSED_SETTERS,
+                "@sql/select_user_guess_setters.sql",
+                User.class,
+                UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(u.getName(), TEST_USERNAME);
         Assert.assertEquals(u.getId(), UUID.fromString(TEST_ID));
@@ -94,19 +98,31 @@ public class PGSessionTest {
 
         // When constructors are guessed, primitive types are never
         // guessed, only wrapper types; TODO: document this
-        ImmutableUser iu = pgSession.selectOneVGuessConstructor("@sql/select_user_guess_setters.sql", ImmutableUser.class, UUID.fromString(TEST_ID));
+        ImmutableUser iu = pgSession.selectOne(
+                ReturnStyle.BEAN_GUESSED_CONS_ARGS,
+                "@sql/select_user_guess_setters.sql",
+                ImmutableUser.class,
+                UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu.getName(), TEST_USERNAME);
         Assert.assertEquals(iu.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        ImmutableUser iu2 = pgSession.selectOneVSpecifyConstructor("@sql/select_user_use_constructor.sql", ImmutableUser.class, UUID.fromString(TEST_ID));
+        ImmutableUser iu2 = pgSession.selectOne(
+                ReturnStyle.BEAN_EXPLICIT_CONS_ARGS,
+                "@sql/select_user_use_constructor.sql",
+                ImmutableUser.class,
+                UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu2.getName(), TEST_USERNAME);
         Assert.assertEquals(iu2.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu2.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        User iu3 = pgSession.selectOneVSpecifySetters("@sql/select_user_use_setters.sql", User.class, UUID.fromString(TEST_ID));
+        User iu3 = pgSession.selectOne(
+                ReturnStyle.BEAN_EXPLICIT_SETTERS,
+                "@sql/select_user_use_setters.sql",
+                User.class,
+                UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu3.getName(), TEST_USERNAME);
         Assert.assertEquals(iu3.getId(), UUID.fromString(TEST_ID));
@@ -117,7 +133,11 @@ public class PGSessionTest {
         searchParam.setId(UUID.fromString(TEST_ID));
         // intentionally leave other attributes of searchParam blank
 
-        User u4 = pgSession.selectOneBGuessSetters("@sql/select_user_guess_setters_bean_param.sql", User.class, searchParam);
+        User u4 = pgSession.selectOne(
+                "@sql/select_user_guess_setters_bean_param.sql",
+                User.class,
+                searchParam,
+                ReturnStyle.BEAN_GUESSED_SETTERS);
         pgSession.rollback();
         Assert.assertEquals(u4.getName(), TEST_USERNAME);
         Assert.assertEquals(u4.getId(), UUID.fromString(TEST_ID));
@@ -125,19 +145,31 @@ public class PGSessionTest {
 
         // When constructors are guessed, primitive types are never
         // guessed, only wrapper types; TODO: document this
-        ImmutableUser iu5 = pgSession.selectOneBGuessConstructor("@sql/select_user_guess_setters_bean_param.sql", ImmutableUser.class, searchParam);
+        ImmutableUser iu5 = pgSession.selectOne(
+                "@sql/select_user_guess_setters_bean_param.sql",
+                ImmutableUser.class,
+                searchParam,
+                ReturnStyle.BEAN_GUESSED_CONS_ARGS);
         pgSession.rollback();
         Assert.assertEquals(iu5.getName(), TEST_USERNAME);
         Assert.assertEquals(iu5.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu5.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        ImmutableUser iu6 = pgSession.selectOneBSpecifyConstructor("@sql/select_user_use_constructor_bean_param.sql", ImmutableUser.class, searchParam);
+        ImmutableUser iu6 = pgSession.selectOne(
+                "@sql/select_user_use_constructor_bean_param.sql",
+                ImmutableUser.class,
+                searchParam,
+                ReturnStyle.BEAN_EXPLICIT_CONS_ARGS);
         pgSession.rollback();
         Assert.assertEquals(iu6.getName(), TEST_USERNAME);
         Assert.assertEquals(iu6.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu6.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        User iu7 = pgSession.selectOneBSpecifySetters("@sql/select_user_use_setters_bean_param.sql", User.class, searchParam);
+        User iu7 = pgSession.selectOne(
+                "@sql/select_user_use_setters_bean_param.sql",
+                User.class,
+                searchParam,
+                ReturnStyle.BEAN_EXPLICIT_SETTERS);
         pgSession.rollback();
         Assert.assertEquals(iu7.getName(), TEST_USERNAME);
         Assert.assertEquals(iu7.getId(), UUID.fromString(TEST_ID));
@@ -161,20 +193,18 @@ public class PGSessionTest {
         Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
     }
 
-    // XXX START HERE: then write and test
-    // -3) Do lists_of_scalar bean variants
-    // -3.5) Do all scalar variadic and bean variants
     // -2) Write better comments in files
-    // 0) Clean up other select commands to divide column discovery / method
-    // finding from method execution.
+
     // 1) This creates a lot of command beans; explicitly set them to null when done with them, as hint to gc
     // Or, should each instance of a PGSession instantiate an instance of each command for re-use? Or, is that overengineering?
-    // 2) select that returns more than one row;
-    // 3) select that returns just one element.
+
     // 6) row listener that can be fed to select methods
     // 8) selectReport that returns map of string:colname string:value
     // for use in quick reporting displays where all values
     // would end up being cast to string anyway.
+    // 8) selectMap that returns map of String:colname Object:value
+    // for when a user just needs a quick way of getting the objects
+    // out of a query, and doesn't mind doing the casting himself.
     // 4) More type converters
     // 5) manual conversion, for complexity and performance reasons
     // 7) find and document that JVM setting that makes java turn
@@ -194,7 +224,11 @@ public class PGSessionTest {
         pgSession.insertB("@sql/insert_user.sql", user);
         pgSession.commit();
 
-        User foundUser = pgSession.selectOneVGuessSetters("@sql/select_user_guess_setters.sql", User.class, UUID.fromString(THIRD_ID));
+        User foundUser = pgSession.selectOne(
+                ReturnStyle.BEAN_GUESSED_SETTERS,
+                "@sql/select_user_guess_setters.sql",
+                User.class,
+                UUID.fromString(THIRD_ID));
         pgSession.rollback();
 
         Assert.assertNotNull(foundUser, "User must be found.");
@@ -224,7 +258,11 @@ public class PGSessionTest {
         int numberUpdated = pgSession.updateB("@sql/update_user.sql", user);
         pgSession.commit();
 
-        User foundUser = pgSession.selectOneVGuessSetters("@sql/select_user_guess_setters.sql", User.class, UUID.fromString(THIRD_ID));
+        User foundUser = pgSession.selectOne(
+                ReturnStyle.BEAN_GUESSED_SETTERS,
+                "@sql/select_user_guess_setters.sql",
+                User.class,
+                UUID.fromString(THIRD_ID));
         pgSession.rollback();
 
         Assert.assertNotNull(foundUser, "User must be found.");
@@ -252,7 +290,10 @@ public class PGSessionTest {
         pgSession.commit();
         // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
 
-        List<ImmutableUser> found = pgSession.selectListVGuessConstructor("@sql/select_all_users.sql", ImmutableUser.class);
+        List<ImmutableUser> found = pgSession.selectList(
+                ReturnStyle.BEAN_GUESSED_CONS_ARGS,
+                "@sql/select_all_users.sql",
+                ImmutableUser.class);
         pgSession.rollback();
         // XXX: do a deep compare; already provided by List or Collections?
         Assert.assertTrue(expected.equals(found), "List of users must be the same");
@@ -277,11 +318,19 @@ public class PGSessionTest {
         expected.add(2);
         expected.add(3);
 
-        List<Integer> found1 = pgSession.selectListVGuessScalar("@sql/select_employee_ids_guess_scalar.sql", Integer.class, 1);
+        List<Integer> found1 = pgSession.selectList(
+                ReturnStyle.SCALAR_GUESSED,
+                "@sql/select_employee_ids_guess_scalar.sql",
+                Integer.class,
+                1);
         pgSession.rollback();
         Assert.assertTrue(expected.equals(found1), "List of employee_ids must be the same");
 
-        List<Integer> found2 = pgSession.selectListVSpecifyScalar("@sql/select_employee_ids_specify_scalar.sql", Integer.class, 1);
+        List<Integer> found2 = pgSession.selectList(
+                ReturnStyle.SCALAR_EXPLICIT,
+                "@sql/select_employee_ids_specify_scalar.sql",
+                Integer.class,
+                1);
         pgSession.rollback();
         Assert.assertTrue(expected.equals(found2), "List of employee_ids must be the same");
 
@@ -289,11 +338,19 @@ public class PGSessionTest {
         findUser.setEmployeeId(1);
         // purposefully leave other attribs unset
 
-        List<Integer> found3 = pgSession.selectListBGuessScalar("@sql/select_employee_ids_guess_scalar_bean_param.sql", Integer.class, findUser);
+        List<Integer> found3 = pgSession.selectList(
+                "@sql/select_employee_ids_guess_scalar_bean_param.sql",
+                Integer.class,
+                findUser,
+                ReturnStyle.SCALAR_GUESSED);
         pgSession.rollback();
         Assert.assertTrue(expected.equals(found3), "List of employee_ids must be the same");
 
-        List<Integer> found4 = pgSession.selectListBSpecifyScalar("@sql/select_employee_ids_specify_scalar_bean_param.sql", Integer.class, findUser);
+        List<Integer> found4 = pgSession.selectList(
+                "@sql/select_employee_ids_specify_scalar_bean_param.sql",
+                Integer.class,
+                findUser,
+                ReturnStyle.SCALAR_EXPLICIT);
         pgSession.rollback();
         Assert.assertTrue(expected.equals(found4), "List of employee_ids must be the same");
     }
@@ -314,11 +371,19 @@ public class PGSessionTest {
 
         Integer expected = 2;
 
-        Integer found1 = pgSession.selectOneVGuessScalar("@sql/select_employee_count_guess_scalar.sql", Integer.class, 1);
+        Integer found1 = pgSession.selectOne(
+                ReturnStyle.SCALAR_GUESSED,
+                "@sql/select_employee_count_guess_scalar.sql",
+                Integer.class,
+                1);
         pgSession.rollback();
         Assert.assertEquals(found1, expected, "List of employee_ids must be the same");
 
-        Integer found2 = pgSession.selectOneVSpecifyScalar("@sql/select_employee_count_specify_scalar.sql", Integer.class, 1);
+        Integer found2 = pgSession.selectOne(
+                ReturnStyle.SCALAR_EXPLICIT,
+                "@sql/select_employee_count_specify_scalar.sql",
+                Integer.class,
+                1);
         pgSession.rollback();
         Assert.assertEquals(found2, expected, "List of employee_ids must be the same");
 
@@ -326,11 +391,19 @@ public class PGSessionTest {
         findUser.setEmployeeId(1);
         // purposefully leave other attribs unset
 
-        Integer found3 = pgSession.selectOneBGuessScalar("@sql/select_employee_count_guess_scalar_bean_param.sql", Integer.class, findUser);
+        Integer found3 = pgSession.selectOne(
+                "@sql/select_employee_count_guess_scalar_bean_param.sql",
+                Integer.class,
+                findUser,
+                ReturnStyle.SCALAR_GUESSED);
         pgSession.rollback();
         Assert.assertEquals(found3, expected, "List of employee_ids must be the same");
 
-        Integer found4 = pgSession.selectOneBSpecifyScalar("@sql/select_employee_count_specify_scalar_bean_param.sql", Integer.class, findUser);
+        Integer found4 = pgSession.selectOne(
+                "@sql/select_employee_count_specify_scalar_bean_param.sql",
+                Integer.class,
+                findUser,
+                ReturnStyle.SCALAR_EXPLICIT);
         pgSession.rollback();
         Assert.assertEquals(found4, expected, "List of employee_ids must be the same");
     }
