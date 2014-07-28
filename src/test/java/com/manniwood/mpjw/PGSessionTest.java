@@ -193,6 +193,13 @@ public class PGSessionTest {
         Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
     }
 
+    // -3) Write tests for listen/notify; in particular, test
+    // to see that if you notify a listener, and then the listening
+    // connection executes some other sql statements and *then*
+    // executes listen, that the messages are still there waiting
+    // and haven't been list because getNotifications() has to
+    // be executed right away, or messages are lost.
+
     // -2) Write better comments in files
 
     // 1) This creates a lot of command beans; explicitly set them to null when done with them, as hint to gc
