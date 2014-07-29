@@ -27,37 +27,23 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class Listen implements Command {
+import org.postgresql.PGConnection;
+import org.postgresql.PGNotification;
+
+public class GetNotifications implements Command {
 
     /**
      * This dummy query gets run just to get the messages back from
      * the server.
      */
-    private final String sql;;
+    private final String sql = "select 1";
     private final Connection conn;
     private PreparedStatement pstmt;
+    private PGNotification[] notifications;
 
-    public Listen(Connection conn, String channel) {
+    public GetNotifications(Connection conn) {
         super();
         this.conn = conn;
-        sql = "listen " + scrub(channel);
-    }
-
-    /**
-     * MUST prevent SQL injection attack. Easiest way is to scrub
-     * anything that is not a-z/A-Z, meaning all whitespace and punctuation
-     * will get removed, preventing little Bobby Droptables.
-     * @param channel2
-     * @return
-     */
-    private String scrub(String str) {
-        StringBuilder sb = new StringBuilder();
-        for (char c : str.toCharArray()) {
-            if (Character.isLetter(c)) {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
     }
 
     @Override
@@ -69,6 +55,7 @@ public class Listen implements Command {
     public void execute() throws SQLException {
         pstmt = conn.prepareStatement(sql);
         pstmt.execute();
+        notifications = ((PGConnection)conn).getNotifications();
     }
 
     @Override
@@ -81,4 +68,7 @@ public class Listen implements Command {
         return pstmt;
     }
 
+    public PGNotification[] getNotifications() {
+        return notifications;
+    }
 }

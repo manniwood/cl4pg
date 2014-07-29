@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
+import org.postgresql.PGNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,10 @@ import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.DDL;
 import com.manniwood.mpjw.commands.Delete;
 import com.manniwood.mpjw.commands.DeleteVariadic;
+import com.manniwood.mpjw.commands.GetNotifications;
 import com.manniwood.mpjw.commands.Insert;
+import com.manniwood.mpjw.commands.Listen;
+import com.manniwood.mpjw.commands.Notify;
 import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.mpjw.commands.SelectListBase;
 import com.manniwood.mpjw.commands.SelectListBeanGuessConstructor;
@@ -427,6 +431,21 @@ public class PGSession {
     }
 
 
+
+    public void notify(String channel, String payload) {
+        CommandRunner.execute(new Notify(converterStore, conn, channel, payload));
+    }
+
+    public void listen(String channel) {
+        Listen listen = new Listen(conn, channel);
+        CommandRunner.execute(listen);
+    }
+
+    public PGNotification[] getNotifications() {
+        GetNotifications n = new GetNotifications(conn);
+        CommandRunner.execute(n);
+        return n.getNotifications();
+    }
 
     public void ddl(String ddl) {
         String sql = resolveSQL(ddl);

@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.postgresql.PGNotification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,6 +38,8 @@ import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.User;
 
 public class PGSessionTest {
+
+    private final static Logger log = LoggerFactory.getLogger(PGSession.class);
 
     public static final String TEST_PASSWORD = "passwd";
     public static final String TEST_USERNAME = "Hubert";
@@ -66,12 +71,16 @@ public class PGSessionTest {
     public static final int EMPLOYEE_ID_3 = 3;
 
     private PGSession pgSession;
+    private PGSession pgSession2;
 
     @BeforeClass
     public void init() {
         pgSession = new PGSession();
         pgSession.ddl("@sql/create_temp_users_table.sql");
         pgSession.commit();
+
+        pgSession2 = new PGSession();
+
     }
 
     @Test(priority=0)
@@ -362,6 +371,8 @@ public class PGSessionTest {
         Assert.assertTrue(expected.equals(found4), "List of employee_ids must be the same");
     }
 
+    // XXX: this is failing; find out why
+    @Test(priority=6)
     public void testSelectScalar() {
         pgSession.dml("truncate table users");
         pgSession.commit();
@@ -414,4 +425,26 @@ public class PGSessionTest {
         pgSession.rollback();
         Assert.assertEquals(found4, expected, "List of employee_ids must be the same");
     }
+
+    @Test(priority=7)
+    public void testListenNotify() {
+        pgSession2.listen("foo");
+        pgSession2.commit();
+
+        pgSession.notify("foo", "bar");
+        pgSession.notify("foo", "baz");
+        pgSession.notify("foo", "bal");
+        pgSession.commit();
+
+        PGNotification[] notifications = pgSession2.getNotifications();
+        pgSession.commit();
+        for (PGNotification notification : notifications) {
+            log.info("notification name {}, parameter: {}, pid: {}", notification.getName(), notification.getParameter(), notification.getPID());
+            // XXX START HERE: make sure "bar", "baz", "bal" are all
+            // returned notifications
+        }
+
+    }
+
+
 }
