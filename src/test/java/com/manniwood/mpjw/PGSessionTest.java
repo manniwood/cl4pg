@@ -371,7 +371,6 @@ public class PGSessionTest {
         Assert.assertTrue(expected.equals(found4), "List of employee_ids must be the same");
     }
 
-    // XXX: this is failing; find out why
     @Test(priority=6)
     public void testSelectScalar() {
         pgSession.dml("truncate table users");
@@ -389,13 +388,14 @@ public class PGSessionTest {
 
         Integer expected = 2;
 
-        Integer found1 = pgSession.selectOne(
+        // DOCUMENT THIS: when left to its own devices, count(*) will return java.lang.Long, not java.lang.Integer
+        Long found1 = pgSession.selectOne(
                 ReturnStyle.SCALAR_GUESSED,
                 "@sql/select_employee_count_guess_scalar.sql",
-                Integer.class,
+                Long.class,
                 1);
         pgSession.rollback();
-        Assert.assertEquals(found1, expected, "List of employee_ids must be the same");
+        Assert.assertEquals(found1, Long.valueOf(expected.intValue()), "List of employee_ids must be the same");
 
         Integer found2 = pgSession.selectOne(
                 ReturnStyle.SCALAR_EXPLICIT,
@@ -409,13 +409,14 @@ public class PGSessionTest {
         findUser.setEmployeeId(1);
         // purposefully leave other attribs unset
 
-        Integer found3 = pgSession.selectOne(
+        // DOCUMENT THIS: when left to its own devices, count(*) will return java.lang.Long, not java.lang.Integer
+        Long found3 = pgSession.selectOne(
                 "@sql/select_employee_count_guess_scalar_bean_param.sql",
-                Integer.class,
+                Long.class,
                 findUser,
                 ReturnStyle.SCALAR_GUESSED);
         pgSession.rollback();
-        Assert.assertEquals(found3, expected, "List of employee_ids must be the same");
+        Assert.assertEquals(found3, Long.valueOf(expected.intValue()), "List of employee_ids must be the same");
 
         Integer found4 = pgSession.selectOne(
                 "@sql/select_employee_count_specify_scalar_bean_param.sql",

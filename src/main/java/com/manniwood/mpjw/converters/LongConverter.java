@@ -27,17 +27,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class IntConverter extends BaseConverter<Integer>{
+public class LongConverter extends BaseConverter<Long>{
 
     @Override
-    public void setItem(PreparedStatement pstmt, int i, Integer t) throws SQLException {
-        // XXX: will not deal with null int value
-        int myInt = t.intValue();
-        pstmt.setInt(i, myInt);
+    public void setItem(PreparedStatement pstmt, int i, Long t) throws SQLException {
+        // XXX: will not deal with null long value
+        long myInt = t.longValue();
+        pstmt.setLong(i, myInt);
     }
 
     @Override
-    public Integer getItem(ResultSet rs, int i) throws SQLException {
-        return rs.getInt(i);
+    public Long getItem(ResultSet rs, int i) throws SQLException {
+        return rs.getLong(i);
     }
 }

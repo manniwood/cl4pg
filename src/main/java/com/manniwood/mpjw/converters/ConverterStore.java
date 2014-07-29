@@ -52,6 +52,8 @@ public class ConverterStore {
         converters = new HashMap<>();
         converters.put(int.class, new IntConverter());
         converters.put(Integer.class, new IntConverter());
+        converters.put(long.class, new LongConverter());
+        converters.put(Long.class, new LongConverter());
         converters.put(String.class, new StringConverter());
         converters.put(UUID.class, new UUIDConverter());
     }
@@ -167,6 +169,7 @@ public class ConverterStore {
 
     public <T> Converter<?> guessConverter(ResultSet rs, Class<T> returnType) throws SQLException {
         Converter<?> converter = null;
+        Class<?> parameterType = null;
         try {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
@@ -174,10 +177,13 @@ public class ConverterStore {
                 throw new MPJWException("Only one column is allowed to be in the result set.");
             }
             String className = md.getColumnClassName(1);
-            Class<?> parameterType = Class.forName(className);
+            parameterType = Class.forName(className);
             converter = converters.get(parameterType);
         } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
             throw new MPJWException(e);
+        }
+        if (converter == null) {
+            throw new MPJWException("Converter not found for column return type " + parameterType);
         }
         return converter;
     }
