@@ -202,12 +202,8 @@ public class PGSessionTest {
         Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
     }
 
-    // -3) Write tests for listen/notify; in particular, test
-    // to see that if you notify a listener, and then the listening
-    // connection executes some other sql statements and *then*
-    // executes listen, that the messages are still there waiting
-    // and haven't been list because getNotifications() has to
-    // be executed right away, or messages are lost.
+    // -4) Do stored procs work? IN/OUT params? Stored procs
+    // that return result sets?
 
     // -2) Write better comments in files
 
@@ -226,9 +222,7 @@ public class PGSessionTest {
     // 7) find and document that JVM setting that makes java turn
     // reflection calls into compiled code faster (instead of waiting
     // for the default number of invocations).
-    // 8) get stored procs working
     // 9) get copy to/from working
-    // 10) get listen/notify working
 
     @Test(priority=2)
     public void testDelete() {
@@ -388,7 +382,7 @@ public class PGSessionTest {
 
         Integer expected = 2;
 
-        // DOCUMENT THIS: when left to its own devices, count(*) will return java.lang.Long, not java.lang.Integer
+        // TODO: DOCUMENT THIS: when left to its own devices, count(*) will return java.lang.Long, not java.lang.Integer
         Long found1 = pgSession.selectOne(
                 ReturnStyle.SCALAR_GUESSED,
                 "@sql/select_employee_count_guess_scalar.sql",
@@ -429,21 +423,37 @@ public class PGSessionTest {
 
     @Test(priority=7)
     public void testListenNotify() {
+        // According to Pg docs, "Except for dropping later instances of duplicate notifications,
+        // NOTIFY guarantees that notifications from the same transaction get delivered in the order they were sent."
+        // So, an ordered list should be a good thing to test against.
+        List<String> expected = new ArrayList<>();
+        expected.add("bar");
+        expected.add("baz");
+        expected.add("bal");
+
         pgSession2.listen("foo");
         pgSession2.commit();
 
-        pgSession.notify("foo", "bar");
-        pgSession.notify("foo", "baz");
-        pgSession.notify("foo", "bal");
+        for (String s : expected) {
+            pgSession.notify("foo", s);
+        }
         pgSession.commit();
 
+        // Ensure you can do other queries on the listening session and not lose the
+        // notifications just because you have run a query and committed, but not yet
+        // retrieved the notifications.
+        Integer discard = pgSession2.selectOne(ReturnStyle.SCALAR_GUESSED, "select 1", Integer.class);
+        pgSession2.commit();
+
         PGNotification[] notifications = pgSession2.getNotifications();
-        pgSession.commit();
+        pgSession2.commit();
+
+        List<String> actual = new ArrayList<>();
         for (PGNotification notification : notifications) {
             log.info("notification name {}, parameter: {}, pid: {}", notification.getName(), notification.getParameter(), notification.getPID());
-            // XXX START HERE: make sure "bar", "baz", "bal" are all
-            // returned notifications
+            actual.add(notification.getParameter());
         }
+        Assert.assertEquals(actual, expected, "Notifications must all be recieved, in the same order");
 
     }
 
