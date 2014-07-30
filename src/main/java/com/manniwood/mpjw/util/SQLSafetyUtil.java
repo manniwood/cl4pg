@@ -21,51 +21,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw.commands;
+package com.manniwood.mpjw.util;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import com.manniwood.mpjw.MPJWException;
 
-import com.manniwood.mpjw.util.SQLSafetyUtil;
-
-public class Listen implements Command {
-
+public class SQLSafetyUtil {
     /**
-     * This dummy query gets run just to get the messages back from
-     * the server.
+     * MUST prevent SQL injection attack. Easiest way is to scrub
+     * anything that is not a-z/A-Z, meaning all whitespace and punctuation
+     * will get removed, preventing little Bobby Droptables.
+     * @param channel2
+     * @return
      */
-    private final String sql;;
-    private final Connection conn;
-    private PreparedStatement pstmt;
-
-    public Listen(Connection conn, String channel) {
-        super();
-        this.conn = conn;
-        sql = "listen " + SQLSafetyUtil.throwIfUnsafe(channel);
+    public static String throwIfUnsafe(String str) {
+        for (char c : str.toCharArray()) {
+            if ( ! Character.isLetter(c)) {
+                throw new MPJWException("The character " + c + " in string " + str + " is not safe for use in SQL");
+            }
+        }
+        return str;
     }
-
-
-
-    @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
-    public void execute() throws SQLException {
-        pstmt = conn.prepareStatement(sql);
-        pstmt.execute();
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
-    }
-
 }

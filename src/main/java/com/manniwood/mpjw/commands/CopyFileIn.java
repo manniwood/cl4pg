@@ -23,29 +23,33 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw.commands;
 
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.postgresql.PGConnection;
+import org.postgresql.copy.CopyManager;
+
+import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.util.SQLSafetyUtil;
 
-public class Listen implements Command {
+public class CopyFileIn implements Command {
 
-    /**
-     * This dummy query gets run just to get the messages back from
-     * the server.
-     */
-    private final String sql;;
+    private String sql = "copy ";
     private final Connection conn;
+    private final String copyFileName;
+    private final String tableName;
     private PreparedStatement pstmt;
 
-    public Listen(Connection conn, String channel) {
+    public CopyFileIn(Connection conn, String copyFileName, String tableName) {
         super();
         this.conn = conn;
-        sql = "listen " + SQLSafetyUtil.throwIfUnsafe(channel);
+        this.copyFileName = copyFileName;
+        this.tableName = tableName;
+        sql = "copy " + SQLSafetyUtil.throwIfUnsafe(tableName) + " from stdin";
     }
-
-
 
     @Override
     public String getSQL() {
@@ -54,8 +58,14 @@ public class Listen implements Command {
 
     @Override
     public void execute() throws SQLException {
-        pstmt = conn.prepareStatement(sql);
-        pstmt.execute();
+        CopyManager copyManager = ((PGConnection)conn).getCopyAPI();
+        FileReader fileReader;
+        try {
+            fileReader = new FileReader(copyFileName);
+            copyManager.copyIn("copy foo from stdin", fileReader);
+        } catch (IOException e) {
+            throw new MPJWException("Problem trying to copy file " + copyFileName + " into table " + tableName, e);
+        }
     }
 
     @Override

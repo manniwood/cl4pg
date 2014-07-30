@@ -223,6 +223,8 @@ public class PGSessionTest {
     // reflection calls into compiled code faster (instead of waiting
     // for the default number of invocations).
     // 9) get copy to/from working
+    // 10) sql to be executed on startup of connection
+    // 11) make psql exception more easily available in exceptions thrown
 
     @Test(priority=2)
     public void testDelete() {

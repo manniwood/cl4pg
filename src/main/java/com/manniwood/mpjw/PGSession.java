@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.manniwood.mpjw.commands.Command;
 import com.manniwood.mpjw.commands.Commit;
+import com.manniwood.mpjw.commands.CopyFileIn;
 import com.manniwood.mpjw.commands.DDL;
 import com.manniwood.mpjw.commands.Delete;
 import com.manniwood.mpjw.commands.DeleteVariadic;
@@ -464,6 +465,14 @@ public class PGSession {
     public void rollback() {
         CommandRunner.execute(new Rollback(conn));
     }
+
+    // TODO: make a version of this that just takes a reader, too
+    public void copyIn(String copyFileName, String tableName) {
+        CommandRunner.execute(new CopyFileIn(conn, copyFileName, tableName));
+    }
+
+    // TODO: make copyOut
+    // TODO: make copy between two connections
 
     /**
      * Resolves str to either a plain sql statement, or a
