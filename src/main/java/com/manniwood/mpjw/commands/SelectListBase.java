@@ -24,7 +24,6 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -32,18 +31,10 @@ import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public abstract class SelectListBase<T> implements Command {
+public abstract class SelectListBase<T> extends PreparedStatementCommand implements Command {
 
     protected final ConverterStore converterStore;
-    protected final String sql;
-    protected final Connection conn;
     protected final Class<T> returnType;
-
-    protected PreparedStatement pstmt;
-
-    /**
-     * Return object.
-     */
     protected List<T> list;
 
     public SelectListBase(
@@ -56,21 +47,6 @@ public abstract class SelectListBase<T> implements Command {
         this.sql = sql;
         this.conn = conn;
         this.returnType = returnType;
-    }
-
-    @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
     }
 
     @Override

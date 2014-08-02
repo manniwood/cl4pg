@@ -23,8 +23,6 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw;
 
-import java.sql.SQLException;
-
 import com.manniwood.mpjw.commands.Command;
 
 public class CommandRunner {
@@ -36,22 +34,17 @@ public class CommandRunner {
             // roll back on other problems.
             try {
                 pg.getConnection().rollback();
-            } catch (SQLException e1) {
+            } catch (Exception e1) {
                 // put e inside e1, so the user has all of the exceptions
                 e1.initCause(e);
-                throw new MPJWException("Could not roll back connection after catching exception trying to execute " + pg.getSQL(), e1);
+                throw new MPJWException("Could not roll back connection after catching exception trying to execute:\n" + pg.getSQL(), e1);
             }
-            throw new MPJWException("ROLLED BACK. Exception while trying to run this sql statement: " + pg.getSQL(), e);
+            throw new MPJWException("ROLLED BACK. Exception while trying to run this sql statement:\n" + pg.getSQL(), e);
         } finally {
-            // XXX: genericize this to call any cleanup operation appropriate to the command.
-            // So, for most commands, it will close the prepared statement, but for others, it might
-            // also close files or anything else.
-            if (pg.getPreparedStatement() != null) {
-                try {
-                    pg.getPreparedStatement().close();
-                } catch (SQLException e) {
-                    throw new MPJWException("Could not close PreparedStatement for " + pg.getSQL(), e);
-                }
+            try {
+                pg.cleanUp();
+            } catch (Exception e) {
+                throw new MPJWException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n" + pg.getSQL(), e);
             }
         }
     }

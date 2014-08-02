@@ -24,39 +24,18 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class Rollback implements Command {
-
-    private final String sql;
-    private final Connection conn;
-    private PreparedStatement pstmt;
+public class Rollback extends ConnectionCommand implements Command {
 
     public Rollback(Connection conn) {
-        super();
         this.sql = "rollback;";
         this.conn = conn;
     }
 
     @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
     public void execute() throws SQLException {
-        conn.commit();
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
+        conn.rollback();
     }
 
 }

@@ -24,20 +24,11 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.manniwood.mpjw.util.SQLSafetyUtil;
 
-public class Listen implements Command {
-
-    /**
-     * This dummy query gets run just to get the messages back from
-     * the server.
-     */
-    private final String sql;;
-    private final Connection conn;
-    private PreparedStatement pstmt;
+public class Listen extends PreparedStatementCommand implements Command {
 
     public Listen(Connection conn, String channel) {
         super();
@@ -45,27 +36,10 @@ public class Listen implements Command {
         sql = "listen " + SQLSafetyUtil.throwIfUnsafe(channel);
     }
 
-
-
-    @Override
-    public String getSQL() {
-        return sql;
-    }
-
     @Override
     public void execute() throws SQLException {
         pstmt = conn.prepareStatement(sql);
         pstmt.execute();
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
     }
 
 }

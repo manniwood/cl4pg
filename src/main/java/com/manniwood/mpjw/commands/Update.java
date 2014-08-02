@@ -24,20 +24,16 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class Update<T> implements Command {
+public class Update<T> extends PreparedStatementCommand implements Command {
 
     private final ConverterStore converterStore;
-    private final String sql;
-    private final Connection conn;
     private final T t;
-    private PreparedStatement pstmt;
     private int numberOfRowsUpdated;
 
     public Update(ConverterStore converterStore, String sql, Connection conn, T t) {
@@ -46,11 +42,6 @@ public class Update<T> implements Command {
         this.sql = sql;
         this.conn = conn;
         this.t = t;
-    }
-
-    @Override
-    public String getSQL() {
-        return sql;
     }
 
     @Override
@@ -63,16 +54,6 @@ public class Update<T> implements Command {
 
     public int getNumberOfRowsUpdated() {
         return numberOfRowsUpdated;
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
     }
 
 }

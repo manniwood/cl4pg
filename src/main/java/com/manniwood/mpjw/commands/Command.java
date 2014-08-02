@@ -24,11 +24,30 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 public interface Command {
+    /**
+     * Get the SQL statement used by this command.
+     * @return
+     */
     String getSQL();
+
+    /**
+     * Execute this command.
+     * @throws Exception
+     */
     void execute() throws Exception;
+
+    /**
+     * Get the connection used to run this command.
+     * @return
+     */
     Connection getConnection();
-    PreparedStatement getPreparedStatement();
+
+    /**
+     * Clean up / close all resources used to execute
+     * this command. For instance, close prepared statements,
+     * or close open files/streams used in copy commands.
+     */
+    void cleanUp() throws Exception;
 }

@@ -24,20 +24,16 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class Insert<T> implements Command {
+public class Insert<T> extends PreparedStatementCommand implements Command {
 
     private final ConverterStore converterStore;
-    private final String sql;
-    private final Connection conn;
     private final T t;
-    private PreparedStatement pstmt;
 
     public Insert(ConverterStore converterStore, String sql, Connection conn, T t) {
         super();
@@ -48,26 +44,11 @@ public class Insert<T> implements Command {
     }
 
     @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
     public void execute() throws SQLException {
         TransformedSQL tsql = SQLTransformer.transform(sql);
         pstmt = conn.prepareStatement(tsql.getSql());
         converterStore.setSQLArguments(pstmt, t, tsql.getGetters());
         pstmt.execute();
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
     }
 
 }

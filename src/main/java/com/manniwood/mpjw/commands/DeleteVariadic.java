@@ -24,7 +24,6 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -32,12 +31,9 @@ import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class DeleteVariadic implements Command {
+public class DeleteVariadic extends PreparedStatementCommand implements Command {
 
     private final ConverterStore converterStore;
-    private final String sql;
-    private final Connection conn;
-    private PreparedStatement pstmt;
     private int numberOfRowsDeleted;
     private Object[] params;
 
@@ -47,11 +43,6 @@ public class DeleteVariadic implements Command {
         this.sql = sql;
         this.conn = conn;
         this.params = params;
-    }
-
-    @Override
-    public String getSQL() {
-        return sql;
     }
 
     @Override
@@ -67,16 +58,6 @@ public class DeleteVariadic implements Command {
 
     public int getNumberOfRowsDeleted() {
         return numberOfRowsDeleted;
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
     }
 
 }

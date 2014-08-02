@@ -24,33 +24,23 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class Delete<T> implements Command {
+public class Delete<T> extends PreparedStatementCommand implements Command {
 
     private final ConverterStore converterStore;
-    private final String sql;
-    private final Connection conn;
     private final T t;
-    private PreparedStatement pstmt;
     private int numberOfRowsDeleted;
 
     public Delete(ConverterStore converterStore, String sql, Connection conn, T t) {
-        super();
         this.converterStore = converterStore;
         this.sql = sql;
         this.conn = conn;
         this.t = t;
-    }
-
-    @Override
-    public String getSQL() {
-        return sql;
     }
 
     @Override
@@ -63,16 +53,6 @@ public class Delete<T> implements Command {
 
     public int getNumberOfRowsDeleted() {
         return numberOfRowsDeleted;
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
     }
 
 }

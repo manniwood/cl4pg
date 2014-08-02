@@ -24,22 +24,20 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class Notify implements Command {
+public class Notify extends PreparedStatementCommand implements Command {
 
+    public static final String PG_NOTIFY_SQL = "select pg_notify(?, ?)";
     private final ConverterStore converterStore;
-    private final String sql = "select pg_notify(?, ?)";
-    private final Connection conn;
     private final String channel;
     private final String payload;
-    private PreparedStatement pstmt;
 
     public Notify(ConverterStore converterStore, Connection conn, String channel, String payload) {
         super();
+        this.sql = PG_NOTIFY_SQL;
         this.converterStore = converterStore;
         this.conn = conn;
         this.channel = channel;
@@ -47,26 +45,11 @@ public class Notify implements Command {
     }
 
     @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
     public void execute() throws SQLException {
         pstmt = conn.prepareStatement(sql);
-        converterStore.setSQLArgument(pstmt, 1, channel, "java.lang.String");
-        converterStore.setSQLArgument(pstmt, 2, payload, "java.lang.String");
+        converterStore.setSQLArgument(pstmt, 1, channel, String.class.getName());
+        converterStore.setSQLArgument(pstmt, 2, payload, String.class.getName());
         pstmt.execute();
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
     }
 
 }

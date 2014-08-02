@@ -24,31 +24,23 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.postgresql.PGConnection;
 import org.postgresql.PGNotification;
 
-public class GetNotifications implements Command {
+public class GetNotifications extends PreparedStatementCommand implements Command {
 
     /**
      * This dummy query gets run just to get the messages back from
      * the server.
      */
-    private final String sql = "select 1";
-    private final Connection conn;
-    private PreparedStatement pstmt;
+    public static final String DUMMY_QUERY = "select 1";
     private PGNotification[] notifications;
 
     public GetNotifications(Connection conn) {
-        super();
+        this.sql = DUMMY_QUERY;
         this.conn = conn;
-    }
-
-    @Override
-    public String getSQL() {
-        return sql;
     }
 
     @Override
@@ -56,16 +48,6 @@ public class GetNotifications implements Command {
         pstmt = conn.prepareStatement(sql);
         pstmt.execute();
         notifications = ((PGConnection)conn).getNotifications();
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement() {
-        return pstmt;
     }
 
     public PGNotification[] getNotifications() {
