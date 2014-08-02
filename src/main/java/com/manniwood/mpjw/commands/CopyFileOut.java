@@ -23,21 +23,21 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw.commands;
 
-import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.Writer;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
 
-public class CopyFileIn extends ConnectionCommand implements Command {
+public class CopyFileOut extends ConnectionCommand implements Command {
 
     private final String copyFileName;
-    private Reader fileReader = null;
+    private Writer fileWriter = null;
 
-    public CopyFileIn(Connection conn, String copyFileName, String sql) {
+    public CopyFileOut(Connection conn, String copyFileName, String sql) {
         this.conn = conn;
         this.copyFileName = copyFileName;
         this.sql = sql;
@@ -46,14 +46,14 @@ public class CopyFileIn extends ConnectionCommand implements Command {
     @Override
     public void execute() throws SQLException, IOException {
         CopyManager copyManager = ((PGConnection)conn).getCopyAPI();
-        fileReader= new FileReader(copyFileName);
-        copyManager.copyIn(sql, fileReader);
+        fileWriter = new FileWriter(copyFileName);
+        copyManager.copyOut(sql, fileWriter);
     }
 
     @Override
     public void cleanUp() throws Exception {
-        if (fileReader != null) {
-            fileReader.close();
+        if (fileWriter != null) {
+            fileWriter.close();
         }
     }
 }

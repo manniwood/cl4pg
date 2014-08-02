@@ -23,6 +23,9 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +43,8 @@ import com.manniwood.mpjw.test.etc.User;
 public class PGSessionTest {
 
     private final static Logger log = LoggerFactory.getLogger(PGSession.class);
+
+    public static final String TEST_COPY_FILE = "/tmp/users.copy";
 
     public static final String TEST_PASSWORD = "passwd";
     public static final String TEST_USERNAME = "Hubert";
@@ -449,7 +454,7 @@ public class PGSessionTest {
         // Ensure you can do other queries on the listening session and not lose the
         // notifications just because you have run a query and committed, but not yet
         // retrieved the notifications.
-        Integer discard = pgSession2.selectOne(ReturnStyle.SCALAR_GUESSED, "select 1", Integer.class);
+        pgSession2.selectOne(ReturnStyle.SCALAR_GUESSED, "select 1", Integer.class);
         pgSession2.commit();
 
         PGNotification[] notifications = pgSession2.getNotifications();
@@ -461,8 +466,37 @@ public class PGSessionTest {
             actual.add(notification.getParameter());
         }
         Assert.assertEquals(actual, expected, "Notifications must all be recieved, in the same order");
-
     }
 
+    @Test(priority = 8)
+    public void testCopy() throws IOException {
 
+        Files.deleteIfExists(Paths.get(TEST_COPY_FILE));
+
+        pgSession.dml("truncate table users");
+        pgSession.commit();
+
+        List<ImmutableUser> usersToLoad = new ArrayList<>();
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        for (ImmutableUser u : usersToLoad) {
+            pgSession.insertB("@sql/insert_user.sql", u);
+        }
+        pgSession.commit();
+
+        pgSession.copyOut(TEST_COPY_FILE, "copy users to stdout");
+        // can safely roll back, because file has already been created
+        pgSession.rollback();
+
+        pgSession.ddl("@sql/create_temp_dup_users_table.sql");
+        pgSession.commit();
+
+        pgSession.copyIn(TEST_COPY_FILE, "copy dup_users from stdin");
+        pgSession.commit();
+
+        // Let's use sql to do the checking for us
+        Long count = pgSession.selectOne(ReturnStyle.SCALAR_GUESSED, "select count(*) from (select * from users except select * from dup_users) as q", Long.class);
+        Assert.assertEquals(count.longValue(), 0L, "User tables must be the same after copy");
+    }
 }
