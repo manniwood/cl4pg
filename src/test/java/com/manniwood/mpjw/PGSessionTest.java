@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.postgresql.PGNotification;
+import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -211,10 +212,8 @@ public class PGSessionTest {
         Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
     }
 
-    // -5) Add tests of exception handling and rollback, to prove to yourself
-    // that what you think is happening is happening.
-
     // -4.5) Add tests to show how to capture exception text and act upon it
+    // as with foreign key constraint violations, etc.
 
     // -4) Do stored procs work? IN/OUT params? Stored procs
     // that return result sets?
@@ -236,9 +235,11 @@ public class PGSessionTest {
     // 7) find and document that JVM setting that makes java turn
     // reflection calls into compiled code faster (instead of waiting
     // for the default number of invocations).
-    // 9) get copy to/from working
     // 10) sql to be executed on startup of connection
     // 11) make psql exception more easily available in exceptions thrown
+    // 12) connection pooling; connection pools follow connection
+    // interface / api, so connection pooling could potentially
+    // be straightforward.
 
     @Test(priority=2)
     public void testDelete() {
@@ -506,5 +507,36 @@ public class PGSessionTest {
         // Let's use sql to do the checking for us
         Long count = pgSession.selectOne(ReturnStyle.SCALAR_GUESSED, "select count(*) from (select * from users except select * from dup_users) as q", Long.class);
         Assert.assertEquals(count.longValue(), 0L, "User tables must be the same after copy");
+    }
+
+    @Test(priority = 9)
+    public void testRollback() {
+        Throwable cause = null;
+        try {
+            pgSession.dml("select flurby");
+        } catch (MPJWException e) {
+            cause = e.getCause();
+        }
+        // MPJWException should have been thrown, and should have
+        // had a cause of type PSQLException
+        Assert.assertNotNull(cause);
+        PSQLException psqle = (PSQLException)cause;
+        log.info("test correctly caught following exception", psqle);
+        log.info("error code: {}", psqle.getErrorCode());
+        log.info("message: {}", psqle.getMessage());
+        log.info("server error message: {}", psqle.getServerErrorMessage());
+        log.info("SQL state: {}", psqle.getSQLState());
+
+        /* Furthermore, because of successful rollback, this next select
+         * should work, and we should NOT get this following exception:
+         * ERROR:  25P02: current transaction is aborted,
+         * commands ignored until end of transaction block
+         */
+        Integer actual = pgSession.selectOne(
+                ReturnStyle.SCALAR_GUESSED,
+                "select 1",
+                Integer.class);
+        pgSession.rollback();
+        Assert.assertEquals(actual.intValue(), 1, "Statement needs to return 1");
     }
 }
