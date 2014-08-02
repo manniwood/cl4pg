@@ -97,7 +97,7 @@ public class PGSessionTest {
         insertUser.setId(UUID.fromString(TEST_ID));
         insertUser.setName(TEST_USERNAME);
         insertUser.setPassword(TEST_PASSWORD);
-        pgSession.insertB("@sql/insert_user.sql", insertUser);
+        pgSession.insert(insertUser, "@sql/insert_user.sql");
         pgSession.commit();
 
         User u = pgSession.selectOne(
@@ -196,10 +196,14 @@ public class PGSessionTest {
         User anotherUser = new User();
         anotherUser.setId(UUID.fromString(ANOTHER_TEST_ID));
         // leave other fields null
-        pgSession.insertB("@sql/insert_user.sql", anotherUser);
+        pgSession.insert(anotherUser, "@sql/insert_user.sql");
         pgSession.commit();
 
-        User u = pgSession.selectOneVGuessSetters("@sql/select_user_guess_setters.sql", User.class, UUID.fromString(ANOTHER_TEST_ID));
+        User u = pgSession.selectOne(
+                ReturnStyle.BEAN_GUESSED_SETTERS,
+                "@sql/select_user_guess_setters.sql",
+                User.class,
+                UUID.fromString(ANOTHER_TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(u.getId(), UUID.fromString(ANOTHER_TEST_ID));
         Assert.assertNull(u.getPassword(), "Should be null");
@@ -243,7 +247,7 @@ public class PGSessionTest {
         user.setId(UUID.fromString(THIRD_ID));
         user.setName(THIRD_USERNAME);
         user.setPassword(THIRD_PASSWORD);
-        pgSession.insertB("@sql/insert_user.sql", user);
+        pgSession.insert(user, "@sql/insert_user.sql");
         pgSession.commit();
 
         User foundUser = pgSession.selectOne(
@@ -255,11 +259,15 @@ public class PGSessionTest {
 
         Assert.assertNotNull(foundUser, "User must be found.");
 
-        int numberDeleted = pgSession.deleteV("@sql/delete_user.sql", UUID.fromString(THIRD_ID));
+        int numberDeleted = pgSession.delete("@sql/delete_user.sql", UUID.fromString(THIRD_ID));
         pgSession.commit();
         Assert.assertEquals(numberDeleted, 1, "One user must be deleted.");
 
-        foundUser = pgSession.selectOneVGuessSetters("@sql/select_user_guess_setters.sql", User.class, UUID.fromString(THIRD_ID));
+        foundUser = pgSession.selectOne(
+                ReturnStyle.BEAN_GUESSED_SETTERS,
+                "@sql/select_user_guess_setters.sql",
+                User.class,
+                UUID.fromString(THIRD_ID));
         pgSession.rollback();
         Assert.assertNull(foundUser, "User must be found.");
     }
@@ -271,13 +279,13 @@ public class PGSessionTest {
         user.setEmployeeId(THIRD_EMPLOYEE_ID);
         user.setName(THIRD_USERNAME);
         user.setPassword(THIRD_PASSWORD);
-        pgSession.insertB("@sql/insert_user.sql", user);
+        pgSession.insert(user, "@sql/insert_user.sql");
         pgSession.commit();
 
         user.setEmployeeId(UPDATED_THIRD_EMPLOYEE_ID);
         user.setName(UPDATED_THIRD_USERNAME);
         user.setPassword(UPDATED_THIRD_PASSWORD);
-        int numberUpdated = pgSession.updateB("@sql/update_user.sql", user);
+        int numberUpdated = pgSession.update(user, "@sql/update_user.sql");
         pgSession.commit();
 
         User foundUser = pgSession.selectOne(
@@ -307,7 +315,7 @@ public class PGSessionTest {
         expected.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
         expected.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
         for (ImmutableUser u : expected) {
-            pgSession.insertB("@sql/insert_user.sql", u);
+            pgSession.insert(u, "@sql/insert_user.sql");
         }
         pgSession.commit();
         // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
@@ -331,7 +339,7 @@ public class PGSessionTest {
         usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
         usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
         for (ImmutableUser u : usersToLoad) {
-            pgSession.insertB("@sql/insert_user.sql", u);
+            pgSession.insert(u, "@sql/insert_user.sql");
         }
         pgSession.commit();
         // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
@@ -387,7 +395,7 @@ public class PGSessionTest {
         usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
         usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
         for (ImmutableUser u : usersToLoad) {
-            pgSession.insertB("@sql/insert_user.sql", u);
+            pgSession.insert(u, "@sql/insert_user.sql");
         }
         pgSession.commit();
         // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
@@ -443,11 +451,11 @@ public class PGSessionTest {
         expected.add("baz");
         expected.add("bal");
 
-        pgSession2.listen("foo");
+        pgSession2.pgListen("foo");
         pgSession2.commit();
 
         for (String s : expected) {
-            pgSession.notify("foo", s);
+            pgSession.pgNotify("foo", s);
         }
         pgSession.commit();
 
@@ -481,7 +489,7 @@ public class PGSessionTest {
         usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
         usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
         for (ImmutableUser u : usersToLoad) {
-            pgSession.insertB("@sql/insert_user.sql", u);
+            pgSession.insert(u, "@sql/insert_user.sql");
         }
         pgSession.commit();
 

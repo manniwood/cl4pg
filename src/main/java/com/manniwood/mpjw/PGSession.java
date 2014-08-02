@@ -98,26 +98,26 @@ public class PGSession {
         }
     }
 
-    public <T> void insertB(String insert, T t) {
+    public <T> void insert(T t, String insert) {
         String sql = resolveSQL(insert);
         CommandRunner.execute(new Insert<T>(converterStore, sql, conn, t));
     }
 
-    public <T> int updateB(String insert, T t) {
+    public <T> int update(T t, String insert) {
         String sql = resolveSQL(insert);
         Update<T> d = new Update<T>(converterStore, sql, conn, t);
         CommandRunner.execute(d);
         return d.getNumberOfRowsUpdated();
     }
 
-    public <T> int deleteB(String insert, T t) {
+    public <T> int delete(T t, String insert) {
         String sql = resolveSQL(insert);
         Delete<T> d = new Delete<T>(converterStore, sql, conn, t);
         CommandRunner.execute(d);
         return d.getNumberOfRowsDeleted();
     }
 
-    public int deleteV(String insert, Object...params) {
+    public int delete(String insert, Object...params) {
         String sql = resolveSQL(insert);
         DeleteVariadic d = new DeleteVariadic(converterStore, sql, conn, params);
         CommandRunner.execute(d);
@@ -200,7 +200,7 @@ public class PGSession {
         }
     }
 
-    public <T> T selectOneVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> T selectOneVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
         List<T> list = selectListVGuessSetters(sqlFile, returnType, params);
         if (list == null || list.isEmpty()) {
             return null;
@@ -211,7 +211,7 @@ public class PGSession {
         return list.get(0);
     }
 
-    public <T> T selectOneVGuessConstructor(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> T selectOneVGuessConstructor(String sqlFile, Class<T> returnType, Object... params) {
         List<T> list = selectListVGuessConstructor(sqlFile, returnType, params);
         if (list == null || list.isEmpty()) {
             return null;
@@ -222,7 +222,7 @@ public class PGSession {
         return list.get(0);
     }
 
-    public <T> T selectOneVSpecifySetters(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> T selectOneVSpecifySetters(String sqlFile, Class<T> returnType, Object... params) {
         List<T> list = selectListVSpecifySetters(sqlFile, returnType, params);
         if (list == null || list.isEmpty()) {
             return null;
@@ -233,7 +233,7 @@ public class PGSession {
         return list.get(0);
     }
 
-    public <T> T selectOneVSpecifyConstructor(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> T selectOneVSpecifyConstructor(String sqlFile, Class<T> returnType, Object... params) {
         List<T> list = selectListVSpecifyConstructor(sqlFile, returnType, params);
         if (list == null || list.isEmpty()) {
             return null;
@@ -245,7 +245,7 @@ public class PGSession {
     }
 
 
-    public <T, P> T selectOneBGuessSetters(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> T selectOneBGuessSetters(String sqlFile, Class<T> returnType, P p) {
         List<T> list = selectListBGuessSetters(sqlFile, returnType, p);
         if (list == null || list.isEmpty()) {
             return null;
@@ -256,7 +256,7 @@ public class PGSession {
         return list.get(0);
     }
 
-    public <T, P> T selectOneBGuessConstructor(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> T selectOneBGuessConstructor(String sqlFile, Class<T> returnType, P p) {
         List<T> list = selectListBGuessConstructor(sqlFile, returnType, p);
         if (list == null || list.isEmpty()) {
             return null;
@@ -267,7 +267,7 @@ public class PGSession {
         return list.get(0);
     }
 
-    public <T, P> T selectOneBSpecifySetters(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> T selectOneBSpecifySetters(String sqlFile, Class<T> returnType, P p) {
         List<T> list = selectListBSpecifySetters(sqlFile, returnType, p);
         if (list == null || list.isEmpty()) {
             return null;
@@ -278,7 +278,7 @@ public class PGSession {
         return list.get(0);
     }
 
-    public <T, P> T selectOneBSpecifyConstructor(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> T selectOneBSpecifyConstructor(String sqlFile, Class<T> returnType, P p) {
         List<T> list = selectListBSpecifyConstructor(sqlFile, returnType, p);
         if (list == null || list.isEmpty()) {
             return null;
@@ -291,7 +291,7 @@ public class PGSession {
 
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> selectListVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> List<T> selectListVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListVariadicGuessSetters<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(command);
@@ -299,7 +299,7 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> selectListVGuessConstructor(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> List<T> selectListVGuessConstructor(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListVariadicGuessConstructor<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(command);
@@ -307,7 +307,7 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> selectListVSpecifySetters(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> List<T> selectListVSpecifySetters(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListVariadicSpecifySetters<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(command);
@@ -315,7 +315,7 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> selectListVSpecifyConstructor(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> List<T> selectListVSpecifyConstructor(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListVariadicSpecifyConstructor<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(command);
@@ -323,7 +323,7 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, P> List<T> selectListBGuessSetters(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> List<T> selectListBGuessSetters(String sqlFile, Class<T> returnType, P p) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListBeanGuessSetters<T, P>(converterStore, sql, conn, returnType, p);
         CommandRunner.execute(command);
@@ -331,7 +331,7 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, P> List<T> selectListBGuessConstructor(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> List<T> selectListBGuessConstructor(String sqlFile, Class<T> returnType, P p) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListBeanGuessConstructor<T, P>(converterStore, sql, conn, returnType, p);
         CommandRunner.execute(command);
@@ -339,7 +339,7 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, P> List<T> selectListBSpecifySetters(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> List<T> selectListBSpecifySetters(String sqlFile, Class<T> returnType, P p) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListBeanSpecifySetters<T, P>(converterStore, sql, conn, returnType, p);
         CommandRunner.execute(command);
@@ -347,7 +347,7 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, P> List<T> selectListBSpecifyConstructor(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> List<T> selectListBSpecifyConstructor(String sqlFile, Class<T> returnType, P p) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListBeanSpecifyConstructor<T, P>(converterStore, sql, conn, returnType, p);
         CommandRunner.execute(command);
@@ -356,7 +356,7 @@ public class PGSession {
 
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> selectListVGuessScalar(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> List<T> selectListVGuessScalar(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListVariadicGuessScalar<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(command);
@@ -364,7 +364,7 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> selectListVSpecifyScalar(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> List<T> selectListVSpecifyScalar(String sqlFile, Class<T> returnType, Object... params) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListVariadicSpecifyScalar<T>(converterStore, sql, conn, returnType, params);
         CommandRunner.execute(command);
@@ -372,7 +372,7 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, P> List<T> selectListBGuessScalar(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> List<T> selectListBGuessScalar(String sqlFile, Class<T> returnType, P p) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListBeanGuessScalar<T, P>(converterStore, sql, conn, returnType, p);
         CommandRunner.execute(command);
@@ -380,7 +380,7 @@ public class PGSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, P> List<T> selectListBSpecifyScalar(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> List<T> selectListBSpecifyScalar(String sqlFile, Class<T> returnType, P p) {
         String sql = resolveSQL(sqlFile);
         Command command = new SelectListBeanSpecifyScalar<T, P>(converterStore, sql, conn, returnType, p);
         CommandRunner.execute(command);
@@ -388,7 +388,7 @@ public class PGSession {
     }
 
 
-    public <T> T selectOneVGuessScalar(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> T selectOneVGuessScalar(String sqlFile, Class<T> returnType, Object... params) {
         List<T> list = selectListVGuessScalar(sqlFile, returnType, params);
         if (list == null || list.isEmpty()) {
             return null;
@@ -399,7 +399,7 @@ public class PGSession {
         return list.get(0);
     }
 
-    public <T> T selectOneVSpecifyScalar(String sqlFile, Class<T> returnType, Object... params) {
+    private <T> T selectOneVSpecifyScalar(String sqlFile, Class<T> returnType, Object... params) {
         List<T> list = selectListVSpecifyScalar(sqlFile, returnType, params);
         if (list == null || list.isEmpty()) {
             return null;
@@ -410,7 +410,7 @@ public class PGSession {
         return list.get(0);
     }
 
-    public <T, P> T selectOneBGuessScalar(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> T selectOneBGuessScalar(String sqlFile, Class<T> returnType, P p) {
         List<T> list = selectListBGuessScalar(sqlFile, returnType, p);
         if (list == null || list.isEmpty()) {
             return null;
@@ -421,7 +421,7 @@ public class PGSession {
         return list.get(0);
     }
 
-    public <T, P> T selectOneBSpecifyScalar(String sqlFile, Class<T> returnType, P p) {
+    private <T, P> T selectOneBSpecifyScalar(String sqlFile, Class<T> returnType, P p) {
         List<T> list = selectListBSpecifyScalar(sqlFile, returnType, p);
         if (list == null || list.isEmpty()) {
             return null;
@@ -434,11 +434,11 @@ public class PGSession {
 
 
 
-    public void notify(String channel, String payload) {
+    public void pgNotify(String channel, String payload) {
         CommandRunner.execute(new Notify(converterStore, conn, channel, payload));
     }
 
-    public void listen(String channel) {
+    public void pgListen(String channel) {
         Listen listen = new Listen(conn, channel);
         CommandRunner.execute(listen);
     }
@@ -472,6 +472,7 @@ public class PGSession {
         CommandRunner.execute(new CopyFileIn(conn, copyFileName, sql));
     }
 
+    // TODO: make a version of this that just takes a reader, too
     public void copyOut(String copyFileName, String sql) {
         CommandRunner.execute(new CopyFileOut(conn, copyFileName, sql));
     }
