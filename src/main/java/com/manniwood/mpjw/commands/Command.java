@@ -25,11 +25,10 @@ package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public interface Command {
     String getSQL();
-    void execute() throws SQLException;
+    void execute() throws Exception;
     Connection getConnection();
     PreparedStatement getPreparedStatement();
 }

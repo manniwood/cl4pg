@@ -31,15 +31,21 @@ public class CommandRunner {
     public static void execute(Command pg) {
         try {
             pg.execute();
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            // Above, catch Exception instead of SQLException so that you can also
+            // roll back on other problems.
             try {
                 pg.getConnection().rollback();
             } catch (SQLException e1) {
-                // XXX: do we put e inside e1, so the user has all of the exceptions?
+                // put e inside e1, so the user has all of the exceptions
+                e1.initCause(e);
                 throw new MPJWException("Could not roll back connection after catching exception trying to execute " + pg.getSQL(), e1);
             }
             throw new MPJWException("ROLLED BACK. Exception while trying to run this sql statement: " + pg.getSQL(), e);
         } finally {
+            // XXX: genericize this to call any cleanup operation appropriate to the command.
+            // So, for most commands, it will close the prepared statement, but for others, it might
+            // also close files or anything else.
             if (pg.getPreparedStatement() != null) {
                 try {
                     pg.getPreparedStatement().close();

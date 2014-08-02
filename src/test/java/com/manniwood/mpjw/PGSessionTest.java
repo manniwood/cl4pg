@@ -202,6 +202,11 @@ public class PGSessionTest {
         Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
     }
 
+    // -5) Add tests of exception handling and rollback, to prove to yourself
+    // that what you think is happening is happening.
+
+    // -4.5) Add tests to show how to capture exception text and act upon it
+
     // -4) Do stored procs work? IN/OUT params? Stored procs
     // that return result sets?
 

@@ -32,12 +32,11 @@ import java.sql.SQLException;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
 
-import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.util.SQLSafetyUtil;
 
 public class CopyFileIn implements Command {
 
-    private String sql = "copy ";
+    private String sql;
     private final Connection conn;
     private final String copyFileName;
     private final String tableName;
@@ -57,14 +56,13 @@ public class CopyFileIn implements Command {
     }
 
     @Override
-    public void execute() throws SQLException {
+    public void execute() throws SQLException, IOException {
         CopyManager copyManager = ((PGConnection)conn).getCopyAPI();
-        FileReader fileReader;
+        FileReader fileReader= new FileReader(copyFileName);
         try {
-            fileReader = new FileReader(copyFileName);
-            copyManager.copyIn("copy foo from stdin", fileReader);
-        } catch (IOException e) {
-            throw new MPJWException("Problem trying to copy file " + copyFileName + " into table " + tableName, e);
+            copyManager.copyIn(sql, fileReader);
+        } finally {
+            fileReader.close();  // does this cause pg to barf? Does commit/rollback close the resource?
         }
     }
 
@@ -76,6 +74,22 @@ public class CopyFileIn implements Command {
     @Override
     public PreparedStatement getPreparedStatement() {
         return pstmt;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    public String getCopyFileName() {
+        return copyFileName;
+    }
+
+    public String getTableName() {
+        return tableName;
     }
 
 }
