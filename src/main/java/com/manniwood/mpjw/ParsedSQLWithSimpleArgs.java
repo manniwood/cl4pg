@@ -25,19 +25,14 @@ package com.manniwood.mpjw;
 
 import java.util.List;
 
-public class TransformedSQL {
-    private final String sql;
-    private final List<String> getters;
-    public TransformedSQL(String sql, List<String> getters) {
-        super();
-        this.sql = sql;
-        this.getters = getters;
+public class ParsedSQLWithSimpleArgs extends BaseParsedSQL implements ParsedSQLBundle {
+    private final List<String> args;
+    public ParsedSQLWithSimpleArgs(String sql, List<String> args) {
+        super(sql);
+        this.args = args;
     }
-    public String getSql() {
-        return sql;
-    }
-    public List<String> getGetters() {
-        return getters;
+    public List<String> getArgs() {
+        return args;
     }
 
 }

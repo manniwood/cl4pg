@@ -59,8 +59,8 @@ public class SQLTransformerTest {
     @Test
     public void testBean() {
         String sql = ResourceUtil.slurpFileFromClasspath("sql/insert_user.sql");
-        TransformedSQL tsql = SQLTransformer.transform(sql);
-        List<String> getters = tsql.getGetters();
+        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
+        List<String> getters = tsql.getArgs();
         Assert.assertEquals(getters.size(), correctGetters.size(), "Must have all getters.");
         for (int i = 0; i < correctGetters.size(); i++) {
             Assert.assertEquals(getters.get(i), correctGetters.get(i));
@@ -73,8 +73,8 @@ public class SQLTransformerTest {
     @Test
     public void testScalar() {
         String sql = ResourceUtil.slurpFileFromClasspath("sql/select_user_guess_setters.sql");
-        TransformedSQL tsql = SQLTransformer.transform(sql);
-        List<String> getters = tsql.getGetters();
+        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
+        List<String> getters = tsql.getArgs();
         Assert.assertEquals(getters.size(), correctScalarGetters.size(), "Must have all getters.");
         for (int i = 0; i < correctScalarGetters.size(); i++) {
             Assert.assertEquals(getters.get(i), correctScalarGetters.get(i));

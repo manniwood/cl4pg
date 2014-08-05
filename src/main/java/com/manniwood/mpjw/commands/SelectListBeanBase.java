@@ -27,7 +27,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.manniwood.mpjw.TransformedSQL;
+import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.converters.ConverterStore;
 
 public abstract class SelectListBeanBase<T, P> extends SelectListBase<T> implements Command {
@@ -45,12 +45,12 @@ public abstract class SelectListBeanBase<T, P> extends SelectListBase<T> impleme
     }
 
     @Override
-    protected void setSQLArguments(TransformedSQL tsql) throws SQLException {
-        List<String> types = tsql.getGetters();
+    protected void setSQLArguments(ParsedSQLWithSimpleArgs tsql) throws SQLException {
+        List<String> types = tsql.getArgs();
         if (types == null || types.isEmpty()) {
             return;
         }
-        converterStore.setSQLArguments(pstmt, p, tsql.getGetters());
+        converterStore.setSQLArguments(pstmt, p, tsql.getArgs());
     }
 
     @Override

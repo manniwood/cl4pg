@@ -23,44 +23,70 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw.commands;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
+import com.manniwood.mpjw.ComplexArg;
+import com.manniwood.mpjw.ParsedSQLWithComplexArgs;
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public abstract class SelectListBase<T> extends PreparedStatementCommand implements Command {
+public abstract class CallStoredProc<T> implements Command {
 
+    protected CallableStatement cstmt;
+    protected final String sql;
+    protected final Connection conn;
     protected final ConverterStore converterStore;
-    protected final Class<T> returnType;
-    protected List<T> list;
+    protected T t;
 
-    public SelectListBase(
+    public CallStoredProc(
             ConverterStore converterStore,
             String sql,
             Connection conn,
-            Class<T> returnType) {
+            T t) {
         super();
         this.converterStore = converterStore;
         this.sql = sql;
         this.conn = conn;
-        this.returnType = returnType;
+        this.t = t;
     }
 
     @Override
     public void execute() throws SQLException {
-        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
-        pstmt = conn.prepareStatement(tsql.getSql());
+        ParsedSQLWithComplexArgs tsql = SQLTransformer.transformWithInOut(sql);
+        cstmt = conn.prepareCall(tsql.getSql());
+
+        // XXX: this needs to register out parameters
+        // as well as set sql arguments
+        // cstmt..registerOutParameter(1, Types.VARCHAR);
+        // cstmt.setString(2, "test string");
         setSQLArguments(tsql);
-        populateList();
+        cstmt.execute();
+        // XXX: write a method that calls cstmt.getString(1) or
+        // whatever to get the out param, and t.setSomething()
+        // to set the param.
+        // callBeanSetters(cstmt, t)
     }
 
-    protected abstract void setSQLArguments(ParsedSQLWithSimpleArgs tsql) throws SQLException;
-    protected abstract void populateList() throws SQLException;
+    protected void setSQLArguments(ParsedSQLWithComplexArgs tsql) throws SQLException {
+        List<ComplexArg> args = tsql.getArgs();
+        // XXX: now go through args and for each getter/setter that
+        // is not null, do the appropriate registeroutparameter and/or
+        // setstring
 
-    public List<T> getResult() {
-        return list;
+        /*if (types == null || types.isEmpty()) {
+            return;
+        }
+        converterStore.setSQLArguments(cstmt, t, tsql.getArgs());*/
     }
+
+    @Override
+    public void cleanUp() throws Exception {
+        if (cstmt != null) {
+            cstmt.close();
+        }
+    }
+
 }

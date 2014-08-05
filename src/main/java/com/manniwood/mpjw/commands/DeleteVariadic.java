@@ -27,8 +27,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.SQLTransformer;
-import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
 public class DeleteVariadic extends PreparedStatementCommand implements Command {
@@ -47,9 +47,9 @@ public class DeleteVariadic extends PreparedStatementCommand implements Command 
 
     @Override
     public void execute() throws SQLException {
-        TransformedSQL tsql = SQLTransformer.transform(sql);
+        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
         pstmt = conn.prepareStatement(tsql.getSql());
-        List<String> types = tsql.getGetters();
+        List<String> types = tsql.getArgs();
         for (int i = 0; i < types.size(); i++) {
             converterStore.setSQLArgument(pstmt, i + 1, params[i], types.get(i));
         }

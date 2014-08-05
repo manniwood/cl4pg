@@ -21,39 +21,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw.commands;
+package com.manniwood.mpjw;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.util.List;
 
-import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
-import com.manniwood.mpjw.SQLTransformer;
-import com.manniwood.mpjw.converters.ConverterStore;
-
-public class Update<T> extends PreparedStatementCommand implements Command {
-
-    private final ConverterStore converterStore;
-    private final T t;
-    private int numberOfRowsUpdated;
-
-    public Update(ConverterStore converterStore, String sql, Connection conn, T t) {
-        super();
-        this.converterStore = converterStore;
-        this.sql = sql;
-        this.conn = conn;
-        this.t = t;
+public class ParsedSQLWithComplexArgs extends BaseParsedSQL implements ParsedSQLBundle {
+    private final List<ComplexArg> args;
+    public ParsedSQLWithComplexArgs(String sql, List<ComplexArg> args) {
+        super(sql);
+        this.args = args;
     }
-
-    @Override
-    public void execute() throws SQLException {
-        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
-        pstmt = conn.prepareStatement(tsql.getSql());
-        converterStore.setSQLArguments(pstmt, t, tsql.getArgs());
-        numberOfRowsUpdated = pstmt.executeUpdate();
-    }
-
-    public int getNumberOfRowsUpdated() {
-        return numberOfRowsUpdated;
+    public List<ComplexArg> getArgs() {
+        return args;
     }
 
 }

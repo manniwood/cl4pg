@@ -21,39 +21,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw.commands;
+package com.manniwood.mpjw;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 
-import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
-import com.manniwood.mpjw.SQLTransformer;
-import com.manniwood.mpjw.converters.ConverterStore;
-
-public class Update<T> extends PreparedStatementCommand implements Command {
-
-    private final ConverterStore converterStore;
-    private final T t;
-    private int numberOfRowsUpdated;
-
-    public Update(ConverterStore converterStore, String sql, Connection conn, T t) {
+public class BaseParsedSQL implements ParsedSQLBundle {
+    protected final String sql;
+    public BaseParsedSQL(String sql) {
         super();
-        this.converterStore = converterStore;
         this.sql = sql;
-        this.conn = conn;
-        this.t = t;
     }
-
-    @Override
-    public void execute() throws SQLException {
-        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
-        pstmt = conn.prepareStatement(tsql.getSql());
-        converterStore.setSQLArguments(pstmt, t, tsql.getArgs());
-        numberOfRowsUpdated = pstmt.executeUpdate();
-    }
-
-    public int getNumberOfRowsUpdated() {
-        return numberOfRowsUpdated;
+    public String getSql() {
+        return sql;
     }
 
 }

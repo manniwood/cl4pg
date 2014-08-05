@@ -26,8 +26,8 @@ package com.manniwood.mpjw.commands;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.SQLTransformer;
-import com.manniwood.mpjw.TransformedSQL;
 import com.manniwood.mpjw.converters.ConverterStore;
 
 public class Insert<T> extends PreparedStatementCommand implements Command {
@@ -45,9 +45,9 @@ public class Insert<T> extends PreparedStatementCommand implements Command {
 
     @Override
     public void execute() throws SQLException {
-        TransformedSQL tsql = SQLTransformer.transform(sql);
+        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
         pstmt = conn.prepareStatement(tsql.getSql());
-        converterStore.setSQLArguments(pstmt, t, tsql.getGetters());
+        converterStore.setSQLArguments(pstmt, t, tsql.getArgs());
         pstmt.execute();
     }
 
