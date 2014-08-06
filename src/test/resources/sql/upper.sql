@@ -1,0 +1,1 @@
+{ #{setUpperString} = call upper( #{getLowerString} ) }

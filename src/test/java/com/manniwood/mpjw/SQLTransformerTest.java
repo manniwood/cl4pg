@@ -42,6 +42,7 @@ public class SQLTransformerTest {
 
     public static List<String> correctScalarGetters;
 
+
     public static final String EXPECTED_SCALAR = "java.util.UUID";
 
     @BeforeClass
@@ -83,4 +84,42 @@ public class SQLTransformerTest {
         // XXX: how to I test that question marks replaced names?
         log.info("sql:\n{}", tsql.getSql());
     }
+
+    @Test
+    public void testComplex1() {
+        List<ComplexArg> correctComplexArgs = new ArrayList<>();
+        correctComplexArgs.add(new ComplexArg("getFirst", "setFirst"));
+        correctComplexArgs.add(new ComplexArg("getSecond", "setSecond"));
+
+        String sql = ResourceUtil.slurpFileFromClasspath("sql/swap.sql");
+        ParsedSQLWithComplexArgs tsql = SQLTransformer.transformWithInOut(sql);
+        List<ComplexArg> args = tsql.getArgs();
+        Assert.assertEquals(args.size(), correctComplexArgs.size(), "Must have all args.");
+        for (int i = 0; i < correctComplexArgs.size(); i++) {
+            Assert.assertEquals(args.get(i).getGetter(), correctComplexArgs.get(i).getGetter());
+            log.info("getter: {}, expected getter: {}", args.get(i).getGetter(), correctComplexArgs.get(i).getGetter());
+            Assert.assertEquals(args.get(i).getSetter(), correctComplexArgs.get(i).getSetter());
+            log.info("setter: {}, expected setter: {}", args.get(i).getSetter(), correctComplexArgs.get(i).getSetter());
+        }
+    }
+
+    @Test
+    public void testComplex2() {
+        List<ComplexArg> correctComplexArgs = new ArrayList<>();
+        correctComplexArgs.add(new ComplexArg(null, "setUpperString"));
+        correctComplexArgs.add(new ComplexArg("getLowerString", null));
+
+        String sql = ResourceUtil.slurpFileFromClasspath("sql/upper.sql");
+        ParsedSQLWithComplexArgs tsql = SQLTransformer.transformWithInOut(sql);
+        List<ComplexArg> args = tsql.getArgs();
+        Assert.assertEquals(args.size(), correctComplexArgs.size(), "Must have all args.");
+        for (int i = 0; i < correctComplexArgs.size(); i++) {
+            log.info("correct: {} found: {}", correctComplexArgs.get(i), args.get(i));
+            Assert.assertEquals(args.get(i).getGetter(), correctComplexArgs.get(i).getGetter());
+            log.info("getter: {}, expected getter: {}", args.get(i).getGetter(), correctComplexArgs.get(i).getGetter());
+            Assert.assertEquals(args.get(i).getSetter(), correctComplexArgs.get(i).getSetter());
+            log.info("setter: {}, expected setter: {}", args.get(i).getSetter(), correctComplexArgs.get(i).getSetter());
+        }
+    }
+
 }
