@@ -23,9 +23,11 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw.converters;
 
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.UUID;
 
 public class UUIDConverter extends BaseConverter<UUID>{
@@ -38,5 +40,15 @@ public class UUIDConverter extends BaseConverter<UUID>{
     @Override
     public UUID getItem(ResultSet rs, int i)  throws SQLException {
         return (UUID) rs.getObject(i);
+    }
+
+    @Override
+    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
+        cstmt.registerOutParameter(i, Types.OTHER);
+    }
+
+    @Override
+    public UUID getItem(CallableStatement cstmt, int i)  throws SQLException {
+        return (UUID) cstmt.getObject(i);
     }
 }

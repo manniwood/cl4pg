@@ -28,12 +28,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.manniwood.mpjw.ComplexArg;
 import com.manniwood.mpjw.ParsedSQLWithComplexArgs;
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.mpjw.converters.SetterAndConverter;
 
-public abstract class CallStoredProc<T> implements Command {
+public class CallStoredProc<T> implements Command {
 
     protected CallableStatement cstmt;
     protected final String sql;
@@ -57,36 +57,30 @@ public abstract class CallStoredProc<T> implements Command {
     public void execute() throws SQLException {
         ParsedSQLWithComplexArgs tsql = SQLTransformer.transformWithInOut(sql);
         cstmt = conn.prepareCall(tsql.getSql());
-
-        // XXX: this needs to register out parameters
-        // as well as set sql arguments
-        // cstmt..registerOutParameter(1, Types.VARCHAR);
-        // cstmt.setString(2, "test string");
-        setSQLArguments(tsql);
+        // XXX I'm already finding the setters here, so...
+        converterStore.setSQLArguments(cstmt, t, tsql.getArgs());
         cstmt.execute();
-        // XXX: write a method that calls cstmt.getString(1) or
-        // whatever to get the out param, and t.setSomething()
-        // to set the param.
-        // callBeanSetters(cstmt, t)
+        // XXX ...it's a shame to have to do it again here. Is there a better way?
+        List<SetterAndConverter> settersAndConverters = converterStore.specifySetters(cstmt, t.getClass(), tsql.getArgs());
+        converterStore.populateBeanUsingSetters(cstmt, t, settersAndConverters);
     }
 
-    protected void setSQLArguments(ParsedSQLWithComplexArgs tsql) throws SQLException {
-        List<ComplexArg> args = tsql.getArgs();
-        // XXX: now go through args and for each getter/setter that
-        // is not null, do the appropriate registeroutparameter and/or
-        // setstring
-
-        /*if (types == null || types.isEmpty()) {
-            return;
-        }
-        converterStore.setSQLArguments(cstmt, t, tsql.getArgs());*/
-    }
 
     @Override
     public void cleanUp() throws Exception {
         if (cstmt != null) {
             cstmt.close();
         }
+    }
+
+    @Override
+    public String getSQL() {
+        return sql;
+    }
+
+    @Override
+    public Connection getConnection() {
+        return conn;
     }
 
 }

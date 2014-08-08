@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw.converters;
 
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,4 +31,6 @@ import java.sql.SQLException;
 public interface Converter<T> {
     void setItem(PreparedStatement pstmt, int i, T t) throws SQLException;
     T getItem(ResultSet rs, int i) throws SQLException;
+    void registerOutParameter(CallableStatement cstmt, int i) throws SQLException;
+    T getItem(CallableStatement cstmt, int i) throws SQLException;
 }

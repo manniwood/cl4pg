@@ -23,9 +23,11 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw.converters;
 
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 public class StringConverter extends BaseConverter<String>{
 
@@ -37,5 +39,15 @@ public class StringConverter extends BaseConverter<String>{
     @Override
     public String getItem(ResultSet rs, int i) throws SQLException {
         return rs.getString(i);
+    }
+
+    @Override
+    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
+        cstmt.registerOutParameter(i, Types.VARCHAR);
+    }
+
+    @Override
+    public String getItem(CallableStatement cstmt, int i) throws SQLException {
+        return cstmt.getString(i);
     }
 }

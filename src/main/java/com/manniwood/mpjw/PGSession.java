@@ -33,6 +33,7 @@ import org.postgresql.PGNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.manniwood.mpjw.commands.CallStoredProc;
 import com.manniwood.mpjw.commands.Command;
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.CopyFileIn;
@@ -479,21 +480,10 @@ public class PGSession {
 
     // TODO: make copy between two connections
 
-    @SuppressWarnings("unchecked")
-    private <T, P> List<T> callProcBSpecifySetters(String sqlFile, Class<T> returnType, P p) {
+    public <T> void callProc(String sqlFile, T t) {
         String sql = resolveSQL(sqlFile);
-        // START HERE: Change SelectListBeanSpecifySetters into what you need it to be.
-        // You will probably have to add a new method to ConverterStore that
-        // fetches both the getters and the setters of the bean.
-        // Or a new BaseSQLTransformer method to transform the SQL.
-        // Because instead of preparing a prepared statement, we will need
-        // to prepare a CallableStatement. By introspecting the bean's
-        // get/set methods, we will be able to determine the
-        // registerOutParameter datatypes to use, as well as the
-        // getObject methods to use for the callableStatement.
-        Command command = new SelectListBeanSpecifySetters<T, P>(converterStore, sql, conn, returnType, p);
+        Command command = new CallStoredProc<T>(converterStore, sql, conn, t);
         CommandRunner.execute(command);
-        return ((SelectListBase<T>)command).getResult();
     }
 
 

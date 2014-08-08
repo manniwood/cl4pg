@@ -23,9 +23,11 @@ THE SOFTWARE.
 */
 package com.manniwood.mpjw.converters;
 
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 public class LongConverter extends BaseConverter<Long>{
 
@@ -40,4 +42,15 @@ public class LongConverter extends BaseConverter<Long>{
     public Long getItem(ResultSet rs, int i) throws SQLException {
         return rs.getLong(i);
     }
+
+    @Override
+    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
+        cstmt.registerOutParameter(i, Types.BIGINT);
+    }
+
+    @Override
+    public Long getItem(CallableStatement cstmt, int i) throws SQLException {
+        return cstmt.getLong(i);
+    }
+
 }

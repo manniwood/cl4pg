@@ -26,6 +26,7 @@ package com.manniwood.mpjw.converters;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -39,6 +40,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.manniwood.mpjw.ComplexArg;
 import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.util.ColumnLabelConverter;
 
@@ -115,6 +117,41 @@ public class ConverterStore {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public <P> void setSQLArguments(CallableStatement cstmt, P p, List<ComplexArg> args) throws SQLException {
+        int i = 0;
+        Class<?> tclass = p.getClass();
+        try {
+            for (ComplexArg arg : args) {
+                i++;
+                String getter = arg.getGetter();
+                if (getter != null && ! getter.isEmpty()) {
+                    Method m = tclass.getMethod(getter);
+                    Object o = m.invoke(p);
+                    Class<?> returnClass = m.getReturnType();
+                    Converter<P> converter = (Converter<P>)converters.get(returnClass);
+                    converter.setItem(cstmt, i, (P)o);
+                }
+                String setter = arg.getSetter();
+                if (setter != null && ! setter.isEmpty()) {
+                    Method[] methods = tclass.getMethods();
+                    Method sm = null;
+                    for (Method m : methods) {
+                        if (m.getName().equals(setter)) {
+                            sm = m;
+                        }
+                    }
+                    Class<?>[] paramTypes = sm.getParameterTypes();
+                    Class<?> setterClass = paramTypes[0];
+                    Converter<P> converter = (Converter<P>)converters.get(setterClass);
+                    converter.registerOutParameter(cstmt, i);
+                }
+            }
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new MPJWException(e);
+        }
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setSQLArgument(PreparedStatement pstmt, int i, Object param, String className) throws SQLException {
         Class<?> parameterType = null;
@@ -156,6 +193,29 @@ public class ConverterStore {
             for (int i = 1 /* JDBC cols start at 1 */; i <= numCols; i++) {
                 String className = md.getColumnClassName(i);
                 String setterName = md.getColumnLabel(i);
+                Class<?> parameterType = Class.forName(className);
+                Method setter = findMethod(returnType, parameterType, setterName);
+                Converter<?> converter = converters.get(parameterType);
+                settersAndConverters.add(new SetterAndConverter(converter, setter));
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
+            throw new MPJWException(e);
+        }
+        return settersAndConverters;
+    }
+
+    public <T> List<SetterAndConverter> specifySetters(CallableStatement cstmt, Class<T> returnType, List<ComplexArg> args) throws SQLException {
+        List<SetterAndConverter> settersAndConverters = new ArrayList<>();
+        try {
+            int i = 0;
+            ResultSetMetaData md = cstmt.getMetaData();
+            for (ComplexArg arg : args) {
+                i++;
+                String setterName = arg.getSetter();
+                if (setterName == null || setterName.isEmpty()) {
+                    continue;
+                }
+                String className = md.getColumnClassName(i);
                 Class<?> parameterType = Class.forName(className);
                 Method setter = findMethod(returnType, parameterType, setterName);
                 Converter<?> converter = converters.get(parameterType);
@@ -217,6 +277,19 @@ public class ConverterStore {
                 col++;
             }
         } catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
+            throw new MPJWException(e);
+        }
+        return t;
+    }
+
+    public <T> T populateBeanUsingSetters(CallableStatement cstmt, T t, List<SetterAndConverter> settersAndConverters) throws SQLException {
+        try {
+            int col = 1;  // JDBC cols start at 1, not zero
+            for (SetterAndConverter sac : settersAndConverters) {
+                sac.getSetter().invoke(t, sac.getConverter().getItem(cstmt, col));
+                col++;
+            }
+        } catch (IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException(e);
         }
         return t;

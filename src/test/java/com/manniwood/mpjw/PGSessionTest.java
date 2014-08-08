@@ -39,6 +39,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.manniwood.mpjw.test.etc.ImmutableUser;
+import com.manniwood.mpjw.test.etc.TwoInts;
 import com.manniwood.mpjw.test.etc.User;
 
 public class PGSessionTest {
@@ -538,5 +539,26 @@ public class PGSessionTest {
                 Integer.class);
         pgSession.rollback();
         Assert.assertEquals(actual.intValue(), 1, "Statement needs to return 1");
+    }
+
+    @Test(priority = 10)
+    public void testProc() {
+        pgSession.ddl("@sql/create_swap_func.sql");
+        pgSession.commit();
+
+        TwoInts expected = new TwoInts();
+        expected.setFirst(2);
+        expected.setSecond(1);
+
+        TwoInts actual = new TwoInts();
+        actual.setFirst(1);
+        actual.setSecond(2);
+
+        pgSession.callProc("@sql/swap.sql", actual);
+
+        Assert.assertEquals(actual, expected, "Swap needs to have happened.");
+
+        pgSession.ddl("@sql/drop_swap_func.sql");
+        pgSession.commit();
     }
 }
