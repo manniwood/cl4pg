@@ -134,14 +134,13 @@ public class ConverterStore {
                 }
                 String setter = arg.getSetter();
                 if (setter != null && ! setter.isEmpty()) {
-                    Method[] methods = tclass.getMethods();
-                    Method sm = null;
-                    for (Method m : methods) {
+                    Method setMethod = null;
+                    for (Method m : tclass.getMethods()) {
                         if (m.getName().equals(setter)) {
-                            sm = m;
+                            setMethod = m;
                         }
                     }
-                    Class<?>[] paramTypes = sm.getParameterTypes();
+                    Class<?>[] paramTypes = setMethod.getParameterTypes();
                     Class<?> setterClass = paramTypes[0];
                     Converter<P> converter = (Converter<P>)converters.get(setterClass);
                     converter.registerOutParameter(cstmt, i);

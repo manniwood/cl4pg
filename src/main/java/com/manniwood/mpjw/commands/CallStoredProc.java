@@ -58,6 +58,8 @@ public class CallStoredProc<T> implements Command {
         ParsedSQLWithComplexArgs tsql = SQLTransformer.transformWithInOut(sql);
         cstmt = conn.prepareCall(tsql.getSql());
         // XXX I'm already finding the setters here, so...
+        // And the only reason why I'm finding the setter is so that
+        // I can registerOutParameter; is there a better way?
         converterStore.setSQLArguments(cstmt, t, tsql.getArgs());
         cstmt.execute();
         // XXX ...it's a shame to have to do it again here. Is there a better way?
