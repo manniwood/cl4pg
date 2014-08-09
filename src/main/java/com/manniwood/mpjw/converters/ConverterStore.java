@@ -99,18 +99,22 @@ public class ConverterStore {
         primitiveNamesToClasses.put("char", char.class);
     }
 
-    @SuppressWarnings("unchecked")
     public <P> void setSQLArguments(PreparedStatement pstmt, P p, List<String> getters) throws SQLException {
-        int i = 0;
+        setSQLArguments(pstmt, p, getters, 1);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <P> void setSQLArguments(PreparedStatement pstmt, P p, List<String> getters, int startCol) throws SQLException {
+        int i = startCol;
         Class<?> tclass = p.getClass();
         try {
             for (String getter : getters) {
-                i++;
                 Method m = tclass.getMethod(getter);
                 Object o = m.invoke(p);
                 Class<?> returnClass = m.getReturnType();
                 Converter<P> converter = (Converter<P>)converters.get(returnClass);
                 converter.setItem(pstmt, i, (P)o);
+                i++;
             }
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException(e);
@@ -393,6 +397,10 @@ public class ConverterStore {
             m = returnType.getMethod(setterName, primitiveType);
         }
         return m;
+    }
+
+    public Map<Class<?>, Converter<?>> getConverters() {
+        return converters;
     }
 
 }

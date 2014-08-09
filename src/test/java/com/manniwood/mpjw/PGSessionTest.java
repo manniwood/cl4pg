@@ -603,4 +603,23 @@ public class PGSessionTest {
         pgSession.ddl("@sql/drop_add_to_last.sql");
         pgSession.commit();
     }
+
+    @Test(priority = 13)
+    public void testProcReturnScalar() {
+        pgSession.ddl("@sql/create_add_and_return.sql");
+        pgSession.commit();
+
+        TwoInts param = new TwoInts();
+        param.setFirst(2);
+        param.setSecond(3);
+
+        int expected = 5;
+
+        int actual = pgSession.callProcReturnScalar("@sql/add_and_return.sql", Integer.class, param);
+
+        Assert.assertEquals(actual, expected, "Add to last needs to have happened.");
+
+        pgSession.ddl("@sql/drop_add_and_return.sql");
+        pgSession.commit();
+    }
 }

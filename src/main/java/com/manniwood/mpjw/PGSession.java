@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.manniwood.mpjw.commands.CallStoredProc;
+import com.manniwood.mpjw.commands.CallStoredProcReturnScalar;
 import com.manniwood.mpjw.commands.Command;
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.CopyFileIn;
@@ -484,6 +485,13 @@ public class PGSession {
         String sql = resolveSQL(sqlFile);
         Command command = new CallStoredProc<T>(converterStore, sql, conn, t);
         CommandRunner.execute(command);
+    }
+
+    public <T, P> T callProcReturnScalar(String sqlFile, Class<T> returnType, P p) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new CallStoredProcReturnScalar<T, P>(converterStore, sql, conn, returnType, p);
+        CommandRunner.execute(command);
+        return ((CallStoredProcReturnScalar<T, P>)command).getResult();
     }
 
 

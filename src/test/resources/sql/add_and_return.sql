@@ -1,0 +1,1 @@
+{ #{java.lang.Integer} = call add_and_return( #{getFirst}, #{getSecond} ) }
