@@ -143,6 +143,7 @@ public class ConverterStore {
                     Class<?>[] paramTypes = setMethod.getParameterTypes();
                     Class<?> setterClass = paramTypes[0];
                     Converter<P> converter = (Converter<P>)converters.get(setterClass);
+                    log.debug("setter converter {} for offset {}", converter, i);
                     converter.registerOutParameter(cstmt, i);
                 }
             }
@@ -203,22 +204,29 @@ public class ConverterStore {
         return settersAndConverters;
     }
 
-    public <T> List<SetterAndConverter> specifySetters(CallableStatement cstmt, Class<T> returnType, List<ComplexArg> args) throws SQLException {
-        List<SetterAndConverter> settersAndConverters = new ArrayList<>();
+    public <T> List<SetterAndConverterAndColNum> specifySetters(CallableStatement cstmt, Class<T> returnType, List<ComplexArg> args) throws SQLException {
+        List<SetterAndConverterAndColNum> settersAndConverters = new ArrayList<>();
         try {
-            int i = 0;
+            int absCol = 0;
+            int setCol = 1;
             ResultSetMetaData md = cstmt.getMetaData();
             for (ComplexArg arg : args) {
-                i++;
+                absCol++;
                 String setterName = arg.getSetter();
                 if (setterName == null || setterName.isEmpty()) {
+                    // setterName is null, so do not increment i.
+                    // There are *only* as many return columns as there
+                    // are out params, *not* as many return columns
+                    // as there are params
                     continue;
                 }
-                String className = md.getColumnClassName(i);
+                String className = md.getColumnClassName(setCol);
                 Class<?> parameterType = Class.forName(className);
                 Method setter = findMethod(returnType, parameterType, setterName);
                 Converter<?> converter = converters.get(parameterType);
-                settersAndConverters.add(new SetterAndConverter(converter, setter));
+                settersAndConverters.add(new SetterAndConverterAndColNum(converter, setter, absCol, setCol));
+                // only increment for non-null setters
+                setCol++;
             }
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
             throw new MPJWException(e);
@@ -281,12 +289,11 @@ public class ConverterStore {
         return t;
     }
 
-    public <T> T populateBeanUsingSetters(CallableStatement cstmt, T t, List<SetterAndConverter> settersAndConverters) throws SQLException {
+    public <T> T populateBeanUsingSetters(CallableStatement cstmt, T t, List<SetterAndConverterAndColNum> settersAndConverters) throws SQLException {
         try {
-            int col = 1;  // JDBC cols start at 1, not zero
-            for (SetterAndConverter sac : settersAndConverters) {
-                sac.getSetter().invoke(t, sac.getConverter().getItem(cstmt, col));
-                col++;
+            for (SetterAndConverterAndColNum sac : settersAndConverters) {
+                log.debug("Calling setter {} for column {}", sac.getConverter(), sac.getColNum());
+                sac.getSetter().invoke(t, sac.getConverter().getItem(cstmt, sac.getColNum()));
             }
         } catch (IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException(e);

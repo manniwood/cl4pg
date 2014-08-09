@@ -31,7 +31,7 @@ import java.util.List;
 import com.manniwood.mpjw.ParsedSQLWithComplexArgs;
 import com.manniwood.mpjw.SQLTransformer;
 import com.manniwood.mpjw.converters.ConverterStore;
-import com.manniwood.mpjw.converters.SetterAndConverter;
+import com.manniwood.mpjw.converters.SetterAndConverterAndColNum;
 
 public class CallStoredProc<T> implements Command {
 
@@ -63,7 +63,7 @@ public class CallStoredProc<T> implements Command {
         converterStore.setSQLArguments(cstmt, t, tsql.getArgs());
         cstmt.execute();
         // XXX ...it's a shame to have to do it again here. Is there a better way?
-        List<SetterAndConverter> settersAndConverters = converterStore.specifySetters(cstmt, t.getClass(), tsql.getArgs());
+        List<SetterAndConverterAndColNum> settersAndConverters = converterStore.specifySetters(cstmt, t.getClass(), tsql.getArgs());
         converterStore.populateBeanUsingSetters(cstmt, t, settersAndConverters);
     }
 

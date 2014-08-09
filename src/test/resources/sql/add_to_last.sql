@@ -1,0 +1,1 @@
+{ call add_to_last( #{getFirst}, #{getSecond/setSecond} ) }

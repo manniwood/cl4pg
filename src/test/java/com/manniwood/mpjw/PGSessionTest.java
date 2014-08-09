@@ -542,7 +542,7 @@ public class PGSessionTest {
     }
 
     @Test(priority = 10)
-    public void testProc() {
+    public void testProcSwap() {
         pgSession.ddl("@sql/create_swap_func.sql");
         pgSession.commit();
 
@@ -559,6 +559,48 @@ public class PGSessionTest {
         Assert.assertEquals(actual, expected, "Swap needs to have happened.");
 
         pgSession.ddl("@sql/drop_swap_func.sql");
+        pgSession.commit();
+    }
+
+    @Test(priority = 11)
+    public void testProcAddInPlace1() {
+        pgSession.ddl("@sql/create_add_to_first.sql");
+        pgSession.commit();
+
+        TwoInts expected = new TwoInts();
+        expected.setFirst(5);
+        expected.setSecond(3);
+
+        TwoInts actual = new TwoInts();
+        actual.setFirst(2);
+        actual.setSecond(3);
+
+        pgSession.callProc("@sql/add_to_first.sql", actual);
+
+        Assert.assertEquals(actual, expected, "Add to first needs to have happened.");
+
+        pgSession.ddl("@sql/drop_add_to_first.sql");
+        pgSession.commit();
+    }
+
+    @Test(priority = 12)
+    public void testProcAddInPlace2() {
+        pgSession.ddl("@sql/create_add_to_last.sql");
+        pgSession.commit();
+
+        TwoInts expected = new TwoInts();
+        expected.setFirst(2);
+        expected.setSecond(5);
+
+        TwoInts actual = new TwoInts();
+        actual.setFirst(2);
+        actual.setSecond(3);
+
+        pgSession.callProc("@sql/add_to_last.sql", actual);
+
+        Assert.assertEquals(actual, expected, "Add to last needs to have happened.");
+
+        pgSession.ddl("@sql/drop_add_to_last.sql");
         pgSession.commit();
     }
 }
