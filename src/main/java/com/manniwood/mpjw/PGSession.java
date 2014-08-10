@@ -60,6 +60,8 @@ import com.manniwood.mpjw.commands.SelectListVariadicGuessSetters;
 import com.manniwood.mpjw.commands.SelectListVariadicSpecifyConstructor;
 import com.manniwood.mpjw.commands.SelectListVariadicSpecifyScalar;
 import com.manniwood.mpjw.commands.SelectListVariadicSpecifySetters;
+import com.manniwood.mpjw.commands.SelectUsingListenerBean;
+import com.manniwood.mpjw.commands.SelectUsingListenerVariadic;
 import com.manniwood.mpjw.commands.Update;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
@@ -69,6 +71,8 @@ public class PGSession {
     private final static Logger log = LoggerFactory.getLogger(PGSession.class);
 
     private Connection conn = null;
+
+    // XXX: make all of these dynamically settable
     private String hostname = "localhost";
     private int dbPort = 5432;
     private String dbName = "postgres";
@@ -124,6 +128,18 @@ public class PGSession {
         DeleteVariadic d = new DeleteVariadic(converterStore, sql, conn, params);
         CommandRunner.execute(d);
         return d.getNumberOfRowsDeleted();
+    }
+
+    public void select(String sqlFile, ResultSetListener listener, Object... params) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectUsingListenerVariadic(converterStore, sql, conn, listener, params);
+        CommandRunner.execute(command);
+    }
+
+    public <P> void select(String sqlFile, P p, ResultSetListener listener) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SelectUsingListenerBean<P>(converterStore, sql, conn, listener, p);
+        CommandRunner.execute(command);
     }
 
     public <T> T selectOne(ReturnStyle returnStyle, String sqlFile, Class<T> returnType, Object... params) {
@@ -487,6 +503,7 @@ public class PGSession {
         CommandRunner.execute(command);
     }
 
+    @SuppressWarnings("unchecked")
     public <T, P> T callProcReturnScalar(String sqlFile, Class<T> returnType, P p) {
         String sql = resolveSQL(sqlFile);
         Command command = new CallStoredProcReturnScalar<T, P>(converterStore, sql, conn, returnType, p);

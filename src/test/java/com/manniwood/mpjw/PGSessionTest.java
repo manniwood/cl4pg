@@ -216,8 +216,7 @@ public class PGSessionTest {
     // -4.5) Add tests to show how to capture exception text and act upon it
     // as with foreign key constraint violations, etc.
 
-    // -4) Do stored procs work? IN/OUT params? Stored procs
-    // that return result sets?
+    // -4) Do stored procs that return result sets
 
     // -2) Write better comments in files
 
@@ -232,15 +231,13 @@ public class PGSessionTest {
     // for when a user just needs a quick way of getting the objects
     // out of a query, and doesn't mind doing the casting himself.
     // 4) More type converters
-    // 5) manual conversion, for complexity and performance reasons
     // 7) find and document that JVM setting that makes java turn
     // reflection calls into compiled code faster (instead of waiting
     // for the default number of invocations).
     // 10) sql to be executed on startup of connection
     // 11) make psql exception more easily available in exceptions thrown
-    // 12) connection pooling; connection pools follow connection
-    // interface / api, so connection pooling could potentially
-    // be straightforward.
+    // 12) Converters registerable and addable by end-users
+    // 13) Better conf capabilities
 
     @Test(priority=2)
     public void testDelete() {
@@ -621,5 +618,15 @@ public class PGSessionTest {
 
         pgSession.ddl("@sql/drop_add_and_return.sql");
         pgSession.commit();
+    }
+
+    @Test(priority = 14)
+    public void testListenerVariadic() {
+        // TODO
+    }
+
+    @Test(priority = 15)
+    public void testListenerBean() {
+        // TODO
     }
 }
