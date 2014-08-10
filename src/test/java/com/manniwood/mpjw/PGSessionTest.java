@@ -211,6 +211,9 @@ public class PGSessionTest {
         Assert.assertNull(u.getPassword(), "Should be null");
         Assert.assertNull(u.getName(), "Should be null");
         Assert.assertEquals(u.getEmployeeId(), 0, "Should be 0");
+
+        // XXX: document why these nulls work, and why wrapper types should
+        // be used instead of primitive types when nulls are required.
     }
 
     // -4.5) Add tests to show how to capture exception text and act upon it
@@ -629,4 +632,40 @@ public class PGSessionTest {
     public void testListenerBean() {
         // TODO
     }
+
+    @Test(priority = 16)
+    public void testProcReturnRefCursor() {
+        pgSession.dml("truncate table users");
+        pgSession.commit();
+
+        ImmutableUser expected = new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3);
+
+        List<ImmutableUser> usersToLoad = new ArrayList<>();
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        for (ImmutableUser u : usersToLoad) {
+            pgSession.insert(u, "@sql/insert_user.sql");
+        }
+        pgSession.commit();
+
+
+        pgSession.ddl("@sql/create_get_user_by_id_func.sql");
+        pgSession.commit();
+
+        ImmutableUser actual = pgSession.spSelectOne(
+                "@sql/select_user_p_refcursor.sql",
+                ImmutableUser.class,
+                expected,
+                ReturnStyle.BEAN_GUESSED_CONS_ARGS);
+
+        Assert.assertEquals(actual, expected, "Correct user needs to have been selected.");
+
+        pgSession.ddl("@sql/drop_get_user_by_id_func.sql");
+        pgSession.commit();
+
+        pgSession.dml("truncate table users");
+        pgSession.commit();
+    }
+
 }

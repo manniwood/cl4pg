@@ -47,6 +47,8 @@ import com.manniwood.mpjw.commands.Insert;
 import com.manniwood.mpjw.commands.Listen;
 import com.manniwood.mpjw.commands.Notify;
 import com.manniwood.mpjw.commands.Rollback;
+import com.manniwood.mpjw.commands.SPSelectListBase;
+import com.manniwood.mpjw.commands.SPSelectListBeanGuessConstructor;
 import com.manniwood.mpjw.commands.SelectListBase;
 import com.manniwood.mpjw.commands.SelectListBeanGuessConstructor;
 import com.manniwood.mpjw.commands.SelectListBeanGuessScalar;
@@ -218,6 +220,25 @@ public class PGSession {
         }
     }
 
+    public <T, P> T spSelectOne(String sqlFile, Class<T> returnType, P p, ReturnStyle returnStyle) {
+        switch (returnStyle) {
+        case SCALAR_EXPLICIT:  // TODO
+            return selectOneBSpecifyScalar(sqlFile, returnType, p);
+        case SCALAR_GUESSED:  // TODO
+            return selectOneBGuessScalar(sqlFile, returnType, p);
+        case BEAN_EXPLICIT_CONS_ARGS:  // TODO
+            return selectOneBSpecifyConstructor(sqlFile, returnType, p);
+        case BEAN_EXPLICIT_SETTERS:  // TODO
+            return selectOneBSpecifySetters(sqlFile, returnType, p);
+        case BEAN_GUESSED_CONS_ARGS:
+            return spSelectOneBGuessConstructor(sqlFile, returnType, p);
+        case BEAN_GUESSED_SETTERS:  // TODO
+            return selectOneBGuessSetters(sqlFile, returnType, p);
+        default:
+            throw new MPJWException("Invalid returnStyle: " + returnStyle);
+        }
+    }
+
     private <T> T selectOneVGuessSetters(String sqlFile, Class<T> returnType, Object... params) {
         List<T> list = selectListVGuessSetters(sqlFile, returnType, params);
         if (list == null || list.isEmpty()) {
@@ -276,6 +297,17 @@ public class PGSession {
 
     private <T, P> T selectOneBGuessConstructor(String sqlFile, Class<T> returnType, P p) {
         List<T> list = selectListBGuessConstructor(sqlFile, returnType, p);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new MoreThanOneResultException("More than one result found when trying to get only one result running the following query:\n" + sqlFile);
+        }
+        return list.get(0);
+    }
+
+    private <T, P> T spSelectOneBGuessConstructor(String sqlFile, Class<T> returnType, P p) {
+        List<T> list = spSelectListBGuessConstructor(sqlFile, returnType, p);
         if (list == null || list.isEmpty()) {
             return null;
         }
@@ -354,6 +386,14 @@ public class PGSession {
         Command command = new SelectListBeanGuessConstructor<T, P>(converterStore, sql, conn, returnType, p);
         CommandRunner.execute(command);
         return ((SelectListBase<T>)command).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T, P> List<T> spSelectListBGuessConstructor(String sqlFile, Class<T> returnType, P p) {
+        String sql = resolveSQL(sqlFile);
+        Command command = new SPSelectListBeanGuessConstructor<T, P>(converterStore, sql, conn, returnType, p);
+        CommandRunner.execute(command);
+        return ((SPSelectListBase<T>)command).getResult();
     }
 
     @SuppressWarnings("unchecked")

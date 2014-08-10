@@ -25,6 +25,7 @@ package com.manniwood.mpjw.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import com.manniwood.mpjw.MPJWException;
@@ -33,7 +34,11 @@ public class ResourceUtil {
 
     public static String slurpFileFromClasspath(String path) {
         StringBuilder sb = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(ResourceUtil.class.getClassLoader().getResourceAsStream(path)));
+        InputStream is = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
+        if (is == null) {
+            throw new MPJWException("SQL file \"" + path + "\" could not be found in the CLASSPATH.");
+        }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String line;
         try {
             while ((line = reader.readLine()) != null) {
