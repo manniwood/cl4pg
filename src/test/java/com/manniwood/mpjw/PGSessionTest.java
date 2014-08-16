@@ -627,6 +627,36 @@ public class PGSessionTest {
     }
 
     @Test(priority = 16)
+    public void testListenerBean2() {
+        pgSession.dml("truncate table users");
+        pgSession.commit();
+
+        List<ImmutableUser> inputs = new ArrayList<>();
+        inputs.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
+        inputs.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
+        inputs.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        for (ImmutableUser u : inputs) {
+            pgSession.insert(u, "@sql/insert_user.sql");
+        }
+        pgSession.commit();
+
+        List<ImmutableUser> expected = new ArrayList<>();
+        expected.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
+        expected.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+
+        ImmutableUser param = new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1);
+
+        AllUsersListener aul = new AllUsersListener();
+        pgSession.select("@sql/select_users_gt_using_bean.sql", param, aul);
+        List<ImmutableUser> actual = aul.getUsers();
+
+        Assert.assertEquals(actual, expected, "Correct user list needs to have been selected.");
+
+        // TODO: add a parameter bean test next, now that the null
+        // bean potentiality has been tested.
+    }
+
+    @Test(priority = 17)
     public void testProcReturnRefCursor() {
         pgSession.dml("truncate table users");
         pgSession.commit();

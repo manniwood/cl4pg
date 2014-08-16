@@ -1,3 +1,6 @@
+Clean up the test cases so that things that happen over and over
+are not repeated.
+
 4.5) Add tests to show how to capture exception text and act upon it
 as with foreign key constraint violations, etc.
 
