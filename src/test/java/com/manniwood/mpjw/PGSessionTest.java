@@ -38,6 +38,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.manniwood.mpjw.test.etc.AllUsersListener;
 import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.TwoInts;
 import com.manniwood.mpjw.test.etc.User;
@@ -216,31 +217,7 @@ public class PGSessionTest {
         // be used instead of primitive types when nulls are required.
     }
 
-    // -4.5) Add tests to show how to capture exception text and act upon it
-    // as with foreign key constraint violations, etc.
 
-    // -4) Do stored procs that return result sets
-
-    // -2) Write better comments in files
-
-    // 1) This creates a lot of command beans; explicitly set them to null when done with them, as hint to gc
-    // Or, should each instance of a PGSession instantiate an instance of each command for re-use? Or, is that overengineering?
-
-    // 6) row listener that can be fed to select methods
-    // 8) selectReport that returns map of string:colname string:value
-    // for use in quick reporting displays where all values
-    // would end up being cast to string anyway.
-    // 8) selectMap that returns map of String:colname Object:value
-    // for when a user just needs a quick way of getting the objects
-    // out of a query, and doesn't mind doing the casting himself.
-    // 4) More type converters
-    // 7) find and document that JVM setting that makes java turn
-    // reflection calls into compiled code faster (instead of waiting
-    // for the default number of invocations).
-    // 10) sql to be executed on startup of connection
-    // 11) make psql exception more easily available in exceptions thrown
-    // 12) Converters registerable and addable by end-users
-    // 13) Better conf capabilities
 
     @Test(priority=2)
     public void testDelete() {
@@ -630,7 +607,23 @@ public class PGSessionTest {
 
     @Test(priority = 15)
     public void testListenerBean() {
-        // TODO
+        pgSession.dml("truncate table users");
+        pgSession.commit();
+
+        List<ImmutableUser> expected = new ArrayList<>();
+        expected.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
+        expected.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
+        expected.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        for (ImmutableUser u : expected) {
+            pgSession.insert(u, "@sql/insert_user.sql");
+        }
+        pgSession.commit();
+
+        AllUsersListener aul = new AllUsersListener();
+        pgSession.select("@sql/select_all_users.sql", null, aul);
+        List<ImmutableUser> actual = aul.getUsers();
+
+        Assert.assertEquals(actual, expected, "Correct user list needs to have been selected.");
     }
 
     @Test(priority = 16)
