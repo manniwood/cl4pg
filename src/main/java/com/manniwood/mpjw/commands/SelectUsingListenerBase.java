@@ -29,7 +29,7 @@ import java.sql.SQLException;
 
 import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.ResultSetListener;
-import com.manniwood.mpjw.SQLTransformer;
+import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.ConverterStore;
 
 public abstract class SelectUsingListenerBase extends PreparedStatementCommand implements Command {
@@ -51,7 +51,7 @@ public abstract class SelectUsingListenerBase extends PreparedStatementCommand i
 
     @Override
     public void execute() throws SQLException {
-        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
+        ParsedSQLWithSimpleArgs tsql = SQLTransformerUtil.transformSimply(sql);
         pstmt = conn.prepareStatement(tsql.getSql());
         setSQLArguments(tsql);
         ResultSet rs = pstmt.executeQuery();

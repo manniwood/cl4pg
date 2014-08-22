@@ -21,8 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.mpjw;
+package com.manniwood.pg4j.resultsethandlers;
 
-public interface SQLTransformer {
-    void transform();
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public interface ResultSetHandler {
+    void init(ResultSet rs) throws SQLException;
+
+    void processRow(ResultSet rs) throws SQLException;
 }

@@ -28,7 +28,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
-import com.manniwood.mpjw.SQLTransformer;
+import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.ConverterStore;
 
 public abstract class SPSelectListBase<T> extends CallableStatementCommand implements Command {
@@ -51,7 +51,7 @@ public abstract class SPSelectListBase<T> extends CallableStatementCommand imple
 
     @Override
     public void execute() throws SQLException {
-        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
+        ParsedSQLWithSimpleArgs tsql = SQLTransformerUtil.transformSimply(sql);
         cstmt = conn.prepareCall(tsql.getSql());
         setSQLArguments(tsql);
         populateList();

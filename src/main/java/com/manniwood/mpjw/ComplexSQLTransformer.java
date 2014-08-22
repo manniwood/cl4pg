@@ -6,7 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ComplexSQLTransformer extends BaseSQLTransformer {
+public class ComplexSQLTransformer extends BaseSQLTransformer implements SQLTransformer {
 
     private final static Logger log = LoggerFactory.getLogger(ComplexSQLTransformer.class);
 

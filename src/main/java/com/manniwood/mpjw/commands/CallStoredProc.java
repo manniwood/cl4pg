@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.manniwood.mpjw.ParsedSQLWithComplexArgs;
-import com.manniwood.mpjw.SQLTransformer;
+import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.converters.SetterAndConverterAndColNum;
 
@@ -55,7 +55,7 @@ public class CallStoredProc<T> implements Command {
 
     @Override
     public void execute() throws SQLException {
-        ParsedSQLWithComplexArgs tsql = SQLTransformer.transformWithInOut(sql);
+        ParsedSQLWithComplexArgs tsql = SQLTransformerUtil.transformWithInOut(sql);
         cstmt = conn.prepareCall(tsql.getSql());
         // XXX I'm already finding the setters here, so...
         // And the only reason why I'm finding the setter is so that

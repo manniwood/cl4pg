@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.mpjw;
 
 import java.io.IOException;
@@ -42,44 +42,48 @@ import com.manniwood.mpjw.test.etc.AllUsersListener;
 import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.TwoInts;
 import com.manniwood.mpjw.test.etc.User;
+import com.manniwood.pg4j.argsetters.SimpleArgSetter;
+import com.manniwood.pg4j.commands.Select;
+import com.manniwood.pg4j.resultsethandlers.GuessScalarListHandler;
 
 public class PGSessionTest {
 
-    private final static Logger log = LoggerFactory.getLogger(PGSession.class);
+    private final static Logger log                       = LoggerFactory
+                                                                  .getLogger(PGSession.class);
 
-    public static final String TEST_COPY_FILE = "/tmp/users.copy";
+    public static final String  TEST_COPY_FILE            = "/tmp/users.copy";
 
-    public static final String TEST_PASSWORD = "passwd";
-    public static final String TEST_USERNAME = "Hubert";
-    public static final int TEST_EMPLOYEE_ID = 13;
-    public static final String TEST_ID = "99999999-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String  TEST_PASSWORD             = "passwd";
+    public static final String  TEST_USERNAME             = "Hubert";
+    public static final int     TEST_EMPLOYEE_ID          = 13;
+    public static final String  TEST_ID                   = "99999999-a4fa-49fc-b6b4-62eca118fbf7";
 
-    public static final String ANOTHER_TEST_ID = "88888888-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String  ANOTHER_TEST_ID           = "88888888-a4fa-49fc-b6b4-62eca118fbf7";
 
-    public static final String THIRD_PASSWORD = "blarg";
-    public static final String THIRD_USERNAME = "Manni";
-    public static final int THIRD_EMPLOYEE_ID = 12;
-    public static final String THIRD_ID = "77777777-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String  THIRD_PASSWORD            = "blarg";
+    public static final String  THIRD_USERNAME            = "Manni";
+    public static final int     THIRD_EMPLOYEE_ID         = 12;
+    public static final String  THIRD_ID                  = "77777777-a4fa-49fc-b6b4-62eca118fbf7";
 
-    public static final String UPDATED_THIRD_PASSWORD = "updated blarg";
-    public static final String UPDATED_THIRD_USERNAME = "Updated Manni";
-    public static final int UPDATED_THIRD_EMPLOYEE_ID = 89;
+    public static final String  UPDATED_THIRD_PASSWORD    = "updated blarg";
+    public static final String  UPDATED_THIRD_USERNAME    = "Updated Manni";
+    public static final int     UPDATED_THIRD_EMPLOYEE_ID = 89;
 
-    public static final String ID_1 = "11111111-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String ID_2 = "22222222-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String ID_3 = "33333333-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String USERNAME_1 = "user one";
-    public static final String USERNAME_2 = "user two";
-    public static final String USERNAME_3 = "user three";
-    public static final String PASSWORD_1 = "password one";
-    public static final String PASSWORD_2 = "password two";
-    public static final String PASSWORD_3 = "password three";
-    public static final int EMPLOYEE_ID_1 = 1;
-    public static final int EMPLOYEE_ID_2 = 2;
-    public static final int EMPLOYEE_ID_3 = 3;
+    public static final String  ID_1                      = "11111111-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String  ID_2                      = "22222222-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String  ID_3                      = "33333333-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String  USERNAME_1                = "user one";
+    public static final String  USERNAME_2                = "user two";
+    public static final String  USERNAME_3                = "user three";
+    public static final String  PASSWORD_1                = "password one";
+    public static final String  PASSWORD_2                = "password two";
+    public static final String  PASSWORD_3                = "password three";
+    public static final int     EMPLOYEE_ID_1             = 1;
+    public static final int     EMPLOYEE_ID_2             = 2;
+    public static final int     EMPLOYEE_ID_3             = 3;
 
-    private PGSession pgSession;
-    private PGSession pgSession2;
+    private PGSession           pgSession;
+    private PGSession           pgSession2;
 
     @BeforeClass
     public void init() {
@@ -91,9 +95,8 @@ public class PGSessionTest {
 
     }
 
-    @Test(priority=0)
+    @Test(priority = 0)
     public void testInsertAndSelectOne() {
-
 
         User insertUser = new User();
         insertUser.setEmployeeId(TEST_EMPLOYEE_ID);
@@ -103,11 +106,10 @@ public class PGSessionTest {
         pgSession.insert(insertUser, "@sql/insert_user.sql");
         pgSession.commit();
 
-        User u = pgSession.selectOne(
-                ReturnStyle.BEAN_GUESSED_SETTERS,
-                "@sql/select_user_guess_setters.sql",
-                User.class,
-                UUID.fromString(TEST_ID));
+        User u = pgSession.selectOne(ReturnStyle.BEAN_GUESSED_SETTERS,
+                                     "@sql/select_user_guess_setters.sql",
+                                     User.class,
+                                     UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(u.getName(), TEST_USERNAME);
         Assert.assertEquals(u.getId(), UUID.fromString(TEST_ID));
@@ -115,46 +117,44 @@ public class PGSessionTest {
 
         // When constructors are guessed, primitive types are never
         // guessed, only wrapper types; TODO: document this
-        ImmutableUser iu = pgSession.selectOne(
-                ReturnStyle.BEAN_GUESSED_CONS_ARGS,
-                "@sql/select_user_guess_setters.sql",
-                ImmutableUser.class,
-                UUID.fromString(TEST_ID));
+        ImmutableUser iu = pgSession
+                .selectOne(ReturnStyle.BEAN_GUESSED_CONS_ARGS,
+                           "@sql/select_user_guess_setters.sql",
+                           ImmutableUser.class,
+                           UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu.getName(), TEST_USERNAME);
         Assert.assertEquals(iu.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        ImmutableUser iu2 = pgSession.selectOne(
-                ReturnStyle.BEAN_EXPLICIT_CONS_ARGS,
-                "@sql/select_user_use_constructor.sql",
-                ImmutableUser.class,
-                UUID.fromString(TEST_ID));
+        ImmutableUser iu2 = pgSession
+                .selectOne(ReturnStyle.BEAN_EXPLICIT_CONS_ARGS,
+                           "@sql/select_user_use_constructor.sql",
+                           ImmutableUser.class,
+                           UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu2.getName(), TEST_USERNAME);
         Assert.assertEquals(iu2.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu2.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        User iu3 = pgSession.selectOne(
-                ReturnStyle.BEAN_EXPLICIT_SETTERS,
-                "@sql/select_user_use_setters.sql",
-                User.class,
-                UUID.fromString(TEST_ID));
+        User iu3 = pgSession.selectOne(ReturnStyle.BEAN_EXPLICIT_SETTERS,
+                                       "@sql/select_user_use_setters.sql",
+                                       User.class,
+                                       UUID.fromString(TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(iu3.getName(), TEST_USERNAME);
         Assert.assertEquals(iu3.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu3.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-
         User searchParam = new User();
         searchParam.setId(UUID.fromString(TEST_ID));
         // intentionally leave other attributes of searchParam blank
 
-        User u4 = pgSession.selectOne(
-                "@sql/select_user_guess_setters_bean_param.sql",
-                User.class,
-                searchParam,
-                ReturnStyle.BEAN_GUESSED_SETTERS);
+        User u4 = pgSession
+                .selectOne("@sql/select_user_guess_setters_bean_param.sql",
+                           User.class,
+                           searchParam,
+                           ReturnStyle.BEAN_GUESSED_SETTERS);
         pgSession.rollback();
         Assert.assertEquals(u4.getName(), TEST_USERNAME);
         Assert.assertEquals(u4.getId(), UUID.fromString(TEST_ID));
@@ -162,38 +162,38 @@ public class PGSessionTest {
 
         // When constructors are guessed, primitive types are never
         // guessed, only wrapper types; TODO: document this
-        ImmutableUser iu5 = pgSession.selectOne(
-                "@sql/select_user_guess_setters_bean_param.sql",
-                ImmutableUser.class,
-                searchParam,
-                ReturnStyle.BEAN_GUESSED_CONS_ARGS);
+        ImmutableUser iu5 = pgSession
+                .selectOne("@sql/select_user_guess_setters_bean_param.sql",
+                           ImmutableUser.class,
+                           searchParam,
+                           ReturnStyle.BEAN_GUESSED_CONS_ARGS);
         pgSession.rollback();
         Assert.assertEquals(iu5.getName(), TEST_USERNAME);
         Assert.assertEquals(iu5.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu5.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        ImmutableUser iu6 = pgSession.selectOne(
-                "@sql/select_user_use_constructor_bean_param.sql",
-                ImmutableUser.class,
-                searchParam,
-                ReturnStyle.BEAN_EXPLICIT_CONS_ARGS);
+        ImmutableUser iu6 = pgSession
+                .selectOne("@sql/select_user_use_constructor_bean_param.sql",
+                           ImmutableUser.class,
+                           searchParam,
+                           ReturnStyle.BEAN_EXPLICIT_CONS_ARGS);
         pgSession.rollback();
         Assert.assertEquals(iu6.getName(), TEST_USERNAME);
         Assert.assertEquals(iu6.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu6.getEmployeeId(), TEST_EMPLOYEE_ID);
 
-        User iu7 = pgSession.selectOne(
-                "@sql/select_user_use_setters_bean_param.sql",
-                User.class,
-                searchParam,
-                ReturnStyle.BEAN_EXPLICIT_SETTERS);
+        User iu7 = pgSession
+                .selectOne("@sql/select_user_use_setters_bean_param.sql",
+                           User.class,
+                           searchParam,
+                           ReturnStyle.BEAN_EXPLICIT_SETTERS);
         pgSession.rollback();
         Assert.assertEquals(iu7.getName(), TEST_USERNAME);
         Assert.assertEquals(iu7.getId(), UUID.fromString(TEST_ID));
         Assert.assertEquals(iu7.getEmployeeId(), TEST_EMPLOYEE_ID);
     }
 
-    @Test(priority=1)
+    @Test(priority = 1)
     public void testNulls() {
 
         User anotherUser = new User();
@@ -202,11 +202,10 @@ public class PGSessionTest {
         pgSession.insert(anotherUser, "@sql/insert_user.sql");
         pgSession.commit();
 
-        User u = pgSession.selectOne(
-                ReturnStyle.BEAN_GUESSED_SETTERS,
-                "@sql/select_user_guess_setters.sql",
-                User.class,
-                UUID.fromString(ANOTHER_TEST_ID));
+        User u = pgSession.selectOne(ReturnStyle.BEAN_GUESSED_SETTERS,
+                                     "@sql/select_user_guess_setters.sql",
+                                     User.class,
+                                     UUID.fromString(ANOTHER_TEST_ID));
         pgSession.rollback();
         Assert.assertEquals(u.getId(), UUID.fromString(ANOTHER_TEST_ID));
         Assert.assertNull(u.getPassword(), "Should be null");
@@ -217,9 +216,7 @@ public class PGSessionTest {
         // be used instead of primitive types when nulls are required.
     }
 
-
-
-    @Test(priority=2)
+    @Test(priority = 2)
     public void testDelete() {
         User user = new User();
         user.setEmployeeId(THIRD_EMPLOYEE_ID);
@@ -229,29 +226,29 @@ public class PGSessionTest {
         pgSession.insert(user, "@sql/insert_user.sql");
         pgSession.commit();
 
-        User foundUser = pgSession.selectOne(
-                ReturnStyle.BEAN_GUESSED_SETTERS,
-                "@sql/select_user_guess_setters.sql",
-                User.class,
-                UUID.fromString(THIRD_ID));
+        User foundUser = pgSession
+                .selectOne(ReturnStyle.BEAN_GUESSED_SETTERS,
+                           "@sql/select_user_guess_setters.sql",
+                           User.class,
+                           UUID.fromString(THIRD_ID));
         pgSession.rollback();
 
         Assert.assertNotNull(foundUser, "User must be found.");
 
-        int numberDeleted = pgSession.delete("@sql/delete_user.sql", UUID.fromString(THIRD_ID));
+        int numberDeleted = pgSession.delete("@sql/delete_user.sql",
+                                             UUID.fromString(THIRD_ID));
         pgSession.commit();
         Assert.assertEquals(numberDeleted, 1, "One user must be deleted.");
 
-        foundUser = pgSession.selectOne(
-                ReturnStyle.BEAN_GUESSED_SETTERS,
-                "@sql/select_user_guess_setters.sql",
-                User.class,
-                UUID.fromString(THIRD_ID));
+        foundUser = pgSession.selectOne(ReturnStyle.BEAN_GUESSED_SETTERS,
+                                        "@sql/select_user_guess_setters.sql",
+                                        User.class,
+                                        UUID.fromString(THIRD_ID));
         pgSession.rollback();
         Assert.assertNull(foundUser, "User must be found.");
     }
 
-    @Test(priority=3)
+    @Test(priority = 3)
     public void testUpdate() {
         User user = new User();
         user.setId(UUID.fromString(THIRD_ID));
@@ -267,11 +264,11 @@ public class PGSessionTest {
         int numberUpdated = pgSession.update(user, "@sql/update_user.sql");
         pgSession.commit();
 
-        User foundUser = pgSession.selectOne(
-                ReturnStyle.BEAN_GUESSED_SETTERS,
-                "@sql/select_user_guess_setters.sql",
-                User.class,
-                UUID.fromString(THIRD_ID));
+        User foundUser = pgSession
+                .selectOne(ReturnStyle.BEAN_GUESSED_SETTERS,
+                           "@sql/select_user_guess_setters.sql",
+                           User.class,
+                           UUID.fromString(THIRD_ID));
         pgSession.rollback();
 
         Assert.assertNotNull(foundUser, "User must be found.");
@@ -280,150 +277,201 @@ public class PGSessionTest {
 
         Assert.assertEquals(foundUser.getId(), UUID.fromString(THIRD_ID));
         Assert.assertEquals(foundUser.getName(), UPDATED_THIRD_USERNAME);
-        Assert.assertEquals(foundUser.getEmployeeId(), UPDATED_THIRD_EMPLOYEE_ID);
+        Assert.assertEquals(foundUser.getEmployeeId(),
+                            UPDATED_THIRD_EMPLOYEE_ID);
         Assert.assertEquals(foundUser.getPassword(), UPDATED_THIRD_PASSWORD);
     }
 
-    @Test(priority=4)
+    @Test(priority = 4)
     public void testSelectMany() {
         pgSession.dml("truncate table users");
         pgSession.commit();
 
         List<ImmutableUser> expected = new ArrayList<>();
-        expected.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
-        expected.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        expected.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        expected.add(new ImmutableUser(UUID.fromString(ID_1),
+                                       USERNAME_1,
+                                       PASSWORD_1,
+                                       EMPLOYEE_ID_1));
+        expected.add(new ImmutableUser(UUID.fromString(ID_2),
+                                       USERNAME_2,
+                                       PASSWORD_2,
+                                       EMPLOYEE_ID_2));
+        expected.add(new ImmutableUser(UUID.fromString(ID_3),
+                                       USERNAME_3,
+                                       PASSWORD_3,
+                                       EMPLOYEE_ID_3));
         for (ImmutableUser u : expected) {
             pgSession.insert(u, "@sql/insert_user.sql");
         }
         pgSession.commit();
-        // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
+        // TODO: this would be nice:
+        // pgSession.insertList("@sql/insert_list_of_users.sql", expected); //
+        // insert () values (), (), ();
 
-        List<ImmutableUser> found = pgSession.selectList(
-                ReturnStyle.BEAN_GUESSED_CONS_ARGS,
-                "@sql/select_all_users.sql",
-                ImmutableUser.class);
+        List<ImmutableUser> found = pgSession
+                .selectList(ReturnStyle.BEAN_GUESSED_CONS_ARGS,
+                            "@sql/select_all_users.sql",
+                            ImmutableUser.class);
         pgSession.rollback();
         // XXX: do a deep compare; already provided by List or Collections?
-        Assert.assertTrue(expected.equals(found), "List of users must be the same");
+        Assert.assertTrue(expected.equals(found),
+                          "List of users must be the same");
     }
 
-    @Test(priority=5)
+    @Test(priority = 5)
     public void testSelectListOfScalar() {
         pgSession.dml("truncate table users");
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1),
+                                          USERNAME_1,
+                                          PASSWORD_1,
+                                          EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2),
+                                          USERNAME_2,
+                                          PASSWORD_2,
+                                          EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3),
+                                          USERNAME_3,
+                                          PASSWORD_3,
+                                          EMPLOYEE_ID_3));
         for (ImmutableUser u : usersToLoad) {
             pgSession.insert(u, "@sql/insert_user.sql");
         }
         pgSession.commit();
-        // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
+        // TODO: this would be nice:
+        // pgSession.insertList("@sql/insert_list_of_users.sql", expected); //
+        // insert () values (), (), ();
 
         List<Integer> expected = new ArrayList<>();
         expected.add(2);
         expected.add(3);
 
-        List<Integer> found1 = pgSession.selectList(
-                ReturnStyle.SCALAR_GUESSED,
-                "@sql/select_employee_ids_guess_scalar.sql",
-                Integer.class,
-                1);
+        List<Integer> found1 = pgSession
+                .selectList(ReturnStyle.SCALAR_GUESSED,
+                            "@sql/select_employee_ids_guess_scalar.sql",
+                            Integer.class,
+                            1);
         pgSession.rollback();
-        Assert.assertTrue(expected.equals(found1), "List of employee_ids must be the same");
+        Assert.assertTrue(expected.equals(found1),
+                          "List of employee_ids must be the same");
 
-        List<Integer> found2 = pgSession.selectList(
-                ReturnStyle.SCALAR_EXPLICIT,
-                "@sql/select_employee_ids_specify_scalar.sql",
-                Integer.class,
-                1);
+        List<Integer> found2 = pgSession
+                .selectList(ReturnStyle.SCALAR_EXPLICIT,
+                            "@sql/select_employee_ids_specify_scalar.sql",
+                            Integer.class,
+                            1);
         pgSession.rollback();
-        Assert.assertTrue(expected.equals(found2), "List of employee_ids must be the same");
+        Assert.assertTrue(expected.equals(found2),
+                          "List of employee_ids must be the same");
 
         User findUser = new User();
         findUser.setEmployeeId(1);
         // purposefully leave other attribs unset
 
-        List<Integer> found3 = pgSession.selectList(
-                "@sql/select_employee_ids_guess_scalar_bean_param.sql",
-                Integer.class,
-                findUser,
-                ReturnStyle.SCALAR_GUESSED);
+        List<Integer> found3 = pgSession
+                .selectList("@sql/select_employee_ids_guess_scalar_bean_param.sql",
+                            Integer.class,
+                            findUser,
+                            ReturnStyle.SCALAR_GUESSED);
         pgSession.rollback();
-        Assert.assertTrue(expected.equals(found3), "List of employee_ids must be the same");
+        Assert.assertTrue(expected.equals(found3),
+                          "List of employee_ids must be the same");
 
-        List<Integer> found4 = pgSession.selectList(
-                "@sql/select_employee_ids_specify_scalar_bean_param.sql",
-                Integer.class,
-                findUser,
-                ReturnStyle.SCALAR_EXPLICIT);
+        List<Integer> found4 = pgSession
+                .selectList("@sql/select_employee_ids_specify_scalar_bean_param.sql",
+                            Integer.class,
+                            findUser,
+                            ReturnStyle.SCALAR_EXPLICIT);
         pgSession.rollback();
-        Assert.assertTrue(expected.equals(found4), "List of employee_ids must be the same");
+        Assert.assertTrue(expected.equals(found4),
+                          "List of employee_ids must be the same");
     }
 
-    @Test(priority=6)
+    @Test(priority = 6)
     public void testSelectScalar() {
         pgSession.dml("truncate table users");
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1),
+                                          USERNAME_1,
+                                          PASSWORD_1,
+                                          EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2),
+                                          USERNAME_2,
+                                          PASSWORD_2,
+                                          EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3),
+                                          USERNAME_3,
+                                          PASSWORD_3,
+                                          EMPLOYEE_ID_3));
         for (ImmutableUser u : usersToLoad) {
             pgSession.insert(u, "@sql/insert_user.sql");
         }
         pgSession.commit();
-        // TODO: this would be nice: pgSession.insertList("@sql/insert_list_of_users.sql", expected); // insert () values (), (), ();
+        // TODO: this would be nice:
+        // pgSession.insertList("@sql/insert_list_of_users.sql", expected); //
+        // insert () values (), (), ();
 
         Integer expected = 2;
 
-        // TODO: DOCUMENT THIS: when left to its own devices, count(*) will return java.lang.Long, not java.lang.Integer
-        Long found1 = pgSession.selectOne(
-                ReturnStyle.SCALAR_GUESSED,
-                "@sql/select_employee_count_guess_scalar.sql",
-                Long.class,
-                1);
+        // TODO: DOCUMENT THIS: when left to its own devices, count(*) will
+        // return java.lang.Long, not java.lang.Integer
+        Long found1 = pgSession
+                .selectOne(ReturnStyle.SCALAR_GUESSED,
+                           "@sql/select_employee_count_guess_scalar.sql",
+                           Long.class,
+                           1);
         pgSession.rollback();
-        Assert.assertEquals(found1, Long.valueOf(expected.intValue()), "List of employee_ids must be the same");
+        Assert.assertEquals(found1,
+                            Long.valueOf(expected.intValue()),
+                            "List of employee_ids must be the same");
 
-        Integer found2 = pgSession.selectOne(
-                ReturnStyle.SCALAR_EXPLICIT,
-                "@sql/select_employee_count_specify_scalar.sql",
-                Integer.class,
-                1);
+        Integer found2 = pgSession
+                .selectOne(ReturnStyle.SCALAR_EXPLICIT,
+                           "@sql/select_employee_count_specify_scalar.sql",
+                           Integer.class,
+                           1);
         pgSession.rollback();
-        Assert.assertEquals(found2, expected, "List of employee_ids must be the same");
+        Assert.assertEquals(found2,
+                            expected,
+                            "List of employee_ids must be the same");
 
         User findUser = new User();
         findUser.setEmployeeId(1);
         // purposefully leave other attribs unset
 
-        // DOCUMENT THIS: when left to its own devices, count(*) will return java.lang.Long, not java.lang.Integer
-        Long found3 = pgSession.selectOne(
-                "@sql/select_employee_count_guess_scalar_bean_param.sql",
-                Long.class,
-                findUser,
-                ReturnStyle.SCALAR_GUESSED);
+        // DOCUMENT THIS: when left to its own devices, count(*) will return
+        // java.lang.Long, not java.lang.Integer
+        Long found3 = pgSession
+                .selectOne("@sql/select_employee_count_guess_scalar_bean_param.sql",
+                           Long.class,
+                           findUser,
+                           ReturnStyle.SCALAR_GUESSED);
         pgSession.rollback();
-        Assert.assertEquals(found3, Long.valueOf(expected.intValue()), "List of employee_ids must be the same");
+        Assert.assertEquals(found3,
+                            Long.valueOf(expected.intValue()),
+                            "List of employee_ids must be the same");
 
-        Integer found4 = pgSession.selectOne(
-                "@sql/select_employee_count_specify_scalar_bean_param.sql",
-                Integer.class,
-                findUser,
-                ReturnStyle.SCALAR_EXPLICIT);
+        Integer found4 = pgSession
+                .selectOne("@sql/select_employee_count_specify_scalar_bean_param.sql",
+                           Integer.class,
+                           findUser,
+                           ReturnStyle.SCALAR_EXPLICIT);
         pgSession.rollback();
-        Assert.assertEquals(found4, expected, "List of employee_ids must be the same");
+        Assert.assertEquals(found4,
+                            expected,
+                            "List of employee_ids must be the same");
     }
 
-    @Test(priority=7)
+    @Test(priority = 7)
     public void testListenNotify() {
-        // According to Pg docs, "Except for dropping later instances of duplicate notifications,
-        // NOTIFY guarantees that notifications from the same transaction get delivered in the order they were sent."
+        // According to Pg docs, "Except for dropping later instances of
+        // duplicate notifications,
+        // NOTIFY guarantees that notifications from the same transaction get
+        // delivered in the order they were sent."
         // So, an ordered list should be a good thing to test against.
         List<String> expected = new ArrayList<>();
         expected.add("bar");
@@ -438,10 +486,14 @@ public class PGSessionTest {
         }
         pgSession.commit();
 
-        // Ensure you can do other queries on the listening session and not lose the
-        // notifications just because you have run a query and committed, but not yet
+        // Ensure you can do other queries on the listening session and not lose
+        // the
+        // notifications just because you have run a query and committed, but
+        // not yet
         // retrieved the notifications.
-        pgSession2.selectOne(ReturnStyle.SCALAR_GUESSED, "select 1", Integer.class);
+        pgSession2.selectOne(ReturnStyle.SCALAR_GUESSED,
+                             "select 1",
+                             Integer.class);
         pgSession2.commit();
 
         PGNotification[] notifications = pgSession2.getNotifications();
@@ -449,10 +501,15 @@ public class PGSessionTest {
 
         List<String> actual = new ArrayList<>();
         for (PGNotification notification : notifications) {
-            log.info("notification name {}, parameter: {}, pid: {}", notification.getName(), notification.getParameter(), notification.getPID());
+            log.info("notification name {}, parameter: {}, pid: {}",
+                     notification.getName(),
+                     notification.getParameter(),
+                     notification.getPID());
             actual.add(notification.getParameter());
         }
-        Assert.assertEquals(actual, expected, "Notifications must all be recieved, in the same order");
+        Assert.assertEquals(actual,
+                            expected,
+                            "Notifications must all be recieved, in the same order");
     }
 
     @Test(priority = 8)
@@ -464,9 +521,18 @@ public class PGSessionTest {
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1),
+                                          USERNAME_1,
+                                          PASSWORD_1,
+                                          EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2),
+                                          USERNAME_2,
+                                          PASSWORD_2,
+                                          EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3),
+                                          USERNAME_3,
+                                          PASSWORD_3,
+                                          EMPLOYEE_ID_3));
         for (ImmutableUser u : usersToLoad) {
             pgSession.insert(u, "@sql/insert_user.sql");
         }
@@ -483,8 +549,13 @@ public class PGSessionTest {
         pgSession.commit();
 
         // Let's use sql to do the checking for us
-        Long count = pgSession.selectOne(ReturnStyle.SCALAR_GUESSED, "select count(*) from (select * from users except select * from dup_users) as q", Long.class);
-        Assert.assertEquals(count.longValue(), 0L, "User tables must be the same after copy");
+        Long count = pgSession
+                .selectOne(ReturnStyle.SCALAR_GUESSED,
+                           "select count(*) from (select * from users except select * from dup_users) as q",
+                           Long.class);
+        Assert.assertEquals(count.longValue(),
+                            0L,
+                            "User tables must be the same after copy");
     }
 
     @Test(priority = 9)
@@ -498,22 +569,22 @@ public class PGSessionTest {
         // MPJWException should have been thrown, and should have
         // had a cause of type PSQLException
         Assert.assertNotNull(cause);
-        PSQLException psqle = (PSQLException)cause;
+        PSQLException psqle = (PSQLException) cause;
         log.info("test correctly caught following exception", psqle);
         log.info("error code: {}", psqle.getErrorCode());
         log.info("message: {}", psqle.getMessage());
         log.info("server error message: {}", psqle.getServerErrorMessage());
         log.info("SQL state: {}", psqle.getSQLState());
 
-        /* Furthermore, because of successful rollback, this next select
-         * should work, and we should NOT get this following exception:
-         * ERROR:  25P02: current transaction is aborted,
-         * commands ignored until end of transaction block
+        /*
+         * Furthermore, because of successful rollback, this next select should
+         * work, and we should NOT get this following exception: ERROR: 25P02:
+         * current transaction is aborted, commands ignored until end of
+         * transaction block
          */
-        Integer actual = pgSession.selectOne(
-                ReturnStyle.SCALAR_GUESSED,
-                "select 1",
-                Integer.class);
+        Integer actual = pgSession.selectOne(ReturnStyle.SCALAR_GUESSED,
+                                             "select 1",
+                                             Integer.class);
         pgSession.rollback();
         Assert.assertEquals(actual.intValue(), 1, "Statement needs to return 1");
     }
@@ -554,7 +625,9 @@ public class PGSessionTest {
 
         pgSession.callProc("@sql/add_to_first.sql", actual);
 
-        Assert.assertEquals(actual, expected, "Add to first needs to have happened.");
+        Assert.assertEquals(actual,
+                            expected,
+                            "Add to first needs to have happened.");
 
         pgSession.ddl("@sql/drop_add_to_first.sql");
         pgSession.commit();
@@ -575,7 +648,9 @@ public class PGSessionTest {
 
         pgSession.callProc("@sql/add_to_last.sql", actual);
 
-        Assert.assertEquals(actual, expected, "Add to last needs to have happened.");
+        Assert.assertEquals(actual,
+                            expected,
+                            "Add to last needs to have happened.");
 
         pgSession.ddl("@sql/drop_add_to_last.sql");
         pgSession.commit();
@@ -592,9 +667,13 @@ public class PGSessionTest {
 
         int expected = 5;
 
-        int actual = pgSession.callProcReturnScalar("@sql/add_and_return.sql", Integer.class, param);
+        int actual = pgSession.callProcReturnScalar("@sql/add_and_return.sql",
+                                                    Integer.class,
+                                                    param);
 
-        Assert.assertEquals(actual, expected, "Add to last needs to have happened.");
+        Assert.assertEquals(actual,
+                            expected,
+                            "Add to last needs to have happened.");
 
         pgSession.ddl("@sql/drop_add_and_return.sql");
         pgSession.commit();
@@ -606,9 +685,18 @@ public class PGSessionTest {
         pgSession.commit();
 
         List<ImmutableUser> expected = new ArrayList<>();
-        expected.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
-        expected.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        expected.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        expected.add(new ImmutableUser(UUID.fromString(ID_1),
+                                       USERNAME_1,
+                                       PASSWORD_1,
+                                       EMPLOYEE_ID_1));
+        expected.add(new ImmutableUser(UUID.fromString(ID_2),
+                                       USERNAME_2,
+                                       PASSWORD_2,
+                                       EMPLOYEE_ID_2));
+        expected.add(new ImmutableUser(UUID.fromString(ID_3),
+                                       USERNAME_3,
+                                       PASSWORD_3,
+                                       EMPLOYEE_ID_3));
         for (ImmutableUser u : expected) {
             pgSession.insert(u, "@sql/insert_user.sql");
         }
@@ -618,7 +706,9 @@ public class PGSessionTest {
         pgSession.select("@sql/select_all_users.sql", aul);
         List<ImmutableUser> actual = aul.getUsers();
 
-        Assert.assertEquals(actual, expected, "Correct user list needs to have been selected.");
+        Assert.assertEquals(actual,
+                            expected,
+                            "Correct user list needs to have been selected.");
     }
 
     @Test(priority = 15)
@@ -627,23 +717,40 @@ public class PGSessionTest {
         pgSession.commit();
 
         List<ImmutableUser> inputs = new ArrayList<>();
-        inputs.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
-        inputs.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        inputs.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        inputs.add(new ImmutableUser(UUID.fromString(ID_1),
+                                     USERNAME_1,
+                                     PASSWORD_1,
+                                     EMPLOYEE_ID_1));
+        inputs.add(new ImmutableUser(UUID.fromString(ID_2),
+                                     USERNAME_2,
+                                     PASSWORD_2,
+                                     EMPLOYEE_ID_2));
+        inputs.add(new ImmutableUser(UUID.fromString(ID_3),
+                                     USERNAME_3,
+                                     PASSWORD_3,
+                                     EMPLOYEE_ID_3));
         for (ImmutableUser u : inputs) {
             pgSession.insert(u, "@sql/insert_user.sql");
         }
         pgSession.commit();
 
         List<ImmutableUser> expected = new ArrayList<>();
-        expected.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        expected.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        expected.add(new ImmutableUser(UUID.fromString(ID_2),
+                                       USERNAME_2,
+                                       PASSWORD_2,
+                                       EMPLOYEE_ID_2));
+        expected.add(new ImmutableUser(UUID.fromString(ID_3),
+                                       USERNAME_3,
+                                       PASSWORD_3,
+                                       EMPLOYEE_ID_3));
 
         AllUsersListener aul = new AllUsersListener();
         pgSession.select("@sql/select_users_gt_using_variadic.sql", aul, 1);
         List<ImmutableUser> actual = aul.getUsers();
 
-        Assert.assertEquals(actual, expected, "Correct user list needs to have been selected.");
+        Assert.assertEquals(actual,
+                            expected,
+                            "Correct user list needs to have been selected.");
     }
 
     @Test(priority = 16)
@@ -652,9 +759,18 @@ public class PGSessionTest {
         pgSession.commit();
 
         List<ImmutableUser> expected = new ArrayList<>();
-        expected.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
-        expected.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        expected.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        expected.add(new ImmutableUser(UUID.fromString(ID_1),
+                                       USERNAME_1,
+                                       PASSWORD_1,
+                                       EMPLOYEE_ID_1));
+        expected.add(new ImmutableUser(UUID.fromString(ID_2),
+                                       USERNAME_2,
+                                       PASSWORD_2,
+                                       EMPLOYEE_ID_2));
+        expected.add(new ImmutableUser(UUID.fromString(ID_3),
+                                       USERNAME_3,
+                                       PASSWORD_3,
+                                       EMPLOYEE_ID_3));
         for (ImmutableUser u : expected) {
             pgSession.insert(u, "@sql/insert_user.sql");
         }
@@ -664,7 +780,9 @@ public class PGSessionTest {
         pgSession.select("@sql/select_all_users.sql", null, aul);
         List<ImmutableUser> actual = aul.getUsers();
 
-        Assert.assertEquals(actual, expected, "Correct user list needs to have been selected.");
+        Assert.assertEquals(actual,
+                            expected,
+                            "Correct user list needs to have been selected.");
     }
 
     @Test(priority = 17)
@@ -673,25 +791,45 @@ public class PGSessionTest {
         pgSession.commit();
 
         List<ImmutableUser> inputs = new ArrayList<>();
-        inputs.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
-        inputs.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        inputs.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        inputs.add(new ImmutableUser(UUID.fromString(ID_1),
+                                     USERNAME_1,
+                                     PASSWORD_1,
+                                     EMPLOYEE_ID_1));
+        inputs.add(new ImmutableUser(UUID.fromString(ID_2),
+                                     USERNAME_2,
+                                     PASSWORD_2,
+                                     EMPLOYEE_ID_2));
+        inputs.add(new ImmutableUser(UUID.fromString(ID_3),
+                                     USERNAME_3,
+                                     PASSWORD_3,
+                                     EMPLOYEE_ID_3));
         for (ImmutableUser u : inputs) {
             pgSession.insert(u, "@sql/insert_user.sql");
         }
         pgSession.commit();
 
         List<ImmutableUser> expected = new ArrayList<>();
-        expected.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        expected.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        expected.add(new ImmutableUser(UUID.fromString(ID_2),
+                                       USERNAME_2,
+                                       PASSWORD_2,
+                                       EMPLOYEE_ID_2));
+        expected.add(new ImmutableUser(UUID.fromString(ID_3),
+                                       USERNAME_3,
+                                       PASSWORD_3,
+                                       EMPLOYEE_ID_3));
 
-        ImmutableUser param = new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1);
+        ImmutableUser param = new ImmutableUser(UUID.fromString(ID_1),
+                                                USERNAME_1,
+                                                PASSWORD_1,
+                                                EMPLOYEE_ID_1);
 
         AllUsersListener aul = new AllUsersListener();
         pgSession.select("@sql/select_users_gt_using_bean.sql", param, aul);
         List<ImmutableUser> actual = aul.getUsers();
 
-        Assert.assertEquals(actual, expected, "Correct user list needs to have been selected.");
+        Assert.assertEquals(actual,
+                            expected,
+                            "Correct user list needs to have been selected.");
     }
 
     @Test(priority = 17)
@@ -699,34 +837,108 @@ public class PGSessionTest {
         pgSession.dml("truncate table users");
         pgSession.commit();
 
-        ImmutableUser expected = new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3);
+        ImmutableUser expected = new ImmutableUser(UUID.fromString(ID_3),
+                                                   USERNAME_3,
+                                                   PASSWORD_3,
+                                                   EMPLOYEE_ID_3);
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1), USERNAME_1, PASSWORD_1, EMPLOYEE_ID_1));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2), USERNAME_2, PASSWORD_2, EMPLOYEE_ID_2));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3), USERNAME_3, PASSWORD_3, EMPLOYEE_ID_3));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1),
+                                          USERNAME_1,
+                                          PASSWORD_1,
+                                          EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2),
+                                          USERNAME_2,
+                                          PASSWORD_2,
+                                          EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3),
+                                          USERNAME_3,
+                                          PASSWORD_3,
+                                          EMPLOYEE_ID_3));
         for (ImmutableUser u : usersToLoad) {
             pgSession.insert(u, "@sql/insert_user.sql");
         }
         pgSession.commit();
 
-
         pgSession.ddl("@sql/create_get_user_by_id_func.sql");
         pgSession.commit();
 
-        ImmutableUser actual = pgSession.spSelectOne(
-                "@sql/select_user_p_refcursor.sql",
-                ImmutableUser.class,
-                expected,
-                ReturnStyle.BEAN_GUESSED_CONS_ARGS);
+        ImmutableUser actual = pgSession
+                .spSelectOne("@sql/select_user_p_refcursor.sql",
+                             ImmutableUser.class,
+                             expected,
+                             ReturnStyle.BEAN_GUESSED_CONS_ARGS);
 
-        Assert.assertEquals(actual, expected, "Correct user needs to have been selected.");
+        Assert.assertEquals(actual,
+                            expected,
+                            "Correct user needs to have been selected.");
 
         pgSession.ddl("@sql/drop_get_user_by_id_func.sql");
         pgSession.commit();
 
         pgSession.dml("truncate table users");
         pgSession.commit();
+    }
+
+    @Test(priority = 18)
+    public void testSelectListOfScalar2() {
+        pgSession.dml("truncate table users");
+        pgSession.commit();
+
+        List<ImmutableUser> usersToLoad = new ArrayList<>();
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_1),
+                                          USERNAME_1,
+                                          PASSWORD_1,
+                                          EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_2),
+                                          USERNAME_2,
+                                          PASSWORD_2,
+                                          EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(ID_3),
+                                          USERNAME_3,
+                                          PASSWORD_3,
+                                          EMPLOYEE_ID_3));
+        for (ImmutableUser u : usersToLoad) {
+            pgSession.insert(u, "@sql/insert_user.sql");
+        }
+        pgSession.commit();
+        // TODO: this would be nice:
+        // pgSession.insertList("@sql/insert_list_of_users.sql", expected); //
+        // insert () values (), (), ();
+
+        List<Integer> expected = new ArrayList<>();
+        expected.add(2);
+        expected.add(3);
+
+        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>(pgSession
+                                                                                              .getConverterStore(),
+                                                                                      Integer.class);
+
+        // XXX: This is a good start, but connection
+        // and converterstore need to be provided.
+        // Clearly Select.Builder needs to be used inside
+        // a convenience method called pgSession.select()
+        // that takes all these args (which are all required
+        // and not optional anyway) and hands them to builder.
+        // Maybe even phase out builder as not worth the effort seeing
+        // as all args are not optional except for file versus sql.
+        // Return to @ notation for that. Oh, I guess .params()
+        // versus .param() (which would take a bean) is also optional.
+        Select select = new Select.Builder()
+                .connection(pgSession.getConnection())
+                .file("sql/select_employee_ids_guess_scalar.sql")
+                .converterStore(pgSession.getConverterStore())
+                .argSetter(new SimpleArgSetter())
+                .resultSetHandler(handler)
+                .params(1)
+                .build();
+        pgSession.run(select);
+        pgSession.rollback();
+        List<Integer> found1 = handler.getList();
+
+        Assert.assertTrue(expected.equals(found1),
+                          "List of employee_ids must be the same");
+
     }
 
 }

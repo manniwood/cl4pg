@@ -30,7 +30,7 @@ import java.util.List;
 
 import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
-import com.manniwood.mpjw.SQLTransformer;
+import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.Converter;
 import com.manniwood.mpjw.converters.ConverterStore;
 
@@ -61,7 +61,7 @@ public class CallStoredProcReturnScalar<T, P> implements Command {
 
     @Override
     public void execute() throws SQLException {
-        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
+        ParsedSQLWithSimpleArgs tsql = SQLTransformerUtil.transformSimply(sql);
         cstmt = conn.prepareCall(tsql.getSql());
 
         // The first arg is special; it is the return type, not a getter

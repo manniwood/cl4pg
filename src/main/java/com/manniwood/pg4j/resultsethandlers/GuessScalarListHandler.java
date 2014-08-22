@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2014 Manni Wood
+Copyright (t) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,35 +20,43 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
-package com.manniwood.mpjw.commands;
+ */
+package com.manniwood.pg4j.resultsethandlers;
 
-import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
-import com.manniwood.mpjw.SQLTransformerUtil;
+import com.manniwood.mpjw.converters.Converter;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class Insert<T> extends PreparedStatementCommand implements Command {
+public class GuessScalarListHandler<T> implements ResultSetHandler {
 
+    private List<T>              list;
+    private Converter<?>         converter;
+    private final Class<T>       returnType;
     private final ConverterStore converterStore;
-    private final T t;
 
-    public Insert(ConverterStore converterStore, String sql, Connection conn, T t) {
-        super();
+    public GuessScalarListHandler(ConverterStore converterStore,
+            Class<T> returnType) {
         this.converterStore = converterStore;
-        this.sql = sql;
-        this.conn = conn;
-        this.t = t;
+        this.returnType = returnType;
+        list = new ArrayList<T>();
     }
 
     @Override
-    public void execute() throws SQLException {
-        ParsedSQLWithSimpleArgs tsql = SQLTransformerUtil.transformSimply(sql);
-        pstmt = conn.prepareStatement(tsql.getSql());
-        converterStore.setSQLArguments(pstmt, t, tsql.getArgs());
-        pstmt.execute();
+    public void init(ResultSet rs) throws SQLException {
+        converter = converterStore.guessConverter(rs, returnType);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public void processRow(ResultSet rs) throws SQLException {
+        list.add((T) converter.getItem(rs, 1));
+    }
+
+    public List<T> getList() {
+        return list;
+    }
 }

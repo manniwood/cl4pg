@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2014 Manni Wood
+Copyright (t) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,25 +20,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
-package com.manniwood.mpjw;
+ */
+package com.manniwood.pg4j.argsetters;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class BaseSQLTransformer implements SQLTransformer {
+public abstract class BaseArgSetter implements ArgSetter {
 
-    private final static Logger log = LoggerFactory.getLogger(BaseSQLTransformer.class);
+    private final static Logger log = LoggerFactory
+                                            .getLogger(BaseArgSetter.class);
 
-    protected final String sql;
-    protected String transformedSQL;
+    protected String            transformedSQL;
 
-    public BaseSQLTransformer(String sql) {
-        this.sql = sql;
-    }
-
-    @Override
-    public void transform() {
+    public void transform(String sql) {
         log.debug("incoming sql:\n{}", sql);
         char[] chrs = sql.toCharArray();
         int chrsLen = chrs.length;
@@ -61,9 +56,5 @@ public abstract class BaseSQLTransformer implements SQLTransformer {
         log.debug("outgoing sql:\n{}", transformedSQL);
     }
 
-    abstract public int extractArg(
-            char[] chrs,
-            int chrsLen,
-            int i);
-
+    abstract public int extractArg(char[] chrs, int chrsLen, int i);
 }

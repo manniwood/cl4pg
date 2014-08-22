@@ -27,7 +27,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
-import com.manniwood.mpjw.SQLTransformer;
+import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.ConverterStore;
 
 public class Update<T> extends PreparedStatementCommand implements Command {
@@ -46,7 +46,7 @@ public class Update<T> extends PreparedStatementCommand implements Command {
 
     @Override
     public void execute() throws SQLException {
-        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
+        ParsedSQLWithSimpleArgs tsql = SQLTransformerUtil.transformSimply(sql);
         pstmt = conn.prepareStatement(tsql.getSql());
         converterStore.setSQLArguments(pstmt, t, tsql.getArgs());
         numberOfRowsUpdated = pstmt.executeUpdate();

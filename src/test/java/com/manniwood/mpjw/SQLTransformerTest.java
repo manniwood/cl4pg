@@ -60,7 +60,7 @@ public class SQLTransformerTest {
     @Test
     public void testBean() {
         String sql = ResourceUtil.slurpFileFromClasspath("sql/insert_user.sql");
-        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
+        ParsedSQLWithSimpleArgs tsql = SQLTransformerUtil.transformSimply(sql);
         List<String> getters = tsql.getArgs();
         Assert.assertEquals(getters.size(), correctGetters.size(), "Must have all getters.");
         for (int i = 0; i < correctGetters.size(); i++) {
@@ -74,7 +74,7 @@ public class SQLTransformerTest {
     @Test
     public void testScalar() {
         String sql = ResourceUtil.slurpFileFromClasspath("sql/select_user_guess_setters.sql");
-        ParsedSQLWithSimpleArgs tsql = SQLTransformer.transformSimply(sql);
+        ParsedSQLWithSimpleArgs tsql = SQLTransformerUtil.transformSimply(sql);
         List<String> getters = tsql.getArgs();
         Assert.assertEquals(getters.size(), correctScalarGetters.size(), "Must have all getters.");
         for (int i = 0; i < correctScalarGetters.size(); i++) {
@@ -92,7 +92,7 @@ public class SQLTransformerTest {
         correctComplexArgs.add(new ComplexArg("getSecond", "setSecond"));
 
         String sql = ResourceUtil.slurpFileFromClasspath("sql/swap.sql");
-        ParsedSQLWithComplexArgs tsql = SQLTransformer.transformWithInOut(sql);
+        ParsedSQLWithComplexArgs tsql = SQLTransformerUtil.transformWithInOut(sql);
         List<ComplexArg> args = tsql.getArgs();
         Assert.assertEquals(args.size(), correctComplexArgs.size(), "Must have all args.");
         for (int i = 0; i < correctComplexArgs.size(); i++) {
@@ -110,7 +110,7 @@ public class SQLTransformerTest {
         correctComplexArgs.add(new ComplexArg("getLowerString", null));
 
         String sql = ResourceUtil.slurpFileFromClasspath("sql/upper.sql");
-        ParsedSQLWithComplexArgs tsql = SQLTransformer.transformWithInOut(sql);
+        ParsedSQLWithComplexArgs tsql = SQLTransformerUtil.transformWithInOut(sql);
         List<ComplexArg> args = tsql.getArgs();
         Assert.assertEquals(args.size(), correctComplexArgs.size(), "Must have all args.");
         for (int i = 0; i < correctComplexArgs.size(); i++) {
