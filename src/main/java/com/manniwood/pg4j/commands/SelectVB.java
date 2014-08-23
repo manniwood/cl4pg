@@ -30,21 +30,23 @@ import java.sql.ResultSet;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 import com.manniwood.pg4j.argsetters.VariadicArgSetter;
-import com.manniwood.pg4j.resultsethandlers.ResultSetHandler;
+import com.manniwood.pg4j.resultsethandlers.ResultSetHandlerB;
 
-public class Select implements Command {
+public class SelectVB<R> implements Command {
 
-    private final String            sql;
-    private final VariadicArgSetter variadicArgSetter;
-    private final ResultSetHandler  resultSetHandler;
-    private final Object[]          params;
-    private PreparedStatement       pstmt;
+    private final String               sql;
+    private final VariadicArgSetter    variadicArgSetter;
+    private final ResultSetHandlerB<R> resultSetHandler;
+    private final Object[]             params;
+    private final Class<R>             returnType;
+    private PreparedStatement          pstmt;
 
-    public Select(Builder builder) {
+    public SelectVB(Builder<R> builder) {
         //@formatter:off
         this.sql                = builder.sql;
         this.variadicArgSetter  = builder.variadicArgSetter;
         this.resultSetHandler   = builder.resultSetHandler;
+        this.returnType         = builder.returnType;
         this.params             = builder.params;
         //@formatter:on
     }
@@ -63,7 +65,7 @@ public class Select implements Command {
                                                   params);
         ResultSet rs = pstmt.executeQuery();
 
-        resultSetHandler.init(converterStore, rs);
+        resultSetHandler.init(converterStore, rs, returnType);
         while (rs.next()) {
             resultSetHandler.processRow(rs);
         }
@@ -76,47 +78,53 @@ public class Select implements Command {
         }
     }
 
-    public static Builder config() {
-        return new Builder();
+    public static <R> Builder<R> config() {
+        return new Builder<R>();
     }
 
-    public static class Builder {
-        private String            sql;
-        private VariadicArgSetter variadicArgSetter;
-        private ResultSetHandler  resultSetHandler;
-        private Object[]          params;
+    public static class Builder<R> {
+        private String               sql;
+        private VariadicArgSetter    variadicArgSetter;
+        private ResultSetHandlerB<R> resultSetHandler;
+        private Object[]             params;
+        private Class<R>             returnType;
 
         public Builder() {
             // null constructor
         }
 
-        public Builder sql(String sql) {
+        public Builder<R> sql(String sql) {
             this.sql = sql;
             return this;
         }
 
-        public Builder file(String filename) {
+        public Builder<R> file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
             return this;
         }
 
-        public Builder variadicArgSetter(VariadicArgSetter variadicArgSetter) {
+        public Builder<R> variadicArgSetter(VariadicArgSetter variadicArgSetter) {
             this.variadicArgSetter = variadicArgSetter;
             return this;
         }
 
-        public Builder resultSetHandler(ResultSetHandler resultSetHandler) {
+        public Builder<R> resultSetHandler(ResultSetHandlerB<R> resultSetHandler) {
             this.resultSetHandler = resultSetHandler;
             return this;
         }
 
-        public Builder params(Object... params) {
+        public Builder<R> params(Object... params) {
             this.params = params;
             return this;
         }
 
-        public Select done() {
-            return new Select(this);
+        public Builder<R> returnType(Class<R> returnType) {
+            this.returnType = returnType;
+            return this;
+        }
+
+        public SelectVB<R> done() {
+            return new SelectVB<R>(this);
         }
     }
 

@@ -20,14 +20,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.mpjw.test.factory;
 
 import org.testng.annotations.Factory;
 
 import com.manniwood.mpjw.ColumnLabelConverterTest;
-import com.manniwood.mpjw.PGSessionTest;
+import com.manniwood.mpjw.OldPGSessionTest;
 import com.manniwood.mpjw.SQLTransformerTest;
+import com.manniwood.pg4j.PGSessionTest;
 
 public class TestNGTestFactory {
     @Factory
@@ -35,6 +36,7 @@ public class TestNGTestFactory {
         return new Object[] {
                 new ColumnLabelConverterTest(),
                 new SQLTransformerTest(),
+                new OldPGSessionTest(),
                 new PGSessionTest()
         };
     }

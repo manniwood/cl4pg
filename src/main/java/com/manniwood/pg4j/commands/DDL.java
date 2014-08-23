@@ -25,27 +25,18 @@ package com.manniwood.pg4j.commands;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.argsetters.VariadicArgSetter;
-import com.manniwood.pg4j.resultsethandlers.ResultSetHandler;
 
-public class Select implements Command {
+public class DDL implements Command {
 
-    private final String            sql;
-    private final VariadicArgSetter variadicArgSetter;
-    private final ResultSetHandler  resultSetHandler;
-    private final Object[]          params;
-    private PreparedStatement       pstmt;
+    private final String      sql;
+    private PreparedStatement pstmt;
 
-    public Select(Builder builder) {
+    public DDL(Builder builder) {
         //@formatter:off
-        this.sql                = builder.sql;
-        this.variadicArgSetter  = builder.variadicArgSetter;
-        this.resultSetHandler   = builder.resultSetHandler;
-        this.params             = builder.params;
+        this.sql              = builder.sql;
         //@formatter:on
     }
 
@@ -57,16 +48,8 @@ public class Select implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
-        pstmt = variadicArgSetter.setSQLArguments(sql,
-                                                  connection,
-                                                  converterStore,
-                                                  params);
-        ResultSet rs = pstmt.executeQuery();
-
-        resultSetHandler.init(converterStore, rs);
-        while (rs.next()) {
-            resultSetHandler.processRow(rs);
-        }
+        pstmt = connection.prepareStatement(sql);
+        pstmt.execute();
     }
 
     @Override
@@ -81,10 +64,7 @@ public class Select implements Command {
     }
 
     public static class Builder {
-        private String            sql;
-        private VariadicArgSetter variadicArgSetter;
-        private ResultSetHandler  resultSetHandler;
-        private Object[]          params;
+        private String sql;
 
         public Builder() {
             // null constructor
@@ -100,23 +80,8 @@ public class Select implements Command {
             return this;
         }
 
-        public Builder variadicArgSetter(VariadicArgSetter variadicArgSetter) {
-            this.variadicArgSetter = variadicArgSetter;
-            return this;
-        }
-
-        public Builder resultSetHandler(ResultSetHandler resultSetHandler) {
-            this.resultSetHandler = resultSetHandler;
-            return this;
-        }
-
-        public Builder params(Object... params) {
-            this.params = params;
-            return this;
-        }
-
-        public Select done() {
-            return new Select(this);
+        public DDL done() {
+            return new DDL(this);
         }
     }
 

@@ -69,10 +69,10 @@ import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 import com.manniwood.pg4j.commands.Command;
 
-public class PGSession {
+public class OldPGSession {
 
     private final static Logger log                       = LoggerFactory
-                                                                  .getLogger(PGSession.class);
+                                                                  .getLogger(OldPGSession.class);
 
     private Connection          conn                      = null;
 
@@ -87,7 +87,7 @@ public class PGSession {
 
     private ConverterStore      converterStore            = new ConverterStore();
 
-    public PGSession() {
+    public OldPGSession() {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {

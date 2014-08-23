@@ -21,38 +21,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.resultsethandlers;
+package com.manniwood.pg4j.argsetters;
 
-import java.sql.ResultSet;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.manniwood.mpjw.converters.Converter;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class GuessScalarListHandler<R> implements ResultSetHandler {
-
-    private List<R>      list;
-    private Converter<?> converter;
-
-    public GuessScalarListHandler() {
-        list = new ArrayList<R>();
-    }
+public class SimpleVariadicArgSetter extends SimpleArgSetter implements VariadicArgSetter {
 
     @Override
-    public void init(ConverterStore converterStore,
-                     ResultSet rs) throws SQLException {
-        converter = converterStore.guessConverter(rs);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void processRow(ResultSet rs) throws SQLException {
-        list.add((R) converter.getItem(rs, 1));
-    }
-
-    public List<R> getList() {
-        return list;
+    public PreparedStatement setSQLArguments(String sql,
+                                             Connection connection,
+                                             ConverterStore converterStore,
+                                             Object... params) throws SQLException {
+        transform(sql);
+        PreparedStatement pstmt = connection.prepareStatement(transformedSQL);
+        if (args == null || args.isEmpty()) {
+            return pstmt;
+        }
+        for (int i = 0; i < args.size(); i++) {
+            converterStore.setSQLArgument(pstmt, i + 1, params[i], args.get(i));
+        }
+        return pstmt;
     }
 }

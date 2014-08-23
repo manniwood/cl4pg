@@ -26,7 +26,7 @@ package com.manniwood.pg4j.argsetters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class BaseArgSetter implements ArgSetter {
+public abstract class BaseArgSetter {
 
     private final static Logger log = LoggerFactory
                                             .getLogger(BaseArgSetter.class);
@@ -56,5 +56,7 @@ public abstract class BaseArgSetter implements ArgSetter {
         log.debug("outgoing sql:\n{}", transformedSQL);
     }
 
-    abstract public int extractArg(char[] chrs, int chrsLen, int i);
+    abstract public int extractArg(char[] chrs,
+                                   int chrsLen,
+                                   int i);
 }

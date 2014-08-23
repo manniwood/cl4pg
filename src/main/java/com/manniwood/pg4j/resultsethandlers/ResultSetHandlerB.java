@@ -21,17 +21,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.argsetters;
+package com.manniwood.pg4j.resultsethandlers;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public interface ArgSetter {
-    PreparedStatement setSQLArguments(String sql,
-            Connection connection,
-            ConverterStore converterStore,
-            Object... params) throws SQLException;
+public interface ResultSetHandlerB<R> {
+    void init(ConverterStore converterStore,
+              ResultSet rs,
+              Class<R> returnType) throws SQLException;
+
+    void processRow(ResultSet rs) throws SQLException;
 }

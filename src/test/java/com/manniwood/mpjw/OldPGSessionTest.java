@@ -42,14 +42,14 @@ import com.manniwood.mpjw.test.etc.AllUsersListener;
 import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.TwoInts;
 import com.manniwood.mpjw.test.etc.User;
-import com.manniwood.pg4j.argsetters.SimpleArgSetter;
+import com.manniwood.pg4j.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.commands.Select;
 import com.manniwood.pg4j.resultsethandlers.GuessScalarListHandler;
 
-public class PGSessionTest {
+public class OldPGSessionTest {
 
     private final static Logger log                       = LoggerFactory
-                                                                  .getLogger(PGSession.class);
+                                                                  .getLogger(OldPGSession.class);
 
     public static final String  TEST_COPY_FILE            = "/tmp/users.copy";
 
@@ -82,16 +82,16 @@ public class PGSessionTest {
     public static final int     EMPLOYEE_ID_2             = 2;
     public static final int     EMPLOYEE_ID_3             = 3;
 
-    private PGSession           pgSession;
-    private PGSession           pgSession2;
+    private OldPGSession        pgSession;
+    private OldPGSession        pgSession2;
 
     @BeforeClass
     public void init() {
-        pgSession = new PGSession();
+        pgSession = new OldPGSession();
         pgSession.ddl("@sql/create_temp_users_table.sql");
         pgSession.commit();
 
-        pgSession2 = new PGSession();
+        pgSession2 = new OldPGSession();
 
     }
 
@@ -913,7 +913,7 @@ public class PGSessionTest {
         GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
         pgSession.run(Select.config()
                 .file("sql/select_employee_ids_guess_scalar.sql")
-                .argSetter(new SimpleArgSetter())
+                .variadicArgSetter(new SimpleVariadicArgSetter())
                 .params(1)
                 .resultSetHandler(handler)
                 .done());

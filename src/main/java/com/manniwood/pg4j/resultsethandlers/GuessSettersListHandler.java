@@ -28,28 +28,32 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.manniwood.mpjw.converters.Converter;
 import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.mpjw.converters.SetterAndConverter;
 
-public class GuessScalarListHandler<R> implements ResultSetHandler {
+public class GuessSettersListHandler<R> implements ResultSetHandlerB<R> {
 
-    private List<R>      list;
-    private Converter<?> converter;
+    private List<R>                  list;
+    private List<SetterAndConverter> settersAndConverters;
+    private ConverterStore           converterStore;
+    private Class<R>                 returnType;
 
-    public GuessScalarListHandler() {
+    public GuessSettersListHandler() {
         list = new ArrayList<R>();
     }
 
     @Override
     public void init(ConverterStore converterStore,
-                     ResultSet rs) throws SQLException {
-        converter = converterStore.guessConverter(rs);
+                     ResultSet rs,
+                     Class<R> returnType) throws SQLException {
+        this.converterStore = converterStore;
+        this.returnType = returnType;
+        settersAndConverters = converterStore.guessSetters(rs, returnType);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void processRow(ResultSet rs) throws SQLException {
-        list.add((R) converter.getItem(rs, 1));
+        list.add(converterStore.buildBeanUsingSetters(rs, returnType, settersAndConverters));
     }
 
     public List<R> getList() {

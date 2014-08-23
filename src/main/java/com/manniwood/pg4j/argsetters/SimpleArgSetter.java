@@ -23,26 +23,23 @@ THE SOFTWARE.
  */
 package com.manniwood.pg4j.argsetters;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.mpjw.converters.ConverterStore;
+public abstract class SimpleArgSetter extends BaseArgSetter {
 
-public class SimpleArgSetter extends BaseArgSetter implements ArgSetter {
+    private final static Logger  log  = LoggerFactory
+                                              .getLogger(SimpleArgSetter.class);
 
-    private final static Logger log  = LoggerFactory
-                                             .getLogger(SimpleArgSetter.class);
-
-    private final List<String>  args = new ArrayList<>();
+    protected final List<String> args = new ArrayList<>();
 
     @Override
-    public int extractArg(char[] chrs, int chrsLen, int i) {
+    public int extractArg(char[] chrs,
+                          int chrsLen,
+                          int i) {
         StringBuilder arg = new StringBuilder();
         while (i < chrsLen && chrs[i] != '}') {
             i++;
@@ -58,19 +55,4 @@ public class SimpleArgSetter extends BaseArgSetter implements ArgSetter {
         return i;
     }
 
-    @Override
-    public PreparedStatement setSQLArguments(String sql,
-            Connection connection,
-            ConverterStore converterStore,
-            Object... params) throws SQLException {
-        transform(sql);
-        PreparedStatement pstmt = connection.prepareStatement(transformedSQL);
-        if (args == null || args.isEmpty()) {
-            return pstmt;
-        }
-        for (int i = 0; i < args.size(); i++) {
-            converterStore.setSQLArgument(pstmt, i + 1, params[i], args.get(i));
-        }
-        return pstmt;
-    }
 }
