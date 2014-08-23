@@ -26,7 +26,7 @@ package com.manniwood.mpjw.commands;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class DDL extends PreparedStatementCommand implements Command {
+public class DDL extends PreparedStatementCommand implements OldCommand {
 
     public DDL(String sql, Connection conn) {
         this.sql = sql;

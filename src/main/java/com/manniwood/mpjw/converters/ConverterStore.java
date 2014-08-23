@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.mpjw.converters;
 
 import java.lang.reflect.Constructor;
@@ -46,7 +46,7 @@ import com.manniwood.mpjw.util.ColumnLabelConverter;
 
 public class ConverterStore {
 
-    private final static Logger log = LoggerFactory.getLogger(ConverterStore.class);
+    private final static Logger         log = LoggerFactory.getLogger(ConverterStore.class);
 
     private Map<Class<?>, Converter<?>> converters;
 
@@ -60,7 +60,7 @@ public class ConverterStore {
         converters.put(UUID.class, new UUIDConverter());
     }
 
-    public static Map<Class<?>, Class<?>> wrappersToPrimitives = new HashMap<>();
+    public static Map<Class<?>, Class<?>> wrappersToPrimitives    = new HashMap<>();
 
     static {
         wrappersToPrimitives.put(Byte.class, byte.class);
@@ -73,7 +73,7 @@ public class ConverterStore {
         wrappersToPrimitives.put(Character.class, char.class);
     }
 
-    public static Map<Class<?>, Class<?>> primitivesToWrappers = new HashMap<>();
+    public static Map<Class<?>, Class<?>> primitivesToWrappers    = new HashMap<>();
 
     static {
         primitivesToWrappers.put(byte.class, Byte.class);
@@ -86,7 +86,7 @@ public class ConverterStore {
         primitivesToWrappers.put(char.class, Character.class);
     }
 
-    public static Map<String, Class<?>> primitiveNamesToClasses = new HashMap<>();
+    public static Map<String, Class<?>>   primitiveNamesToClasses = new HashMap<>();
 
     static {
         primitiveNamesToClasses.put("byte", byte.class);
@@ -99,12 +99,17 @@ public class ConverterStore {
         primitiveNamesToClasses.put("char", char.class);
     }
 
-    public <P> void setSQLArguments(PreparedStatement pstmt, P p, List<String> getters) throws SQLException {
+    public <P> void setSQLArguments(PreparedStatement pstmt,
+                                    P p,
+                                    List<String> getters) throws SQLException {
         setSQLArguments(pstmt, p, getters, 1);
     }
 
     @SuppressWarnings("unchecked")
-    public <P> void setSQLArguments(PreparedStatement pstmt, P p, List<String> getters, int startCol) throws SQLException {
+    public <P> void setSQLArguments(PreparedStatement pstmt,
+                                    P p,
+                                    List<String> getters,
+                                    int startCol) throws SQLException {
         int i = startCol;
         Class<?> tclass = p.getClass();
         try {
@@ -112,8 +117,8 @@ public class ConverterStore {
                 Method m = tclass.getMethod(getter);
                 Object o = m.invoke(p);
                 Class<?> returnClass = m.getReturnType();
-                Converter<P> converter = (Converter<P>)converters.get(returnClass);
-                converter.setItem(pstmt, i, (P)o);
+                Converter<P> converter = (Converter<P>) converters.get(returnClass);
+                converter.setItem(pstmt, i, (P) o);
                 i++;
             }
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -122,22 +127,24 @@ public class ConverterStore {
     }
 
     @SuppressWarnings("unchecked")
-    public <P> void setSQLArguments(CallableStatement cstmt, P p, List<ComplexArg> args) throws SQLException {
+    public <P> void setSQLArguments(CallableStatement cstmt,
+                                    P p,
+                                    List<ComplexArg> args) throws SQLException {
         int i = 0;
         Class<?> tclass = p.getClass();
         try {
             for (ComplexArg arg : args) {
                 i++;
                 String getter = arg.getGetter();
-                if (getter != null && ! getter.isEmpty()) {
+                if (getter != null && !getter.isEmpty()) {
                     Method m = tclass.getMethod(getter);
                     Object o = m.invoke(p);
                     Class<?> returnClass = m.getReturnType();
-                    Converter<P> converter = (Converter<P>)converters.get(returnClass);
-                    converter.setItem(cstmt, i, (P)o);
+                    Converter<P> converter = (Converter<P>) converters.get(returnClass);
+                    converter.setItem(cstmt, i, (P) o);
                 }
                 String setter = arg.getSetter();
-                if (setter != null && ! setter.isEmpty()) {
+                if (setter != null && !setter.isEmpty()) {
                     Method setMethod = null;
                     for (Method m : tclass.getMethods()) {
                         if (m.getName().equals(setter)) {
@@ -146,7 +153,7 @@ public class ConverterStore {
                     }
                     Class<?>[] paramTypes = setMethod.getParameterTypes();
                     Class<?> setterClass = paramTypes[0];
-                    Converter<P> converter = (Converter<P>)converters.get(setterClass);
+                    Converter<P> converter = (Converter<P>) converters.get(setterClass);
                     log.debug("setter converter {} for offset {}", converter, i);
                     converter.registerOutParameter(cstmt, i);
                 }
@@ -157,7 +164,10 @@ public class ConverterStore {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void setSQLArgument(PreparedStatement pstmt, int i, Object param, String className) throws SQLException {
+    public void setSQLArgument(PreparedStatement pstmt,
+                               int i,
+                               Object param,
+                               String className) throws SQLException {
         Class<?> parameterType = null;
         try {
             parameterType = Class.forName(className);
@@ -168,8 +178,8 @@ public class ConverterStore {
         converter.setItem(pstmt, i, parameterType.cast(param));
     }
 
-
-    public <T> List<SetterAndConverter> guessSetters(ResultSet rs, Class<T> returnType) throws SQLException {
+    public <T> List<SetterAndConverter> guessSetters(ResultSet rs,
+                                                     Class<T> returnType) throws SQLException {
         List<SetterAndConverter> settersAndConverters = new ArrayList<>();
         try {
             ResultSetMetaData md = rs.getMetaData();
@@ -189,7 +199,8 @@ public class ConverterStore {
         return settersAndConverters;
     }
 
-    public <T> List<SetterAndConverter> specifySetters(ResultSet rs, Class<T> returnType) throws SQLException {
+    public <T> List<SetterAndConverter> specifySetters(ResultSet rs,
+                                                       Class<T> returnType) throws SQLException {
         List<SetterAndConverter> settersAndConverters = new ArrayList<>();
         try {
             ResultSetMetaData md = rs.getMetaData();
@@ -208,7 +219,9 @@ public class ConverterStore {
         return settersAndConverters;
     }
 
-    public <T> List<SetterAndConverterAndColNum> specifySetters(CallableStatement cstmt, Class<T> returnType, List<ComplexArg> args) throws SQLException {
+    public <T> List<SetterAndConverterAndColNum> specifySetters(CallableStatement cstmt,
+                                                                Class<T> returnType,
+                                                                List<ComplexArg> args) throws SQLException {
         List<SetterAndConverterAndColNum> settersAndConverters = new ArrayList<>();
         try {
             int absCol = 0;
@@ -238,7 +251,8 @@ public class ConverterStore {
         return settersAndConverters;
     }
 
-    public <T> Converter<?> guessConverter(ResultSet rs, Class<T> returnType) throws SQLException {
+    public <T> Converter<?> guessConverter(ResultSet rs,
+                                           Class<T> returnType) throws SQLException {
         Converter<?> converter = null;
         Class<?> parameterType = null;
         try {
@@ -259,7 +273,29 @@ public class ConverterStore {
         return converter;
     }
 
-    public <T> Converter<?> specifyConverter(ResultSet rs, Class<T> returnType) throws SQLException {
+    public <T> Converter<?> guessConverter(ResultSet rs) throws SQLException {
+        Converter<?> converter = null;
+        Class<?> parameterType = null;
+        try {
+            ResultSetMetaData md = rs.getMetaData();
+            int numCols = md.getColumnCount();
+            if (numCols > 1) {
+                throw new MPJWException("Only one column is allowed to be in the result set.");
+            }
+            String className = md.getColumnClassName(1);
+            parameterType = Class.forName(className);
+            converter = converters.get(parameterType);
+        } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
+            throw new MPJWException(e);
+        }
+        if (converter == null) {
+            throw new MPJWException("Converter not found for column return type " + parameterType);
+        }
+        return converter;
+    }
+
+    public <T> Converter<?> specifyConverter(ResultSet rs,
+                                             Class<T> returnType) throws SQLException {
         Converter<?> converter = null;
         try {
             ResultSetMetaData md = rs.getMetaData();
@@ -276,13 +312,13 @@ public class ConverterStore {
         return converter;
     }
 
-
-
-    public <T> T buildBeanUsingSetters(ResultSet rs, Class<T> returnType, List<SetterAndConverter> settersAndConverters) throws SQLException {
+    public <T> T buildBeanUsingSetters(ResultSet rs,
+                                       Class<T> returnType,
+                                       List<SetterAndConverter> settersAndConverters) throws SQLException {
         T t = null;
         try {
             t = returnType.newInstance();
-            int col = 1;  // JDBC cols start at 1, not zero
+            int col = 1; // JDBC cols start at 1, not zero
             for (SetterAndConverter sac : settersAndConverters) {
                 sac.getSetter().invoke(t, sac.getConverter().getItem(rs, col));
                 col++;
@@ -293,7 +329,9 @@ public class ConverterStore {
         return t;
     }
 
-    public <T> T populateBeanUsingSetters(CallableStatement cstmt, T t, List<SetterAndConverterAndColNum> settersAndConverters) throws SQLException {
+    public <T> T populateBeanUsingSetters(CallableStatement cstmt,
+                                          T t,
+                                          List<SetterAndConverterAndColNum> settersAndConverters) throws SQLException {
         try {
             for (SetterAndConverterAndColNum sac : settersAndConverters) {
                 log.debug("Calling setter {} for column {}", sac.getConverter(), sac.getColNum());
@@ -305,7 +343,8 @@ public class ConverterStore {
         return t;
     }
 
-    public <T> ConstructorAndConverters guessConstructor(ResultSet rs, Class<T> returnType) throws SQLException {
+    public <T> ConstructorAndConverters guessConstructor(ResultSet rs,
+                                                         Class<T> returnType) throws SQLException {
         Constructor<?> constructor = null;
         List<Converter<?>> convs = new ArrayList<>();
         try {
@@ -326,7 +365,8 @@ public class ConverterStore {
         return new ConstructorAndConverters(constructor, convs);
     }
 
-    public <T> ConstructorAndConverters specifyConstructorArgs(ResultSet rs, Class<T> returnType) throws SQLException {
+    public <T> ConstructorAndConverters specifyConstructorArgs(ResultSet rs,
+                                                               Class<T> returnType) throws SQLException {
         Constructor<?> constructor = null;
         List<Converter<?>> convs = new ArrayList<>();
         try {
@@ -347,20 +387,21 @@ public class ConverterStore {
         return new ConstructorAndConverters(constructor, convs);
     }
 
-
     @SuppressWarnings("unchecked")
-    public <T> T buildBeanUsingConstructor(ResultSet rs, Class<T> returnType, ConstructorAndConverters cac) throws SQLException {
+    public <T> T buildBeanUsingConstructor(ResultSet rs,
+                                           Class<T> returnType,
+                                           ConstructorAndConverters cac) throws SQLException {
         T t = null;
         try {
             Object[] params = new Object[cac.getConverters().size()];
-            int col = 1;  // JDBC cols start at 1
+            int col = 1; // JDBC cols start at 1
             for (Converter<?> converter : cac.getConverters()) {
-                params[col- 1] = converter.getItem(rs, col);
+                params[col - 1] = converter.getItem(rs, col);
                 log.debug("param {} == {}", col - 1, params[col - 1]);
                 col++;
             }
             Constructor<?> constructor = cac.getConstructor();
-            t = (T)constructor.newInstance(params);
+            t = (T) constructor.newInstance(params);
         } catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
             throw new MPJWException(e);
         }
@@ -375,7 +416,9 @@ public class ConverterStore {
         return Class.forName(className);
     }
 
-    private <T> Method findMethod(Class<T> returnType, Class<?> parameterType, String setterName) throws NoSuchMethodException {
+    private <T> Method findMethod(Class<T> returnType,
+                                  Class<?> parameterType,
+                                  String setterName) throws NoSuchMethodException {
         Method m;
         try {
             // Usually, this will succeed, but sometimes we are looking

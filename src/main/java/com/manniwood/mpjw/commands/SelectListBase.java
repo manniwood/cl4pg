@@ -31,7 +31,7 @@ import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public abstract class SelectListBase<T> extends PreparedStatementCommand implements Command {
+public abstract class SelectListBase<T> extends PreparedStatementCommand implements OldCommand {
 
     protected final ConverterStore converterStore;
     protected final Class<T> returnType;

@@ -31,7 +31,7 @@ import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class DeleteVariadic extends PreparedStatementCommand implements Command {
+public class DeleteVariadic extends PreparedStatementCommand implements OldCommand {
 
     private final ConverterStore converterStore;
     private int numberOfRowsDeleted;

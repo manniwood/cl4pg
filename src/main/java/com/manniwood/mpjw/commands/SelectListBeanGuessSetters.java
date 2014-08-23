@@ -32,7 +32,7 @@ import java.util.List;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.converters.SetterAndConverter;
 
-public class SelectListBeanGuessSetters<T, P> extends SelectListBeanBase<T, P> implements Command {
+public class SelectListBeanGuessSetters<T, P> extends SelectListBeanBase<T, P> implements OldCommand {
 
     public SelectListBeanGuessSetters(
             ConverterStore converterStore,

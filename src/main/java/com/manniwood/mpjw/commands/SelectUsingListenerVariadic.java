@@ -31,7 +31,7 @@ import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.ResultSetListener;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectUsingListenerVariadic extends SelectUsingListenerBase implements Command {
+public class SelectUsingListenerVariadic extends SelectUsingListenerBase implements OldCommand {
 
     private final Object[] params;
 

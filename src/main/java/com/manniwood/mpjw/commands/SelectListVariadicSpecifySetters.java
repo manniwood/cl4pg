@@ -32,7 +32,7 @@ import java.util.List;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.converters.SetterAndConverter;
 
-public class SelectListVariadicSpecifySetters<T> extends SelectListVariadicBase<T> implements Command {
+public class SelectListVariadicSpecifySetters<T> extends SelectListVariadicBase<T> implements OldCommand {
 
     public SelectListVariadicSpecifySetters(
             ConverterStore converterStore,

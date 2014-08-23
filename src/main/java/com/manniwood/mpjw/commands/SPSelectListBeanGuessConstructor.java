@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import com.manniwood.mpjw.converters.ConstructorAndConverters;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SPSelectListBeanGuessConstructor<T, P> extends SPSelectListBeanBase<T, P> implements Command {
+public class SPSelectListBeanGuessConstructor<T, P> extends SPSelectListBeanBase<T, P> implements OldCommand {
 
     public SPSelectListBeanGuessConstructor(
             ConverterStore converterStore,

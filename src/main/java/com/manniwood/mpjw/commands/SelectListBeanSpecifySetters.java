@@ -32,7 +32,7 @@ import java.util.List;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.converters.SetterAndConverter;
 
-public class SelectListBeanSpecifySetters<T, P> extends SelectListBeanBase<T, P> implements Command {
+public class SelectListBeanSpecifySetters<T, P> extends SelectListBeanBase<T, P> implements OldCommand {
 
     public SelectListBeanSpecifySetters(
             ConverterStore converterStore,

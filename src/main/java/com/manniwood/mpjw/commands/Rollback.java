@@ -26,7 +26,7 @@ package com.manniwood.mpjw.commands;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class Rollback extends ConnectionCommand implements Command {
+public class Rollback extends ConnectionCommand implements OldCommand {
 
     public Rollback(Connection conn) {
         this.sql = "rollback;";

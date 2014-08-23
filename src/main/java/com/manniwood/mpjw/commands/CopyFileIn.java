@@ -32,7 +32,7 @@ import java.sql.SQLException;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
 
-public class CopyFileIn extends ConnectionCommand implements Command {
+public class CopyFileIn extends ConnectionCommand implements OldCommand {
 
     private final String copyFileName;
     private Reader fileReader = null;

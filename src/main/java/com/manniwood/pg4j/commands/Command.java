@@ -20,34 +20,33 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
-package com.manniwood.mpjw.commands;
+ */
+package com.manniwood.pg4j.commands;
 
 import java.sql.Connection;
+
+import com.manniwood.mpjw.converters.ConverterStore;
 
 public interface Command {
     /**
      * Get the SQL statement used by this command.
+     *
      * @return
      */
     String getSQL();
 
     /**
      * Execute this command.
+     *
      * @throws Exception
      */
-    void execute() throws Exception;
+    void execute(Connection connection,
+                 ConverterStore converterStore) throws Exception;
 
     /**
-     * Get the connection used to run this command.
-     * @return
-     */
-    Connection getConnection();
-
-    /**
-     * Clean up / close all resources used to execute
-     * this command. For instance, close prepared statements,
-     * or close open files/streams used in copy commands.
+     * Clean up / close all resources used to execute this command. For
+     * instance, close prepared statements, or close open files/streams used in
+     * copy commands.
      */
     void cleanUp() throws Exception;
 }

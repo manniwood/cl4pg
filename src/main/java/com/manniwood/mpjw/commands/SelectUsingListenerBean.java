@@ -31,7 +31,7 @@ import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.ResultSetListener;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectUsingListenerBean<P> extends SelectUsingListenerBase implements Command {
+public class SelectUsingListenerBean<P> extends SelectUsingListenerBase implements OldCommand {
 
     private final P p;
 

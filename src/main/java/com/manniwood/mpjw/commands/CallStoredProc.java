@@ -33,7 +33,7 @@ import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.converters.SetterAndConverterAndColNum;
 
-public class CallStoredProc<T> implements Command {
+public class CallStoredProc<T> implements OldCommand {
 
     protected CallableStatement cstmt;
     protected final String sql;

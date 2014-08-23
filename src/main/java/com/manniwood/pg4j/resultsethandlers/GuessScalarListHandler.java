@@ -33,21 +33,17 @@ import com.manniwood.mpjw.converters.ConverterStore;
 
 public class GuessScalarListHandler<T> implements ResultSetHandler {
 
-    private List<T>              list;
-    private Converter<?>         converter;
-    private final Class<T>       returnType;
-    private final ConverterStore converterStore;
+    private List<T>      list;
+    private Converter<?> converter;
 
-    public GuessScalarListHandler(ConverterStore converterStore,
-            Class<T> returnType) {
-        this.converterStore = converterStore;
-        this.returnType = returnType;
+    public GuessScalarListHandler() {
         list = new ArrayList<T>();
     }
 
     @Override
-    public void init(ResultSet rs) throws SQLException {
-        converter = converterStore.guessConverter(rs, returnType);
+    public void init(ConverterStore converterStore,
+                     ResultSet rs) throws SQLException {
+        converter = converterStore.guessConverter(rs);
     }
 
     @SuppressWarnings("unchecked")

@@ -2,7 +2,7 @@ package com.manniwood.mpjw.commands;
 
 import java.sql.PreparedStatement;
 
-public class PreparedStatementCommand extends ConnectionCommand implements Command {
+public class PreparedStatementCommand extends ConnectionCommand implements OldCommand {
 
     protected PreparedStatement pstmt;
 

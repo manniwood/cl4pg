@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import com.manniwood.mpjw.converters.Converter;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectListVariadicSpecifyScalar<T> extends SelectListVariadicBase<T> implements Command {
+public class SelectListVariadicSpecifyScalar<T> extends SelectListVariadicBase<T> implements OldCommand {
 
     public SelectListVariadicSpecifyScalar(
             ConverterStore converterStore,

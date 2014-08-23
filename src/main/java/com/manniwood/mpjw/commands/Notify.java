@@ -28,7 +28,7 @@ import java.sql.SQLException;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class Notify extends PreparedStatementCommand implements Command {
+public class Notify extends PreparedStatementCommand implements OldCommand {
 
     public static final String PG_NOTIFY_SQL = "select pg_notify(?, ?)";
     private final ConverterStore converterStore;

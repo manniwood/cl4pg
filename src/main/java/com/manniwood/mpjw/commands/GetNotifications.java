@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import org.postgresql.PGConnection;
 import org.postgresql.PGNotification;
 
-public class GetNotifications extends PreparedStatementCommand implements Command {
+public class GetNotifications extends PreparedStatementCommand implements OldCommand {
 
     /**
      * This dummy query gets run just to get the messages back from

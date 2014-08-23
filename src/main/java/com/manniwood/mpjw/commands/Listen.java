@@ -28,7 +28,7 @@ import java.sql.SQLException;
 
 import com.manniwood.mpjw.util.SQLSafetyUtil;
 
-public class Listen extends PreparedStatementCommand implements Command {
+public class Listen extends PreparedStatementCommand implements OldCommand {
 
     public Listen(Connection conn, String channel) {
         super();

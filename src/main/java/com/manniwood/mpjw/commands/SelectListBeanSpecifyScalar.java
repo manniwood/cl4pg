@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import com.manniwood.mpjw.converters.Converter;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectListBeanSpecifyScalar<T, P> extends SelectListBeanBase<T, P> implements Command {
+public class SelectListBeanSpecifyScalar<T, P> extends SelectListBeanBase<T, P> implements OldCommand {
 
     public SelectListBeanSpecifyScalar(
             ConverterStore converterStore,

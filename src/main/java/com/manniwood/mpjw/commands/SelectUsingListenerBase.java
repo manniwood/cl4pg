@@ -32,7 +32,7 @@ import com.manniwood.mpjw.ResultSetListener;
 import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public abstract class SelectUsingListenerBase extends PreparedStatementCommand implements Command {
+public abstract class SelectUsingListenerBase extends PreparedStatementCommand implements OldCommand {
 
     protected final ConverterStore converterStore;
     protected final ResultSetListener listener;

@@ -30,7 +30,7 @@ import java.util.List;
 import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public abstract class SelectListVariadicBase<T> extends SelectListBase<T> implements Command {
+public abstract class SelectListVariadicBase<T> extends SelectListBase<T> implements OldCommand {
 
     private final Object[] params;
 

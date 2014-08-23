@@ -32,7 +32,7 @@ import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public abstract class SPSelectListBeanBase<T, P> extends SPSelectListBase<T> implements Command {
+public abstract class SPSelectListBeanBase<T, P> extends SPSelectListBase<T> implements OldCommand {
 
     private final P p;
 

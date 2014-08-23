@@ -24,35 +24,30 @@ THE SOFTWARE.
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
-import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
-import com.manniwood.mpjw.SQLTransformerUtil;
-import com.manniwood.mpjw.converters.ConverterStore;
+public interface OldCommand {
+    /**
+     * Get the SQL statement used by this command.
+     * @return
+     */
+    String getSQL();
 
-public class Delete<T> extends PreparedStatementCommand implements OldCommand {
+    /**
+     * Execute this command.
+     * @throws Exception
+     */
+    void execute() throws Exception;
 
-    private final ConverterStore converterStore;
-    private final T t;
-    private int numberOfRowsDeleted;
+    /**
+     * Get the connection used to run this command.
+     * @return
+     */
+    Connection getConnection();
 
-    public Delete(ConverterStore converterStore, String sql, Connection conn, T t) {
-        this.converterStore = converterStore;
-        this.sql = sql;
-        this.conn = conn;
-        this.t = t;
-    }
-
-    @Override
-    public void execute() throws SQLException {
-        ParsedSQLWithSimpleArgs tsql = SQLTransformerUtil.transformSimply(sql);
-        pstmt = conn.prepareStatement(tsql.getSql());
-        converterStore.setSQLArguments(pstmt, t, tsql.getArgs());
-        numberOfRowsDeleted = pstmt.executeUpdate();
-    }
-
-    public int getNumberOfRowsDeleted() {
-        return numberOfRowsDeleted;
-    }
-
+    /**
+     * Clean up / close all resources used to execute
+     * this command. For instance, close prepared statements,
+     * or close open files/streams used in copy commands.
+     */
+    void cleanUp() throws Exception;
 }

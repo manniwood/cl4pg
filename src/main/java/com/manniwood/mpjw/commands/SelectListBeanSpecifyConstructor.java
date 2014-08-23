@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import com.manniwood.mpjw.converters.ConstructorAndConverters;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectListBeanSpecifyConstructor<T, P> extends SelectListBeanBase<T, P> implements Command {
+public class SelectListBeanSpecifyConstructor<T, P> extends SelectListBeanBase<T, P> implements OldCommand {
 
     public SelectListBeanSpecifyConstructor(
             ConverterStore converterStore,

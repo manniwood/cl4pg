@@ -34,7 +34,7 @@ import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.Converter;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class CallStoredProcReturnScalar<T, P> implements Command {
+public class CallStoredProcReturnScalar<T, P> implements OldCommand {
 
     protected CallableStatement cstmt;
     protected final String sql;

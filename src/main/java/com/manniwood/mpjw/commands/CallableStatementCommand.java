@@ -2,7 +2,7 @@ package com.manniwood.mpjw.commands;
 
 import java.sql.CallableStatement;
 
-public class CallableStatementCommand extends ConnectionCommand implements Command {
+public class CallableStatementCommand extends ConnectionCommand implements OldCommand {
 
     protected CallableStatement cstmt;
 

@@ -26,7 +26,7 @@ package com.manniwood.mpjw.commands;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class Commit extends ConnectionCommand implements Command {
+public class Commit extends ConnectionCommand implements OldCommand {
 
     public Commit(Connection conn) {
         this.sql = "commit;";

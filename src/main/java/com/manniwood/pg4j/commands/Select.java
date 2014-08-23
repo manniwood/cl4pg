@@ -27,7 +27,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import com.manniwood.mpjw.commands.Command;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 import com.manniwood.pg4j.argsetters.ArgSetter;
@@ -35,8 +34,6 @@ import com.manniwood.pg4j.resultsethandlers.ResultSetHandler;
 
 public class Select implements Command {
 
-    private final Connection       connection;
-    private final ConverterStore   converterStore;
     private final String           sql;
     private final ArgSetter        argSetter;
     private final ResultSetHandler resultSetHandler;
@@ -48,8 +45,6 @@ public class Select implements Command {
         this.sql              = builder.sql;
         this.argSetter        = builder.argSetter;
         this.resultSetHandler = builder.resultSetHandler;
-        this.connection       = builder.connection;
-        this.converterStore   = builder.converterStore;
         this.params           = builder.params;
         //@formatter:on
     }
@@ -60,22 +55,18 @@ public class Select implements Command {
     }
 
     @Override
-    public void execute() throws Exception {
+    public void execute(Connection connection,
+                        ConverterStore converterStore) throws Exception {
         pstmt = argSetter.setSQLArguments(sql,
                                           connection,
                                           converterStore,
                                           params);
         ResultSet rs = pstmt.executeQuery();
 
-        resultSetHandler.init(rs);
+        resultSetHandler.init(converterStore, rs);
         while (rs.next()) {
             resultSetHandler.processRow(rs);
         }
-    }
-
-    @Override
-    public Connection getConnection() {
-        return connection;
     }
 
     @Override
@@ -85,12 +76,14 @@ public class Select implements Command {
         }
     }
 
+    public static Builder config() {
+        return new Builder();
+    }
+
     public static class Builder {
         private String           sql;
         private ArgSetter        argSetter;
         private ResultSetHandler resultSetHandler;
-        private Connection       connection;
-        private ConverterStore   converterStore;
         private Object[]         params;
 
         public Builder() {
@@ -117,22 +110,12 @@ public class Select implements Command {
             return this;
         }
 
-        public Builder connection(Connection connection) {
-            this.connection = connection;
-            return this;
-        }
-
-        public Builder converterStore(ConverterStore converterStore) {
-            this.converterStore = converterStore;
-            return this;
-        }
-
         public Builder params(Object... params) {
             this.params = params;
             return this;
         }
 
-        public Select build() {
+        public Select done() {
             return new Select(this);
         }
     }

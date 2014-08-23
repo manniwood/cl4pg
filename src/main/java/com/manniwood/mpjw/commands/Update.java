@@ -30,7 +30,7 @@ import com.manniwood.mpjw.ParsedSQLWithSimpleArgs;
 import com.manniwood.mpjw.SQLTransformerUtil;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class Update<T> extends PreparedStatementCommand implements Command {
+public class Update<T> extends PreparedStatementCommand implements OldCommand {
 
     private final ConverterStore converterStore;
     private final T t;

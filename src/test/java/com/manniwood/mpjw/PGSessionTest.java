@@ -910,29 +910,13 @@ public class PGSessionTest {
         expected.add(2);
         expected.add(3);
 
-        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>(pgSession
-                                                                                              .getConverterStore(),
-                                                                                      Integer.class);
-
-        // XXX: This is a good start, but connection
-        // and converterstore need to be provided.
-        // Clearly Select.Builder needs to be used inside
-        // a convenience method called pgSession.select()
-        // that takes all these args (which are all required
-        // and not optional anyway) and hands them to builder.
-        // Maybe even phase out builder as not worth the effort seeing
-        // as all args are not optional except for file versus sql.
-        // Return to @ notation for that. Oh, I guess .params()
-        // versus .param() (which would take a bean) is also optional.
-        Select select = new Select.Builder()
-                .connection(pgSession.getConnection())
+        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
+        pgSession.run(Select.config()
                 .file("sql/select_employee_ids_guess_scalar.sql")
-                .converterStore(pgSession.getConverterStore())
                 .argSetter(new SimpleArgSetter())
-                .resultSetHandler(handler)
                 .params(1)
-                .build();
-        pgSession.run(select);
+                .resultSetHandler(handler)
+                .done());
         pgSession.rollback();
         List<Integer> found1 = handler.getList();
 

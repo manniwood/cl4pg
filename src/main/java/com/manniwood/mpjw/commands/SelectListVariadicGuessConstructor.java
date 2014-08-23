@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import com.manniwood.mpjw.converters.ConstructorAndConverters;
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SelectListVariadicGuessConstructor<T> extends SelectListVariadicBase<T> implements Command {
+public class SelectListVariadicGuessConstructor<T> extends SelectListVariadicBase<T> implements OldCommand {
 
     public SelectListVariadicGuessConstructor(
             ConverterStore converterStore,
