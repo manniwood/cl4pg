@@ -92,7 +92,7 @@ public class PGSessionTest {
         expected.setPassword(TEST_PASSWORD);
         pgSession.run(Insert.<User> usingBeanArg().file("sql/insert_user.sql")
                 .argSetter(new SimpleBeanArgSetter<User>())
-                .param(expected)
+                .arg(expected)
                 .done());
         pgSession.commit();
 

@@ -95,7 +95,7 @@ public class InsertB<A> implements Command {
             return this;
         }
 
-        public Builder<A> param(A arg) {
+        public Builder<A> arg(A arg) {
             this.arg = arg;
             return this;
         }
