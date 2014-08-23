@@ -30,23 +30,21 @@ import java.sql.ResultSet;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 import com.manniwood.pg4j.argsetters.VariadicArgSetter;
-import com.manniwood.pg4j.resultsethandlers.ResultSetHandlerB;
+import com.manniwood.pg4j.resultsethandlers.ResultSetHandler;
 
 public class SelectVB<R> implements Command {
 
-    private final String               sql;
-    private final VariadicArgSetter    variadicArgSetter;
-    private final ResultSetHandlerB<R> resultSetHandler;
-    private final Object[]             params;
-    private final Class<R>             returnType;
-    private PreparedStatement          pstmt;
+    private final String            sql;
+    private final VariadicArgSetter variadicArgSetter;
+    private final ResultSetHandler  resultSetHandler;
+    private final Object[]          params;
+    private PreparedStatement       pstmt;
 
     public SelectVB(Builder<R> builder) {
         //@formatter:off
         this.sql                = builder.sql;
         this.variadicArgSetter  = builder.variadicArgSetter;
         this.resultSetHandler   = builder.resultSetHandler;
-        this.returnType         = builder.returnType;
         this.params             = builder.params;
         //@formatter:on
     }
@@ -65,7 +63,7 @@ public class SelectVB<R> implements Command {
                                                   params);
         ResultSet rs = pstmt.executeQuery();
 
-        resultSetHandler.init(converterStore, rs, returnType);
+        resultSetHandler.init(converterStore, rs);
         while (rs.next()) {
             resultSetHandler.processRow(rs);
         }
@@ -83,11 +81,10 @@ public class SelectVB<R> implements Command {
     }
 
     public static class Builder<R> {
-        private String               sql;
-        private VariadicArgSetter    variadicArgSetter;
-        private ResultSetHandlerB<R> resultSetHandler;
-        private Object[]             params;
-        private Class<R>             returnType;
+        private String            sql;
+        private VariadicArgSetter variadicArgSetter;
+        private ResultSetHandler  resultSetHandler;
+        private Object[]          params;
 
         public Builder() {
             // null constructor
@@ -108,18 +105,13 @@ public class SelectVB<R> implements Command {
             return this;
         }
 
-        public Builder<R> resultSetHandler(ResultSetHandlerB<R> resultSetHandler) {
+        public Builder<R> resultSetHandler(ResultSetHandler resultSetHandler) {
             this.resultSetHandler = resultSetHandler;
             return this;
         }
 
         public Builder<R> params(Object... params) {
             this.params = params;
-            return this;
-        }
-
-        public Builder<R> returnType(Class<R> returnType) {
-            this.returnType = returnType;
             return this;
         }
 

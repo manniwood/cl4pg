@@ -90,7 +90,7 @@ public class Insert<P> implements Command {
             return this;
         }
 
-        public Builder<P> beanArgSetter(BeanArgSetter<P> beanArgSetter) {
+        public Builder<P> argSetter(BeanArgSetter<P> beanArgSetter) {
             this.beanArgSetter = beanArgSetter;
             return this;
         }

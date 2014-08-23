@@ -100,7 +100,7 @@ public class Select implements Command {
             return this;
         }
 
-        public Builder variadicArgSetter(VariadicArgSetter variadicArgSetter) {
+        public Builder argSetter(VariadicArgSetter variadicArgSetter) {
             this.variadicArgSetter = variadicArgSetter;
             return this;
         }

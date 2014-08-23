@@ -913,7 +913,7 @@ public class OldPGSessionTest {
         GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
         pgSession.run(Select.config()
                 .file("sql/select_employee_ids_guess_scalar.sql")
-                .variadicArgSetter(new SimpleVariadicArgSetter())
+                .argSetter(new SimpleVariadicArgSetter())
                 .params(1)
                 .resultSetHandler(handler)
                 .done());

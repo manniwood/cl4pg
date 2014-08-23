@@ -31,23 +31,22 @@ import java.util.List;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.converters.SetterAndConverter;
 
-public class GuessSettersListHandler<R> implements ResultSetHandlerB<R> {
+public class GuessSettersListHandler<R> implements ResultSetHandler {
 
     private List<R>                  list;
     private List<SetterAndConverter> settersAndConverters;
     private ConverterStore           converterStore;
     private Class<R>                 returnType;
 
-    public GuessSettersListHandler() {
+    public GuessSettersListHandler(Class<R> returnType) {
         list = new ArrayList<R>();
+        this.returnType = returnType;
     }
 
     @Override
     public void init(ConverterStore converterStore,
-                     ResultSet rs,
-                     Class<R> returnType) throws SQLException {
+                     ResultSet rs) throws SQLException {
         this.converterStore = converterStore;
-        this.returnType = returnType;
         settersAndConverters = converterStore.guessSetters(rs, returnType);
     }
 
