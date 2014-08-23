@@ -33,7 +33,7 @@ import com.manniwood.mpjw.test.etc.User;
 import com.manniwood.pg4j.argsetters.SimpleBeanArgSetter;
 import com.manniwood.pg4j.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.commands.DDL;
-import com.manniwood.pg4j.commands.Insert;
+import com.manniwood.pg4j.commands.InsertB;
 import com.manniwood.pg4j.commands.Select;
 import com.manniwood.pg4j.resultsethandlers.GuessSettersListHandler;
 
@@ -90,17 +90,17 @@ public class PGSessionTest {
         expected.setId(UUID.fromString(TEST_ID));
         expected.setName(TEST_USERNAME);
         expected.setPassword(TEST_PASSWORD);
-        pgSession.run(Insert.<User> config().file("sql/insert_user.sql")
+        pgSession.run(InsertB.<User> config().file("sql/insert_user.sql")
                 .argSetter(new SimpleBeanArgSetter<User>())
                 .param(expected)
                 .done());
         pgSession.commit();
 
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
-        pgSession.run(Select.config()
+        pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
                 .argSetter(new SimpleVariadicArgSetter())
-                .params(UUID.fromString(TEST_ID))
+                .args(UUID.fromString(TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();

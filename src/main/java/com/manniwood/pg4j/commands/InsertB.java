@@ -25,27 +25,23 @@ package com.manniwood.pg4j.commands;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.argsetters.VariadicArgSetter;
-import com.manniwood.pg4j.resultsethandlers.ResultSetHandler;
+import com.manniwood.pg4j.argsetters.BeanArgSetter;
 
-public class SelectVB<R> implements Command {
+public class InsertB<A> implements Command {
 
-    private final String            sql;
-    private final VariadicArgSetter variadicArgSetter;
-    private final ResultSetHandler  resultSetHandler;
-    private final Object[]          params;
-    private PreparedStatement       pstmt;
+    private final String           sql;
+    private final BeanArgSetter<A> beanArgSetter;
+    private final A                arg;
+    private PreparedStatement      pstmt;
 
-    public SelectVB(Builder<R> builder) {
+    public InsertB(Builder<A> builder) {
         //@formatter:off
-        this.sql                = builder.sql;
-        this.variadicArgSetter  = builder.variadicArgSetter;
-        this.resultSetHandler   = builder.resultSetHandler;
-        this.params             = builder.params;
+        this.sql             = builder.sql;
+        this.beanArgSetter   = builder.beanArgSetter;
+        this.arg             = builder.arg;
         //@formatter:on
     }
 
@@ -57,16 +53,11 @@ public class SelectVB<R> implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
-        pstmt = variadicArgSetter.setSQLArguments(sql,
-                                                  connection,
-                                                  converterStore,
-                                                  params);
-        ResultSet rs = pstmt.executeQuery();
-
-        resultSetHandler.init(converterStore, rs);
-        while (rs.next()) {
-            resultSetHandler.processRow(rs);
-        }
+        pstmt = beanArgSetter.setSQLArguments(sql,
+                                              connection,
+                                              converterStore,
+                                              arg);
+        pstmt.execute();
     }
 
     @Override
@@ -76,47 +67,41 @@ public class SelectVB<R> implements Command {
         }
     }
 
-    public static <R> Builder<R> config() {
-        return new Builder<R>();
+    public static <P> Builder<P> config() {
+        return new Builder<P>();
     }
 
-    public static class Builder<R> {
-        private String            sql;
-        private VariadicArgSetter variadicArgSetter;
-        private ResultSetHandler  resultSetHandler;
-        private Object[]          params;
+    public static class Builder<A> {
+        private String           sql;
+        private BeanArgSetter<A> beanArgSetter;
+        private A                arg;
 
         public Builder() {
             // null constructor
         }
 
-        public Builder<R> sql(String sql) {
+        public Builder<A> sql(String sql) {
             this.sql = sql;
             return this;
         }
 
-        public Builder<R> file(String filename) {
+        public Builder<A> file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
             return this;
         }
 
-        public Builder<R> variadicArgSetter(VariadicArgSetter variadicArgSetter) {
-            this.variadicArgSetter = variadicArgSetter;
+        public Builder<A> argSetter(BeanArgSetter<A> beanArgSetter) {
+            this.beanArgSetter = beanArgSetter;
             return this;
         }
 
-        public Builder<R> resultSetHandler(ResultSetHandler resultSetHandler) {
-            this.resultSetHandler = resultSetHandler;
+        public Builder<A> param(A arg) {
+            this.arg = arg;
             return this;
         }
 
-        public Builder<R> params(Object... params) {
-            this.params = params;
-            return this;
-        }
-
-        public SelectVB<R> done() {
-            return new SelectVB<R>(this);
+        public InsertB<A> done() {
+            return new InsertB<A>(this);
         }
     }
 

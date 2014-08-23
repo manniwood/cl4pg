@@ -23,86 +23,13 @@ THE SOFTWARE.
  */
 package com.manniwood.pg4j.commands;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+public class Insert {
 
-import com.manniwood.mpjw.converters.ConverterStore;
-import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.argsetters.BeanArgSetter;
-
-public class Insert<P> implements Command {
-
-    private final String           sql;
-    private final BeanArgSetter<P> beanArgSetter;
-    private final P                param;
-    private PreparedStatement      pstmt;
-
-    public Insert(Builder<P> builder) {
-        //@formatter:off
-        this.sql             = builder.sql;
-        this.beanArgSetter   = builder.beanArgSetter;
-        this.param           = builder.param;
-        //@formatter:on
+    public static InsertV.Builder usingVariadicArgs() {
+        return new InsertV.Builder();
     }
 
-    @Override
-    public String getSQL() {
-        return sql;
+    public static <A> InsertB.Builder<A> usingBeanArg() {
+        return new InsertB.Builder<A>();
     }
-
-    @Override
-    public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
-        pstmt = beanArgSetter.setSQLArguments(sql,
-                                              connection,
-                                              converterStore,
-                                              param);
-        pstmt.execute();
-    }
-
-    @Override
-    public void cleanUp() throws Exception {
-        if (pstmt != null) {
-            pstmt.close();
-        }
-    }
-
-    public static <P> Builder<P> config() {
-        return new Builder<P>();
-    }
-
-    public static class Builder<P> {
-        private String           sql;
-        private BeanArgSetter<P> beanArgSetter;
-        private P                param;
-
-        public Builder() {
-            // null constructor
-        }
-
-        public Builder<P> sql(String sql) {
-            this.sql = sql;
-            return this;
-        }
-
-        public Builder<P> file(String filename) {
-            this.sql = ResourceUtil.slurpFileFromClasspath(filename);
-            return this;
-        }
-
-        public Builder<P> argSetter(BeanArgSetter<P> beanArgSetter) {
-            this.beanArgSetter = beanArgSetter;
-            return this;
-        }
-
-        public Builder<P> param(P param) {
-            this.param = param;
-            return this;
-        }
-
-        public Insert<P> done() {
-            return new Insert<P>(this);
-        }
-    }
-
 }

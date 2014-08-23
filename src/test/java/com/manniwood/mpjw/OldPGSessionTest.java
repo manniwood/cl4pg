@@ -43,7 +43,7 @@ import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.TwoInts;
 import com.manniwood.mpjw.test.etc.User;
 import com.manniwood.pg4j.argsetters.SimpleVariadicArgSetter;
-import com.manniwood.pg4j.commands.Select;
+import com.manniwood.pg4j.commands.SelectV;
 import com.manniwood.pg4j.resultsethandlers.GuessScalarListHandler;
 
 public class OldPGSessionTest {
@@ -911,10 +911,10 @@ public class OldPGSessionTest {
         expected.add(3);
 
         GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.config()
+        pgSession.run(SelectV.config()
                 .file("sql/select_employee_ids_guess_scalar.sql")
                 .argSetter(new SimpleVariadicArgSetter())
-                .params(1)
+                .args(1)
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();

@@ -23,101 +23,13 @@ THE SOFTWARE.
  */
 package com.manniwood.pg4j.commands;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+public class Select {
 
-import com.manniwood.mpjw.converters.ConverterStore;
-import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.argsetters.VariadicArgSetter;
-import com.manniwood.pg4j.resultsethandlers.ResultSetHandler;
-
-public class Select implements Command {
-
-    private final String            sql;
-    private final VariadicArgSetter variadicArgSetter;
-    private final ResultSetHandler  resultSetHandler;
-    private final Object[]          params;
-    private PreparedStatement       pstmt;
-
-    public Select(Builder builder) {
-        //@formatter:off
-        this.sql                = builder.sql;
-        this.variadicArgSetter  = builder.variadicArgSetter;
-        this.resultSetHandler   = builder.resultSetHandler;
-        this.params             = builder.params;
-        //@formatter:on
+    public static SelectV.Builder usingVariadicArgs() {
+        return new SelectV.Builder();
     }
 
-    @Override
-    public String getSQL() {
-        return sql;
+    public static <A> SelectB.Builder<A> usingBeanArg() {
+        return new SelectB.Builder<A>();
     }
-
-    @Override
-    public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
-        pstmt = variadicArgSetter.setSQLArguments(sql,
-                                                  connection,
-                                                  converterStore,
-                                                  params);
-        ResultSet rs = pstmt.executeQuery();
-
-        resultSetHandler.init(converterStore, rs);
-        while (rs.next()) {
-            resultSetHandler.processRow(rs);
-        }
-    }
-
-    @Override
-    public void cleanUp() throws Exception {
-        if (pstmt != null) {
-            pstmt.close();
-        }
-    }
-
-    public static Builder config() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private String            sql;
-        private VariadicArgSetter variadicArgSetter;
-        private ResultSetHandler  resultSetHandler;
-        private Object[]          params;
-
-        public Builder() {
-            // null constructor
-        }
-
-        public Builder sql(String sql) {
-            this.sql = sql;
-            return this;
-        }
-
-        public Builder file(String filename) {
-            this.sql = ResourceUtil.slurpFileFromClasspath(filename);
-            return this;
-        }
-
-        public Builder argSetter(VariadicArgSetter variadicArgSetter) {
-            this.variadicArgSetter = variadicArgSetter;
-            return this;
-        }
-
-        public Builder resultSetHandler(ResultSetHandler resultSetHandler) {
-            this.resultSetHandler = resultSetHandler;
-            return this;
-        }
-
-        public Builder params(Object... params) {
-            this.params = params;
-            return this;
-        }
-
-        public Select done() {
-            return new Select(this);
-        }
-    }
-
 }
