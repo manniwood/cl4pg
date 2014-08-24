@@ -95,7 +95,7 @@ public class InsertV implements Command {
             return this;
         }
 
-        public Builder params(Object... args) {
+        public Builder args(Object... args) {
             this.args = args;
             return this;
         }

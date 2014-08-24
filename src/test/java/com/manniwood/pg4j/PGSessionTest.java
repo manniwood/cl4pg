@@ -80,7 +80,7 @@ public class PGSessionTest {
     }
 
     @Test(priority = 0)
-    public void testInsertAndSelectOne() {
+    public void testInsertAndSelectOneVariadic() {
 
         pgSession.run(DDL.config().sql("truncate table users").done());
         pgSession.commit();
@@ -90,9 +90,10 @@ public class PGSessionTest {
         expected.setId(UUID.fromString(TEST_ID));
         expected.setName(TEST_USERNAME);
         expected.setPassword(TEST_PASSWORD);
-        pgSession.run(Insert.<User> usingBeanArg().file("sql/insert_user.sql")
-                .argSetter(new SimpleBeanArgSetter<User>())
-                .arg(expected)
+        pgSession.run(Insert.usingVariadicArgs()
+                .file("sql/insert_user_variadic.sql")
+                .argSetter(new SimpleVariadicArgSetter())
+                .args(expected.getId(), expected.getName(), expected.getPassword(), expected.getEmployeeId())
                 .done());
         pgSession.commit();
 
@@ -101,6 +102,37 @@ public class PGSessionTest {
                 .file("sql/select_user_guess_setters.sql")
                 .argSetter(new SimpleVariadicArgSetter())
                 .args(UUID.fromString(TEST_ID))
+                .resultSetHandler(handler)
+                .done());
+        pgSession.rollback();
+        User actual = handler.getList().get(0);
+
+        Assert.assertEquals(actual, expected, "users must match");
+    }
+
+    @Test(priority = 1)
+    public void testInsertAndSelectOneB() {
+
+        pgSession.run(DDL.config().sql("truncate table users").done());
+        pgSession.commit();
+
+        User expected = new User();
+        expected.setEmployeeId(TEST_EMPLOYEE_ID);
+        expected.setId(UUID.fromString(TEST_ID));
+        expected.setName(TEST_USERNAME);
+        expected.setPassword(TEST_PASSWORD);
+        pgSession.run(Insert.<User> usingBeanArg()
+                .file("sql/insert_user.sql")
+                .argSetter(new SimpleBeanArgSetter<User>())
+                .arg(expected)
+                .done());
+        pgSession.commit();
+
+        GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
+        pgSession.run(Select.<User> usingBeanArg()
+                .file("sql/select_user_guess_setters_bean_param.sql")
+                .argSetter(new SimpleBeanArgSetter<User>())
+                .arg(expected)
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
