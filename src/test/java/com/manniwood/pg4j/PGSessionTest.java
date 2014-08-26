@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.manniwood.mpjw.test.etc.User;
@@ -37,6 +38,15 @@ import com.manniwood.pg4j.commands.Insert;
 import com.manniwood.pg4j.commands.Select;
 import com.manniwood.pg4j.resultsethandlers.GuessSettersListHandler;
 
+/**
+ * Please note that these tests must be run serially, and not all at once.
+ * Although they depend as litte as possible on state in the database, it is
+ * very convenient to have them all use the same db session; so they are all run
+ * one after the other so that they don't all trip over each other.
+ *
+ * @author mwood
+ *
+ */
 public class PGSessionTest {
 
     public static final String TEST_COPY_FILE            = "/tmp/users.copy";
@@ -79,17 +89,29 @@ public class PGSessionTest {
         pgSession.commit();
     }
 
-    @Test(priority = 0)
-    public void testInsertAndSelectOneVariadic() {
-
-        pgSession.run(DDL.config().sql("truncate table users").done());
-        pgSession.commit();
-
-        User expected = new User();
+    private User createExpectedUser() {
+        User expected;
+        expected = new User();
         expected.setEmployeeId(TEST_EMPLOYEE_ID);
         expected.setId(UUID.fromString(TEST_ID));
         expected.setName(TEST_USERNAME);
         expected.setPassword(TEST_PASSWORD);
+        return expected;
+    }
+
+    /**
+     * Truncate the users table before each test.
+     */
+    @BeforeMethod
+    public void truncateTableUsers() {
+        pgSession.run(DDL.config().sql("truncate table users").done());
+        pgSession.commit();
+    }
+
+    @Test(priority = 0)
+    public void testInsertAndSelectOneVariadic() {
+
+        User expected = createExpectedUser();
         pgSession.run(Insert.usingVariadicArgs()
                 .file("sql/insert_user_variadic.sql")
                 .argSetter(new SimpleVariadicArgSetter())
@@ -113,14 +135,7 @@ public class PGSessionTest {
     @Test(priority = 1)
     public void testInsertAndSelectOneB() {
 
-        pgSession.run(DDL.config().sql("truncate table users").done());
-        pgSession.commit();
-
-        User expected = new User();
-        expected.setEmployeeId(TEST_EMPLOYEE_ID);
-        expected.setId(UUID.fromString(TEST_ID));
-        expected.setName(TEST_USERNAME);
-        expected.setPassword(TEST_PASSWORD);
+        User expected = createExpectedUser();
         pgSession.run(Insert.<User> usingBeanArg()
                 .file("sql/insert_user.sql")
                 .argSetter(new SimpleBeanArgSetter<User>())

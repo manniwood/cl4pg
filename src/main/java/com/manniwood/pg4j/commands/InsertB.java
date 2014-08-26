@@ -29,6 +29,8 @@ import java.sql.PreparedStatement;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 import com.manniwood.pg4j.argsetters.BeanArgSetter;
+import com.manniwood.pg4j.argsetters.SimpleBeanArgSetter;
+import com.manniwood.pg4j.util.Str;
 
 public class InsertB<A> implements Command {
 
@@ -73,7 +75,7 @@ public class InsertB<A> implements Command {
 
     public static class Builder<A> {
         private String           sql;
-        private BeanArgSetter<A> beanArgSetter;
+        private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetter<A>();
         private A                arg;
 
         public Builder() {
@@ -101,6 +103,12 @@ public class InsertB<A> implements Command {
         }
 
         public InsertB<A> done() {
+            if (Str.isNullOrEmpty(sql)) {
+                throw new Pg4JConfigException("SQL string or file must be specified.");
+            }
+            // beanArgSetter has a default, so that's OK.
+            // arg should be allowed to be null for those times
+            // when there really is no bean argument.
             return new InsertB<A>(this);
         }
     }

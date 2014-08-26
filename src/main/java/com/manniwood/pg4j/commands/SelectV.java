@@ -29,8 +29,10 @@ import java.sql.ResultSet;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
+import com.manniwood.pg4j.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.argsetters.VariadicArgSetter;
 import com.manniwood.pg4j.resultsethandlers.ResultSetHandler;
+import com.manniwood.pg4j.util.Str;
 
 public class SelectV implements Command {
 
@@ -82,7 +84,7 @@ public class SelectV implements Command {
 
     public static class Builder {
         private String            sql;
-        private VariadicArgSetter variadicArgSetter;
+        private VariadicArgSetter variadicArgSetter = new SimpleVariadicArgSetter();
         private ResultSetHandler  resultSetHandler;
         private Object[]          args;
 
@@ -116,6 +118,15 @@ public class SelectV implements Command {
         }
 
         public SelectV done() {
+            if (Str.isNullOrEmpty(sql)) {
+                throw new Pg4JConfigException("SQL string or file must be specified.");
+            }
+            if (resultSetHandler == null) {
+                throw new Pg4JConfigException("A result set handler must be specified.");
+            }
+            // beanArgSetter has a default, so that's OK.
+            // args should be allowed to be null for those times
+            // when there really are no arguments.
             return new SelectV(this);
         }
     }

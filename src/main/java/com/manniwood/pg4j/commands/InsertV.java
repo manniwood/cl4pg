@@ -28,7 +28,9 @@ import java.sql.PreparedStatement;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
+import com.manniwood.pg4j.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.argsetters.VariadicArgSetter;
+import com.manniwood.pg4j.util.Str;
 
 public class InsertV implements Command {
 
@@ -39,9 +41,9 @@ public class InsertV implements Command {
 
     public InsertV(Builder builder) {
         //@formatter:off
-        this.sql             = builder.sql;
-        this.variadicArgSetter   = builder.variadicArgSetter;
-        this.args             = builder.args;
+        this.sql               = builder.sql;
+        this.variadicArgSetter = builder.variadicArgSetter;
+        this.args              = builder.args;
         //@formatter:on
     }
 
@@ -73,7 +75,7 @@ public class InsertV implements Command {
 
     public static class Builder {
         private String            sql;
-        private VariadicArgSetter variadicArgSetter;
+        private VariadicArgSetter variadicArgSetter = new SimpleVariadicArgSetter();
         private Object[]          args;
 
         public Builder() {
@@ -101,6 +103,12 @@ public class InsertV implements Command {
         }
 
         public InsertV done() {
+            if (Str.isNullOrEmpty(sql)) {
+                throw new Pg4JConfigException("SQL string or file must be specified.");
+            }
+            // variadicArgSetter has a default, so that's OK.
+            // args should be allowed to be null for those times
+            // when there really are no arguments.
             return new InsertV(this);
         }
     }

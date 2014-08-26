@@ -30,7 +30,9 @@ import java.sql.ResultSet;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 import com.manniwood.pg4j.argsetters.BeanArgSetter;
+import com.manniwood.pg4j.argsetters.SimpleBeanArgSetter;
 import com.manniwood.pg4j.resultsethandlers.ResultSetHandler;
+import com.manniwood.pg4j.util.Str;
 
 public class SelectB<A> implements Command {
 
@@ -82,7 +84,7 @@ public class SelectB<A> implements Command {
 
     public static class Builder<A> {
         private String           sql;
-        private BeanArgSetter<A> beanArgSetter;
+        private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetter<A>();
         private ResultSetHandler resultSetHandler;
         private A                arg;
 
@@ -116,6 +118,15 @@ public class SelectB<A> implements Command {
         }
 
         public SelectB<A> done() {
+            if (Str.isNullOrEmpty(sql)) {
+                throw new Pg4JConfigException("SQL string or file must be specified.");
+            }
+            if (resultSetHandler == null) {
+                throw new Pg4JConfigException("A result set handler must be specified.");
+            }
+            // beanArgSetter has a default, so that's OK.
+            // arg should be allowed to be null for those times
+            // when there really is no bean argument.
             return new SelectB<A>(this);
         }
     }
