@@ -37,17 +37,16 @@ import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.CopyFileIn;
 import com.manniwood.mpjw.commands.CopyFileOut;
-import com.manniwood.mpjw.commands.GetNotifications;
-import com.manniwood.mpjw.commands.Listen;
-import com.manniwood.mpjw.commands.Notify;
 import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.pg4j.commands.Command;
+import com.manniwood.pg4j.commands.GetNotifications;
+import com.manniwood.pg4j.commands.Listen;
+import com.manniwood.pg4j.commands.Notify;
 
-public class PGSession {
+public class PgSession {
 
-    private final static Logger log                       = LoggerFactory
-                                                                  .getLogger(PGSession.class);
+    private final static Logger log                       = LoggerFactory.getLogger(PgSession.class);
 
     private Connection          conn                      = null;
 
@@ -62,14 +61,13 @@ public class PGSession {
 
     private ConverterStore      converterStore            = new ConverterStore();
 
-    public PGSession() {
+    public PgSession() {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             throw new MPJWException("Could not find PostgreSQL JDBC Driver", e);
         }
-        String url = "jdbc:postgresql://" + hostname + ":" + dbPort + "/"
-                + dbName;
+        String url = "jdbc:postgresql://" + hostname + ":" + dbPort + "/" + dbName;
         Properties props = new Properties();
         props.setProperty("user", dbUser);
         props.setProperty("password", dbPassword);
@@ -85,24 +83,22 @@ public class PGSession {
     }
 
     public void run(Command command) {
-        CommandRunner.execute(command, conn, converterStore);
+        execute(command);
     }
 
     public void pgNotify(String channel,
                          String payload) {
-        CommandRunner
-                .execute(new Notify(converterStore, conn, channel, payload));
+        execute(new Notify(channel, payload));
     }
 
     public void pgListen(String channel) {
-        Listen listen = new Listen(conn, channel);
-        CommandRunner.execute(listen);
+        execute(new Listen(channel));
     }
 
     public PGNotification[] getNotifications() {
-        GetNotifications n = new GetNotifications(conn);
-        CommandRunner.execute(n);
-        return n.getNotifications();
+        GetNotifications getNotifications = new GetNotifications();
+        execute(getNotifications);
+        return getNotifications.getNotifications();
     }
 
     public void commit() {
@@ -127,4 +123,28 @@ public class PGSession {
 
     // TODO: make copy between two connections
 
+    private void execute(Command command) {
+        try {
+            command.execute(conn, converterStore);
+        } catch (Exception e) {
+            // Above, catch Exception instead of SQLException so that you can
+            // also
+            // roll back on other problems.
+            try {
+                conn.rollback();
+            } catch (Exception e1) {
+                // put e inside e1, so the user has all of the exceptions
+                e1.initCause(e);
+                throw new MPJWException("Could not roll back connection after catching exception trying to execute:\n" + command.getSQL(), e1);
+            }
+            throw new MPJWException("ROLLED BACK. Exception while trying to run this sql statement:\n" + command.getSQL(), e);
+        } finally {
+            try {
+                command.cleanUp();
+            } catch (Exception e) {
+                throw new MPJWException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
+                        + command.getSQL(), e);
+            }
+        }
+    }
 }

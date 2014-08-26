@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2014 Manni Wood
+Copyright (t) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,24 +21,44 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.mpjw.test.factory;
+package com.manniwood.pg4j.commands;
 
-import org.testng.annotations.Factory;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
-import com.manniwood.mpjw.ColumnLabelConverterTest;
-import com.manniwood.mpjw.OldPGSessionTest;
-import com.manniwood.mpjw.SQLTransformerTest;
-import com.manniwood.pg4j.PgSessionTest;
+import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.mpjw.util.SQLSafetyUtil;
+import com.manniwood.pg4j.util.Str;
 
-public class TestNGTestFactory {
-    @Factory
-    public Object[] allTests() {
-        return new Object[] {
-                new ColumnLabelConverterTest(),
-                new SQLTransformerTest(),
-                new OldPGSessionTest(),
-                new PgSessionTest()
-        };
+public class Listen implements Command {
+
+    private final String      sql;
+    private PreparedStatement pstmt;
+
+    public Listen(String channel) {
+        if (Str.isNullOrEmpty(channel)) {
+            throw new Pg4JConfigException("Channel must be specified.");
+        }
+        sql = "listen " + SQLSafetyUtil.throwIfUnsafe(channel);
+    }
+
+    @Override
+    public String getSQL() {
+        return sql;
+    }
+
+    @Override
+    public void execute(Connection connection,
+                        ConverterStore converterStore) throws Exception {
+        pstmt = connection.prepareStatement(sql);
+        pstmt.execute();
+    }
+
+    @Override
+    public void cleanUp() throws Exception {
+        if (pstmt != null) {
+            pstmt.close();
+        }
     }
 
 }
