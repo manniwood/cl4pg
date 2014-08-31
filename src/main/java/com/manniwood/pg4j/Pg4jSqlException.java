@@ -21,31 +21,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.commands;
+package com.manniwood.pg4j;
 
-import com.manniwood.pg4j.Pg4jException;
-
-public class Pg4JConfigException extends Pg4jException {
+public class Pg4jSqlException extends Pg4jException {
 
     private static final long serialVersionUID = 1L;
 
-    public Pg4JConfigException() {
+    public Pg4jSqlException() {
         super();
     }
 
-    public Pg4JConfigException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public Pg4jSqlException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public Pg4JConfigException(String message, Throwable cause) {
+    public Pg4jSqlException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public Pg4JConfigException(String message) {
+    public Pg4jSqlException(String message) {
         super(message);
     }
 
-    public Pg4JConfigException(Throwable cause) {
+    public Pg4jSqlException(Throwable cause) {
         super(cause);
     }
 

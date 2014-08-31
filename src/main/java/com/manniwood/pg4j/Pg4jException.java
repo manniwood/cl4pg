@@ -20,32 +20,30 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
- */
-package com.manniwood.pg4j.commands;
+*/
+package com.manniwood.pg4j;
 
-import com.manniwood.pg4j.Pg4jException;
-
-public class Pg4JConfigException extends Pg4jException {
+public class Pg4jException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public Pg4JConfigException() {
+    public Pg4jException() {
         super();
     }
 
-    public Pg4JConfigException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public Pg4jException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public Pg4JConfigException(String message, Throwable cause) {
+    public Pg4jException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public Pg4JConfigException(String message) {
+    public Pg4jException(String message) {
         super(message);
     }
 
-    public Pg4JConfigException(Throwable cause) {
+    public Pg4jException(Throwable cause) {
         super(cause);
     }
 

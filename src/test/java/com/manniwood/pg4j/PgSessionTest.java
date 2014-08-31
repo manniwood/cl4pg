@@ -204,4 +204,46 @@ public class PgSessionTest {
         Assert.assertEquals(actual, expected, "Notifications must all be recieved, in the same order");
     }
 
+    @Test(priority = 3)
+    public void testExceptions() {
+        pgSession.run(DDL.config().sql("drop table users").done());
+        pgSession.run(DDL.config().file("sql/create_temp_constrained_users_table.sql").done());
+        pgSession.commit();
+
+        User expected = createExpectedUser();
+        pgSession.run(Insert.<User> usingBeanArg().file("sql/insert_user.sql").argSetter(new SimpleBeanArgSetter<User>()).arg(expected).done());
+        pgSession.commit();
+        // START HERE; this will throw an exception, so this is a good
+        // place to figure out exception handling
+        try {
+            pgSession.run(Insert.<User> usingBeanArg().file("sql/insert_user.sql").argSetter(new SimpleBeanArgSetter<User>()).arg(expected).done());
+            pgSession.commit();
+        } catch (Pg4jPgSqlException e) {
+            log.info("Cannot insert user twice!");
+            log.info("Exception: " + e.toString(), e);
+        }
+        // START HERE: so we could obviously make an exceptionmapper
+        // that uses the attributes of ServerErrorMessage. Our
+        // example can use table and constraint ant sqlState
+        // matching to throw a DuplicateUserInsert exception.
+        // Exception: Pg4jPgSqlException [
+        // sqlState=23505, serverMessage=duplicate key value violates unique
+        // constraint "users_pk",
+        // severity=ERROR,
+        // detail=Key (id)=(99999999-a4fa-49fc-b6b4-62eca118fbf7) already
+        // exists.,
+        // hint=null, position=0, where=null,
+        // schema=pg_temp_2,
+        // table=users,
+        // column=null, dataType=null,
+        // constraint=users_pk, file=nbtinsert.c, line=398,
+        // routine=_bt_check_unique, internalQuery=null, internalPosition=0]
+
+        // put the original tmp users table back
+        pgSession.run(DDL.config().sql("drop table users").done());
+        pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
+        pgSession.commit();
+
+    }
+
 }

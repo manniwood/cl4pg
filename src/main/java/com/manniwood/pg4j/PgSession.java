@@ -29,11 +29,11 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.postgresql.PGNotification;
+import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.manniwood.mpjw.CommandRunner;
-import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.commands.Commit;
 import com.manniwood.mpjw.commands.CopyFileIn;
 import com.manniwood.mpjw.commands.CopyFileOut;
@@ -65,7 +65,7 @@ public class PgSession {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            throw new MPJWException("Could not find PostgreSQL JDBC Driver", e);
+            throw new Pg4jException("Could not find PostgreSQL JDBC Driver", e);
         }
         String url = "jdbc:postgresql://" + hostname + ":" + dbPort + "/" + dbName;
         Properties props = new Properties();
@@ -78,26 +78,22 @@ public class PgSession {
             conn.setTransactionIsolation(transactionIsolationLevel);
             conn.setAutoCommit(false);
         } catch (SQLException e) {
-            throw new MPJWException("Could not connect to db", e);
+            throw new Pg4jException("Could not connect to db", e);
         }
-    }
-
-    public void run(Command command) {
-        execute(command);
     }
 
     public void pgNotify(String channel,
                          String payload) {
-        execute(new Notify(channel, payload));
+        run(new Notify(channel, payload));
     }
 
     public void pgListen(String channel) {
-        execute(new Listen(channel));
+        run(new Listen(channel));
     }
 
     public PGNotification[] getNotifications() {
         GetNotifications getNotifications = new GetNotifications();
-        execute(getNotifications);
+        run(getNotifications);
         return getNotifications.getNotifications();
     }
 
@@ -123,28 +119,45 @@ public class PgSession {
 
     // TODO: make copy between two connections
 
-    private void execute(Command command) {
+    public void run(Command command) {
         try {
             command.execute(conn, converterStore);
         } catch (Exception e) {
-            // Above, catch Exception instead of SQLException so that you can
-            // also
-            // roll back on other problems.
-            try {
-                conn.rollback();
-            } catch (Exception e1) {
-                // put e inside e1, so the user has all of the exceptions
-                e1.initCause(e);
-                throw new MPJWException("Could not roll back connection after catching exception trying to execute:\n" + command.getSQL(), e1);
-            }
-            throw new MPJWException("ROLLED BACK. Exception while trying to run this sql statement:\n" + command.getSQL(), e);
+            rollback(e, command.getSQL());
+            throw createPg4jException(e, command.getSQL());
         } finally {
             try {
                 command.cleanUp();
             } catch (Exception e) {
-                throw new MPJWException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
+                throw new Pg4jException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
                         + command.getSQL(), e);
             }
+        }
+    }
+
+    private void rollback(Exception e,
+                          String sql) {
+        try {
+            conn.rollback();
+        } catch (Exception e1) {
+            // put e inside e1, so the user has all of the exceptions
+            e1.initCause(e);
+            throw new Pg4jFailedRollbackException("Could not roll back connection after catching exception trying to execute:\n" + sql, e1);
+        }
+    }
+
+    private Pg4jException createPg4jException(Exception e,
+                                              String sql) {
+        // START HERE: test if typeof PSQLException, etc, etc
+        if (e instanceof PSQLException) {
+            PSQLException psqle = (PSQLException) e;
+            return new Pg4jPgSqlException(psqle.getServerErrorMessage(),
+                                          "ROLLED BACK. Exception while trying to run this sql statement:\n" + sql,
+                                          e);
+        } else if (e instanceof SQLException) {
+            return new Pg4jSqlException("ROLLED BACK. Exception while trying to run this sql statement:\n" + sql, e);
+        } else {
+            return new Pg4jException("ROLLED BACK. Exception while trying to run this sql statement:\n" + sql, e);
         }
     }
 }
