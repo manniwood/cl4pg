@@ -48,42 +48,42 @@ import com.manniwood.pg4j.resultsethandlers.GuessScalarListHandler;
 
 public class OldPGSessionTest {
 
-    private final static Logger log                       = LoggerFactory
-                                                                  .getLogger(OldPGSession.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(OldPGSession.class);
 
-    public static final String  TEST_COPY_FILE            = "/tmp/users.copy";
+    public static final String TEST_COPY_FILE = "/tmp/users.copy";
 
-    public static final String  TEST_PASSWORD             = "passwd";
-    public static final String  TEST_USERNAME             = "Hubert";
-    public static final int     TEST_EMPLOYEE_ID          = 13;
-    public static final String  TEST_ID                   = "99999999-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String TEST_PASSWORD = "passwd";
+    public static final String TEST_USERNAME = "Hubert";
+    public static final int TEST_EMPLOYEE_ID = 13;
+    public static final String TEST_ID = "99999999-a4fa-49fc-b6b4-62eca118fbf7";
 
-    public static final String  ANOTHER_TEST_ID           = "88888888-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String ANOTHER_TEST_ID = "88888888-a4fa-49fc-b6b4-62eca118fbf7";
 
-    public static final String  THIRD_PASSWORD            = "blarg";
-    public static final String  THIRD_USERNAME            = "Manni";
-    public static final int     THIRD_EMPLOYEE_ID         = 12;
-    public static final String  THIRD_ID                  = "77777777-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String THIRD_PASSWORD = "blarg";
+    public static final String THIRD_USERNAME = "Manni";
+    public static final int THIRD_EMPLOYEE_ID = 12;
+    public static final String THIRD_ID = "77777777-a4fa-49fc-b6b4-62eca118fbf7";
 
-    public static final String  UPDATED_THIRD_PASSWORD    = "updated blarg";
-    public static final String  UPDATED_THIRD_USERNAME    = "Updated Manni";
-    public static final int     UPDATED_THIRD_EMPLOYEE_ID = 89;
+    public static final String UPDATED_THIRD_PASSWORD = "updated blarg";
+    public static final String UPDATED_THIRD_USERNAME = "Updated Manni";
+    public static final int UPDATED_THIRD_EMPLOYEE_ID = 89;
 
-    public static final String  ID_1                      = "11111111-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String  ID_2                      = "22222222-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String  ID_3                      = "33333333-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String  USERNAME_1                = "user one";
-    public static final String  USERNAME_2                = "user two";
-    public static final String  USERNAME_3                = "user three";
-    public static final String  PASSWORD_1                = "password one";
-    public static final String  PASSWORD_2                = "password two";
-    public static final String  PASSWORD_3                = "password three";
-    public static final int     EMPLOYEE_ID_1             = 1;
-    public static final int     EMPLOYEE_ID_2             = 2;
-    public static final int     EMPLOYEE_ID_3             = 3;
+    public static final String ID_1 = "11111111-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String ID_2 = "22222222-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String ID_3 = "33333333-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String USERNAME_1 = "user one";
+    public static final String USERNAME_2 = "user two";
+    public static final String USERNAME_3 = "user three";
+    public static final String PASSWORD_1 = "password one";
+    public static final String PASSWORD_2 = "password two";
+    public static final String PASSWORD_3 = "password three";
+    public static final int EMPLOYEE_ID_1 = 1;
+    public static final int EMPLOYEE_ID_2 = 2;
+    public static final int EMPLOYEE_ID_3 = 3;
 
-    private OldPGSession        pgSession;
-    private OldPGSession        pgSession2;
+    private OldPGSession pgSession;
+    private OldPGSession pgSession2;
 
     @BeforeClass
     public void init() {
@@ -95,6 +95,7 @@ public class OldPGSessionTest {
 
     }
 
+    // implemented in new
     @Test(priority = 0)
     public void testInsertAndSelectOne() {
 
@@ -193,6 +194,7 @@ public class OldPGSessionTest {
         Assert.assertEquals(iu7.getEmployeeId(), TEST_EMPLOYEE_ID);
     }
 
+    // implemented in new
     @Test(priority = 1)
     public void testNulls() {
 
@@ -466,6 +468,7 @@ public class OldPGSessionTest {
                             "List of employee_ids must be the same");
     }
 
+    // implemented in new
     @Test(priority = 7)
     public void testListenNotify() {
         // According to Pg docs, "Except for dropping later instances of

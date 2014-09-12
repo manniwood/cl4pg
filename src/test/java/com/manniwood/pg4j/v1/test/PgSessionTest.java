@@ -56,7 +56,7 @@ import com.manniwood.pg4j.v1.test.exceptions.UserAlreadyExistsException;
  *
  */
 public class PgSessionTest {
-    private final static Logger log = LoggerFactory.getLogger(PgSession.class);
+    private final static Logger log = LoggerFactory.getLogger(PgSessionTest.class);
 
     public static final String TEST_COPY_FILE = "/tmp/users.copy";
 
@@ -119,32 +119,8 @@ public class PgSessionTest {
         pgSession.commit();
     }
 
-    @Test(priority = 0)
-    public void testInsertAndSelectOneVariadic() {
-
-        User expected = createExpectedUser();
-        pgSession.run(Insert.usingVariadicArgs()
-                .file("sql/insert_user_variadic.sql")
-                .argSetter(new SimpleVariadicArgSetter())
-                .args(expected.getId(), expected.getName(), expected.getPassword(), expected.getEmployeeId())
-                .done());
-        pgSession.commit();
-
-        GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
-        pgSession.run(Select.usingVariadicArgs()
-                .file("sql/select_user_guess_setters.sql")
-                .argSetter(new SimpleVariadicArgSetter())
-                .args(UUID.fromString(TEST_ID))
-                .resultSetHandler(handler)
-                .done());
-        pgSession.rollback();
-        User actual = handler.getList().get(0);
-
-        Assert.assertEquals(actual, expected, "users must match");
-    }
-
     @Test(priority = 1)
-    public void testInsertAndSelectOneB() {
+    public void testInsertAndSelectOneUsingBeans() {
 
         User expected = createExpectedUser();
         pgSession.run(Insert.<User> usingBeanArg()
