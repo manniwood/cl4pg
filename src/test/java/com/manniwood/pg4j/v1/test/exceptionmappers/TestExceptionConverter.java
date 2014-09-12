@@ -21,50 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.commands;
+package com.manniwood.pg4j.v1.test.exceptionmappers;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import com.manniwood.pg4j.Pg4jException;
+import com.manniwood.pg4j.Pg4jPgSqlException;
+import com.manniwood.pg4j.v1.exceptionconverters.ExceptionConverter;
+import com.manniwood.pg4j.v1.test.exceptions.UserAlreadyExistsException;
 
-import org.postgresql.PGConnection;
-import org.postgresql.PGNotification;
-
-import com.manniwood.mpjw.converters.ConverterStore;
-
-public class GetNotifications implements Command {
-
-    /**
-     * This dummy query gets run just to get the messages back from the server.
-     */
-    private final String sql = "select 1";
-    private PreparedStatement pstmt;
-    private PGNotification[] notifications;
-
-    public GetNotifications() {
-        // null constructor
-    }
+public class TestExceptionConverter implements ExceptionConverter {
 
     @Override
-    public String getSQL() {
-        return sql;
-    }
-
-    @Override
-    public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
-        pstmt = connection.prepareStatement(sql);
-        pstmt.execute();
-        notifications = ((PGConnection) connection).getNotifications();
-    }
-
-    @Override
-    public void cleanUp() throws Exception {
-        if (pstmt != null) {
-            pstmt.close();
+    public Pg4jException convert(Pg4jPgSqlException e) {
+        if ("23505".equals(e.getSqlState()) && "users_pk".equals(e.getConstraint())) {
+            return new UserAlreadyExistsException(e);
+        } else {
+            return e;
         }
-    }
-
-    public PGNotification[] getNotifications() {
-        return notifications;
     }
 }

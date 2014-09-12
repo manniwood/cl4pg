@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2014 Manni Wood
+Copyright (t) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,24 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.mpjw.test.factory;
+package com.manniwood.pg4j.v1.exceptionconverters;
 
-import org.testng.annotations.Factory;
+import com.manniwood.pg4j.Pg4jException;
+import com.manniwood.pg4j.Pg4jPgSqlException;
 
-import com.manniwood.mpjw.ColumnLabelConverterTest;
-import com.manniwood.mpjw.OldPGSessionTest;
-import com.manniwood.mpjw.SQLTransformerTest;
-import com.manniwood.pg4j.v1.test.PgSessionTest;
+public class DefaultExceptionConverter implements ExceptionConverter {
 
-public class TestNGTestFactory {
-    @Factory
-    public Object[] allTests() {
-        return new Object[] {
-                new ColumnLabelConverterTest(),
-                new SQLTransformerTest(),
-                new OldPGSessionTest(),
-                new PgSessionTest()
-        };
+    @Override
+    public Pg4jException convert(Pg4jPgSqlException e) {
+        return e;
     }
 
 }

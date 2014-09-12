@@ -36,19 +36,17 @@ import com.manniwood.pg4j.util.Str;
 
 public class SelectB<A> implements Command {
 
-    private final String           sql;
+    private final String sql;
     private final BeanArgSetter<A> beanArgSetter;
     private final ResultSetHandler resultSetHandler;
-    private final A                param;
-    private PreparedStatement      pstmt;
+    private final A param;
+    private PreparedStatement pstmt;
 
-    public SelectB(Builder<A> builder) {
-        //@formatter:off
-        this.sql                = builder.sql;
-        this.beanArgSetter      = builder.beanArgSetter;
-        this.resultSetHandler   = builder.resultSetHandler;
-        this.param              = builder.arg;
-        //@formatter:on
+    private SelectB(Builder<A> builder) {
+        this.sql = builder.sql;
+        this.beanArgSetter = builder.beanArgSetter;
+        this.resultSetHandler = builder.resultSetHandler;
+        this.param = builder.arg;
     }
 
     @Override
@@ -83,10 +81,10 @@ public class SelectB<A> implements Command {
     }
 
     public static class Builder<A> {
-        private String           sql;
+        private String sql;
         private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetter<A>();
         private ResultSetHandler resultSetHandler;
-        private A                arg;
+        private A arg;
 
         public Builder() {
             // null constructor

@@ -43,39 +43,118 @@ import com.manniwood.pg4j.commands.Command;
 import com.manniwood.pg4j.commands.GetNotifications;
 import com.manniwood.pg4j.commands.Listen;
 import com.manniwood.pg4j.commands.Notify;
+import com.manniwood.pg4j.v1.exceptionconverters.DefaultExceptionConverter;
+import com.manniwood.pg4j.v1.exceptionconverters.ExceptionConverter;
 
 public class PgSession {
 
-    private final static Logger log                       = LoggerFactory.getLogger(PgSession.class);
+    private final static Logger log = LoggerFactory.getLogger(PgSession.class);
 
-    private Connection          conn                      = null;
+    private Connection conn = null;
 
-    // XXX: make all of these dynamically settable
-    private String              hostname                  = "localhost";
-    private int                 dbPort                    = 5432;
-    private String              dbName                    = "postgres";
-    private String              dbUser                    = "postgres";
-    private String              dbPassword                = "postgres";
-    private int                 transactionIsolationLevel = Connection.TRANSACTION_READ_COMMITTED;
-    private String              appName                   = "MPJW";
+    private ExceptionConverter exceptionConverter = new DefaultExceptionConverter();
+    private ConverterStore converterStore = new ConverterStore();
 
-    private ConverterStore      converterStore            = new ConverterStore();
+    public static PgSession.Builder configure() {
+        return new PgSession.Builder();
+    }
 
-    public PgSession() {
+    public static class Builder {
+        private String hostname = "localhost";
+        private int port = 5432;
+        private String database = "postgres";
+        private String username = "postgres";
+        private String password = "postgres";
+        private String appName = "Pg4j";
+        private ExceptionConverter exceptionConverter = new DefaultExceptionConverter();
+        private int transactionIsolationLevel = Connection.TRANSACTION_READ_COMMITTED;
+
+        public Builder() {
+            // null constructor
+        }
+
+        public Builder hostname(String hostname) {
+            this.hostname = hostname;
+            return this;
+        }
+
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public Builder port(String portStr) {
+            int port = Integer.parseInt(portStr);
+            this.port = port;
+            return this;
+        }
+
+        public Builder database(String database) {
+            this.database = database;
+            return this;
+        }
+
+        public Builder username(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder appName(String appName) {
+            this.appName = appName;
+            return this;
+        }
+
+        public Builder exceptionConverter(ExceptionConverter exceptionConverter) {
+            this.exceptionConverter = exceptionConverter;
+            return this;
+        }
+
+        public Builder transactionIsolationLevel(int transactionIsolationLevel) {
+            this.transactionIsolationLevel = transactionIsolationLevel;
+            return this;
+        }
+
+        public Builder transactionIsolationLevel(String transactionIsolationLevelStr) {
+            int transactionIsolationLevel = Integer.parseInt(transactionIsolationLevelStr);
+            if (!(transactionIsolationLevel == Connection.TRANSACTION_READ_COMMITTED
+                    || transactionIsolationLevel == Connection.TRANSACTION_READ_UNCOMMITTED
+                    || transactionIsolationLevel == Connection.TRANSACTION_REPEATABLE_READ
+                    || transactionIsolationLevel == Connection.TRANSACTION_SERIALIZABLE)) {
+                throw new IllegalArgumentException("Transaction Isolation Level \"" + transactionIsolationLevelStr + "\" is not valid.");
+            }
+            this.transactionIsolationLevel = transactionIsolationLevel;
+            return this;
+        }
+
+        public PgSession done() {
+            return new PgSession(this);
+        }
+    }
+
+    private PgSession() {
+    }
+
+    private PgSession(Builder builder) {
+        this.exceptionConverter = builder.exceptionConverter;
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             throw new Pg4jException("Could not find PostgreSQL JDBC Driver", e);
         }
-        String url = "jdbc:postgresql://" + hostname + ":" + dbPort + "/" + dbName;
+        String url = "jdbc:postgresql://" + builder.hostname + ":" + builder.port + "/" + builder.database;
         Properties props = new Properties();
-        props.setProperty("user", dbUser);
-        props.setProperty("password", dbPassword);
-        props.setProperty("ApplicationName", appName);
-        log.info("Application Name: {}", appName);
+        props.setProperty("user", builder.username);
+        props.setProperty("password", builder.password);
+        props.setProperty("ApplicationName", builder.appName);
+        log.info("Application Name: {}", builder.appName);
         try {
             conn = DriverManager.getConnection(url, props);
-            conn.setTransactionIsolation(transactionIsolationLevel);
+            conn.setTransactionIsolation(builder.transactionIsolationLevel);
             conn.setAutoCommit(false);
         } catch (SQLException e) {
             throw new Pg4jException("Could not connect to db", e);
@@ -84,7 +163,7 @@ public class PgSession {
 
     public void pgNotify(String channel,
                          String payload) {
-        run(new Notify(channel, payload));
+        run(Notify.config().channel(channel).payload(payload).done());
     }
 
     public void pgListen(String channel) {
@@ -148,12 +227,12 @@ public class PgSession {
 
     private Pg4jException createPg4jException(Exception e,
                                               String sql) {
-        // START HERE: test if typeof PSQLException, etc, etc
         if (e instanceof PSQLException) {
             PSQLException psqle = (PSQLException) e;
-            return new Pg4jPgSqlException(psqle.getServerErrorMessage(),
-                                          "ROLLED BACK. Exception while trying to run this sql statement:\n" + sql,
-                                          e);
+            Pg4jPgSqlException pe = new Pg4jPgSqlException(psqle.getServerErrorMessage(),
+                                                           "ROLLED BACK. Exception while trying to run this sql statement:\n" + sql,
+                                                           e);
+            return exceptionConverter.convert(pe);
         } else if (e instanceof SQLException) {
             return new Pg4jSqlException("ROLLED BACK. Exception while trying to run this sql statement:\n" + sql, e);
         } else {

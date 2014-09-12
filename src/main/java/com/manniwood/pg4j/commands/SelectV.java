@@ -36,19 +36,17 @@ import com.manniwood.pg4j.util.Str;
 
 public class SelectV implements Command {
 
-    private final String            sql;
+    private final String sql;
     private final VariadicArgSetter variadicArgSetter;
-    private final ResultSetHandler  resultSetHandler;
-    private final Object[]          args;
-    private PreparedStatement       pstmt;
+    private final ResultSetHandler resultSetHandler;
+    private final Object[] args;
+    private PreparedStatement pstmt;
 
-    public SelectV(Builder builder) {
-        //@formatter:off
-        this.sql                = builder.sql;
-        this.variadicArgSetter  = builder.variadicArgSetter;
-        this.resultSetHandler   = builder.resultSetHandler;
-        this.args               = builder.args;
-        //@formatter:on
+    private SelectV(Builder builder) {
+        this.sql = builder.sql;
+        this.variadicArgSetter = builder.variadicArgSetter;
+        this.resultSetHandler = builder.resultSetHandler;
+        this.args = builder.args;
     }
 
     @Override
@@ -83,10 +81,10 @@ public class SelectV implements Command {
     }
 
     public static class Builder {
-        private String            sql;
+        private String sql;
         private VariadicArgSetter variadicArgSetter = new SimpleVariadicArgSetter();
-        private ResultSetHandler  resultSetHandler;
-        private Object[]          args;
+        private ResultSetHandler resultSetHandler;
+        private Object[] args;
 
         public Builder() {
             // null constructor

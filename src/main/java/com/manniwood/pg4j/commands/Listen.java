@@ -36,6 +36,8 @@ public class Listen implements Command {
     private PreparedStatement pstmt;
 
     public Listen(String channel) {
+        // XXX: use quote_ident to correctly quote
+        // the identifier used for listen.
         if (Str.isNullOrEmpty(channel)) {
             throw new Pg4JConfigException("Channel must be specified.");
         }

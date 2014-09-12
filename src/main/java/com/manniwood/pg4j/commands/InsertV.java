@@ -34,17 +34,15 @@ import com.manniwood.pg4j.util.Str;
 
 public class InsertV implements Command {
 
-    private final String            sql;
+    private final String sql;
     private final VariadicArgSetter variadicArgSetter;
-    private final Object[]          args;
-    private PreparedStatement       pstmt;
+    private final Object[] args;
+    private PreparedStatement pstmt;
 
-    public InsertV(Builder builder) {
-        //@formatter:off
-        this.sql               = builder.sql;
+    private InsertV(Builder builder) {
+        this.sql = builder.sql;
         this.variadicArgSetter = builder.variadicArgSetter;
-        this.args              = builder.args;
-        //@formatter:on
+        this.args = builder.args;
     }
 
     @Override
@@ -74,9 +72,9 @@ public class InsertV implements Command {
     }
 
     public static class Builder {
-        private String            sql;
+        private String sql;
         private VariadicArgSetter variadicArgSetter = new SimpleVariadicArgSetter();
-        private Object[]          args;
+        private Object[] args;
 
         public Builder() {
             // null constructor

@@ -34,17 +34,15 @@ import com.manniwood.pg4j.util.Str;
 
 public class InsertB<A> implements Command {
 
-    private final String           sql;
+    private final String sql;
     private final BeanArgSetter<A> beanArgSetter;
-    private final A                arg;
-    private PreparedStatement      pstmt;
+    private final A arg;
+    private PreparedStatement pstmt;
 
-    public InsertB(Builder<A> builder) {
-        //@formatter:off
-        this.sql             = builder.sql;
-        this.beanArgSetter   = builder.beanArgSetter;
-        this.arg             = builder.arg;
-        //@formatter:on
+    private InsertB(Builder<A> builder) {
+        this.sql = builder.sql;
+        this.beanArgSetter = builder.beanArgSetter;
+        this.arg = builder.arg;
     }
 
     @Override
@@ -74,9 +72,9 @@ public class InsertB<A> implements Command {
     }
 
     public static class Builder<A> {
-        private String           sql;
+        private String sql;
         private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetter<A>();
-        private A                arg;
+        private A arg;
 
         public Builder() {
             // null constructor

@@ -31,13 +31,11 @@ import com.manniwood.mpjw.util.ResourceUtil;
 
 public class DDL implements Command {
 
-    private final String      sql;
+    private final String sql;
     private PreparedStatement pstmt;
 
-    public DDL(Builder builder) {
-        //@formatter:off
-        this.sql              = builder.sql;
-        //@formatter:on
+    private DDL(Builder builder) {
+        this.sql = builder.sql;
     }
 
     @Override

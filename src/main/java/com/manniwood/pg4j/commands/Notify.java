@@ -31,20 +31,47 @@ import com.manniwood.pg4j.util.Str;
 
 public class Notify implements Command {
 
-    private final String      sql = "select pg_notify(?, ?)";
-    private final String      channel;
-    private final String      payload;
+    private final String sql = "select pg_notify(?, ?)";
+    private final String channel;
+    private final String payload;
     private PreparedStatement pstmt;
 
-    public Notify(String channel, String payload) {
-        if (Str.isNullOrEmpty(channel)) {
+    private Notify(Builder builder) {
+        if (Str.isNullOrEmpty(builder.channel)) {
             throw new Pg4JConfigException("Channel must be specified.");
         }
-        if (Str.isNullOrEmpty(payload)) {
+        if (Str.isNullOrEmpty(builder.payload)) {
             throw new Pg4JConfigException("Payload must be specified.");
         }
-        this.channel = channel;
-        this.payload = payload;
+        this.channel = builder.channel;
+        this.payload = builder.payload;
+    }
+
+    public static Builder config() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private String channel;
+        private String payload;
+
+        public Builder() {
+            // null constructor
+        }
+
+        public Builder channel(String channel) {
+            this.channel = channel;
+            return this;
+        }
+
+        public Builder payload(String payload) {
+            this.payload = payload;
+            return this;
+        }
+
+        public Notify done() {
+            return new Notify(this);
+        }
     }
 
     @Override
