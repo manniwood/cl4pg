@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (t) 2014 Manni Wood
+Copyright (c) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,32 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.exceptionconverters;
+package com.manniwood.pg4j.v1.commands;
 
-import com.manniwood.pg4j.v1.Pg4jException;
-import com.manniwood.pg4j.v1.Pg4jPgSqlException;
+import java.sql.Connection;
 
-public interface ExceptionConverter {
-    Pg4jException convert(Pg4jPgSqlException e);
+import com.manniwood.mpjw.converters.ConverterStore;
+
+public interface Command {
+    /**
+     * Get the SQL statement used by this command.
+     *
+     * @return
+     */
+    String getSQL();
+
+    /**
+     * Execute this command.
+     *
+     * @throws Exception
+     */
+    void execute(Connection connection,
+                 ConverterStore converterStore) throws Exception;
+
+    /**
+     * Clean up / close all resources used to execute this command. For
+     * instance, close prepared statements, or close open files/streams used in
+     * copy commands.
+     */
+    void cleanUp() throws Exception;
 }

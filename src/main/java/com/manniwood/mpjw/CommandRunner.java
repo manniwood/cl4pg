@@ -27,7 +27,7 @@ import java.sql.Connection;
 
 import com.manniwood.mpjw.commands.OldCommand;
 import com.manniwood.mpjw.converters.ConverterStore;
-import com.manniwood.pg4j.commands.Command;
+import com.manniwood.pg4j.v1.commands.Command;
 
 public class CommandRunner {
     public static void execute(OldCommand pg) {

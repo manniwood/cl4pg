@@ -21,11 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.exceptionconverters;
+package com.manniwood.pg4j.v1.commands;
 
-import com.manniwood.pg4j.v1.Pg4jException;
-import com.manniwood.pg4j.v1.Pg4jPgSqlException;
+public class Insert {
 
-public interface ExceptionConverter {
-    Pg4jException convert(Pg4jPgSqlException e);
+    public static InsertV.Builder usingVariadicArgs() {
+        return new InsertV.Builder();
+    }
+
+    public static <A> InsertB.Builder<A> usingBeanArg() {
+        return new InsertB.Builder<A>();
+    }
 }

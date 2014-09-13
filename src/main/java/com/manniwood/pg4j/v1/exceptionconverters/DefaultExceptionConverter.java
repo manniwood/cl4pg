@@ -23,8 +23,8 @@ THE SOFTWARE.
  */
 package com.manniwood.pg4j.v1.exceptionconverters;
 
-import com.manniwood.pg4j.Pg4jException;
-import com.manniwood.pg4j.Pg4jPgSqlException;
+import com.manniwood.pg4j.v1.Pg4jException;
+import com.manniwood.pg4j.v1.Pg4jPgSqlException;
 
 public class DefaultExceptionConverter implements ExceptionConverter {
 

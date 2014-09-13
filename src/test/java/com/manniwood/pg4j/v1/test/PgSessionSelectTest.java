@@ -34,16 +34,16 @@ import org.testng.annotations.Test;
 import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.User;
 import com.manniwood.mpjw.test.etc.Users;
-import com.manniwood.pg4j.PgSession;
-import com.manniwood.pg4j.argsetters.SimpleBeanArgSetter;
-import com.manniwood.pg4j.argsetters.SimpleVariadicArgSetter;
-import com.manniwood.pg4j.commands.DDL;
-import com.manniwood.pg4j.commands.Insert;
-import com.manniwood.pg4j.commands.Select;
-import com.manniwood.pg4j.resultsethandlers.ExplicitConstructorListHandler;
-import com.manniwood.pg4j.resultsethandlers.ExplicitSettersListHandler;
-import com.manniwood.pg4j.resultsethandlers.GuessConstructorListHandler;
-import com.manniwood.pg4j.resultsethandlers.GuessSettersListHandler;
+import com.manniwood.pg4j.v1.PgSession;
+import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
+import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
+import com.manniwood.pg4j.v1.commands.DDL;
+import com.manniwood.pg4j.v1.commands.Insert;
+import com.manniwood.pg4j.v1.commands.Select;
+import com.manniwood.pg4j.v1.resultsethandlers.ExplicitConstructorListHandler;
+import com.manniwood.pg4j.v1.resultsethandlers.ExplicitSettersListHandler;
+import com.manniwood.pg4j.v1.resultsethandlers.GuessConstructorListHandler;
+import com.manniwood.pg4j.v1.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
 
 /**

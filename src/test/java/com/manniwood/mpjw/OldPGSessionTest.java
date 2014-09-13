@@ -42,9 +42,9 @@ import com.manniwood.mpjw.test.etc.AllUsersListener;
 import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.TwoInts;
 import com.manniwood.mpjw.test.etc.User;
-import com.manniwood.pg4j.argsetters.SimpleVariadicArgSetter;
-import com.manniwood.pg4j.commands.SelectV;
-import com.manniwood.pg4j.resultsethandlers.GuessScalarListHandler;
+import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
+import com.manniwood.pg4j.v1.commands.SelectV;
+import com.manniwood.pg4j.v1.resultsethandlers.GuessScalarListHandler;
 
 public class OldPGSessionTest {
 

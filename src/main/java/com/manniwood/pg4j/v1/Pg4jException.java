@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (t) 2014 Manni Wood
+Copyright (c) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,12 +20,31 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
- */
-package com.manniwood.pg4j.v1.exceptionconverters;
+*/
+package com.manniwood.pg4j.v1;
 
-import com.manniwood.pg4j.v1.Pg4jException;
-import com.manniwood.pg4j.v1.Pg4jPgSqlException;
+public class Pg4jException extends RuntimeException {
 
-public interface ExceptionConverter {
-    Pg4jException convert(Pg4jPgSqlException e);
+    private static final long serialVersionUID = 1L;
+
+    public Pg4jException() {
+        super();
+    }
+
+    public Pg4jException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public Pg4jException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public Pg4jException(String message) {
+        super(message);
+    }
+
+    public Pg4jException(Throwable cause) {
+        super(cause);
+    }
+
 }

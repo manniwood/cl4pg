@@ -67,7 +67,7 @@ import com.manniwood.mpjw.commands.SelectUsingListenerVariadic;
 import com.manniwood.mpjw.commands.Update;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.commands.Command;
+import com.manniwood.pg4j.v1.commands.Command;
 
 public class OldPGSession {
 

@@ -21,11 +21,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.exceptionconverters;
+package com.manniwood.pg4j.v1.resultsethandlers;
 
-import com.manniwood.pg4j.v1.Pg4jException;
-import com.manniwood.pg4j.v1.Pg4jPgSqlException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-public interface ExceptionConverter {
-    Pg4jException convert(Pg4jPgSqlException e);
+import com.manniwood.mpjw.converters.Converter;
+import com.manniwood.mpjw.converters.ConverterStore;
+
+public class GuessScalarListHandler<R> implements ResultSetHandler {
+
+    private List<R>      list;
+    private Converter<?> converter;
+
+    public GuessScalarListHandler() {
+        list = new ArrayList<R>();
+    }
+
+    @Override
+    public void init(ConverterStore converterStore,
+                     ResultSet rs) throws SQLException {
+        converter = converterStore.guessConverter(rs);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void processRow(ResultSet rs) throws SQLException {
+        list.add((R) converter.getItem(rs, 1));
+    }
+
+    public List<R> getList() {
+        return list;
+    }
 }

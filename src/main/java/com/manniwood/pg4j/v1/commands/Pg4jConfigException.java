@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (t) 2014 Manni Wood
+Copyright (c) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,53 +21,32 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.test.exceptions;
+package com.manniwood.pg4j.v1.commands;
 
-import org.postgresql.util.ServerErrorMessage;
+import com.manniwood.pg4j.v1.Pg4jException;
 
-import com.manniwood.pg4j.v1.Pg4jPgSqlException;
-
-public class UserAlreadyExistsException extends Pg4jPgSqlException {
+public class Pg4jConfigException extends Pg4jException {
 
     private static final long serialVersionUID = 1L;
 
-    public UserAlreadyExistsException() {
+    public Pg4jConfigException() {
+        super();
     }
 
-    public UserAlreadyExistsException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public Pg4jConfigException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public UserAlreadyExistsException(String message, Throwable cause) {
+    public Pg4jConfigException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public UserAlreadyExistsException(String message) {
+    public Pg4jConfigException(String message) {
         super(message);
     }
 
-    public UserAlreadyExistsException(Throwable cause) {
+    public Pg4jConfigException(Throwable cause) {
         super(cause);
-    }
-
-    public UserAlreadyExistsException(ServerErrorMessage sem) {
-        super(sem);
-    }
-
-    public UserAlreadyExistsException(ServerErrorMessage sem, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(sem, message, cause, enableSuppression, writableStackTrace);
-    }
-
-    public UserAlreadyExistsException(ServerErrorMessage sem, String message, Throwable cause) {
-        super(sem, message, cause);
-    }
-
-    public UserAlreadyExistsException(ServerErrorMessage sem, String message) {
-        super(sem, message);
-    }
-
-    public UserAlreadyExistsException(ServerErrorMessage sem, Throwable cause) {
-        super(sem, cause);
     }
 
 }

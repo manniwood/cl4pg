@@ -36,13 +36,13 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.manniwood.mpjw.test.etc.User;
-import com.manniwood.pg4j.PgSession;
-import com.manniwood.pg4j.argsetters.SimpleBeanArgSetter;
-import com.manniwood.pg4j.argsetters.SimpleVariadicArgSetter;
-import com.manniwood.pg4j.commands.DDL;
-import com.manniwood.pg4j.commands.Insert;
-import com.manniwood.pg4j.commands.Select;
-import com.manniwood.pg4j.resultsethandlers.GuessSettersListHandler;
+import com.manniwood.pg4j.v1.PgSession;
+import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
+import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
+import com.manniwood.pg4j.v1.commands.DDL;
+import com.manniwood.pg4j.v1.commands.Insert;
+import com.manniwood.pg4j.v1.commands.Select;
+import com.manniwood.pg4j.v1.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
 import com.manniwood.pg4j.v1.test.exceptions.UserAlreadyExistsException;
 
@@ -157,11 +157,11 @@ public class PgSessionTest {
 
         PgSession pgSession2 = PgSession.configure().done();
 
-        pgSession2.pgListen("foo");
+        pgSession2.pgListen("foo \" bar");
         pgSession2.commit();
 
         for (String s : expected) {
-            pgSession.pgNotify("foo", s);
+            pgSession.pgNotify("foo \" bar", s);
         }
         pgSession.commit();
 

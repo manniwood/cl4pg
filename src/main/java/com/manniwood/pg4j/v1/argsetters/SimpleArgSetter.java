@@ -21,11 +21,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.exceptionconverters;
+package com.manniwood.pg4j.v1.argsetters;
 
-import com.manniwood.pg4j.v1.Pg4jException;
-import com.manniwood.pg4j.v1.Pg4jPgSqlException;
+import java.util.ArrayList;
+import java.util.List;
 
-public interface ExceptionConverter {
-    Pg4jException convert(Pg4jPgSqlException e);
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class SimpleArgSetter extends BaseArgSetter {
+
+    private final static Logger  log  = LoggerFactory
+                                              .getLogger(SimpleArgSetter.class);
+
+    protected final List<String> args = new ArrayList<>();
+
+    @Override
+    public int extractArg(char[] chrs,
+                          int chrsLen,
+                          int i) {
+        StringBuilder arg = new StringBuilder();
+        while (i < chrsLen && chrs[i] != '}') {
+            i++;
+            if (chrs[i] != '}') {
+                arg.append(chrs[i]);
+            }
+        }
+        if (chrs[i] == '}') {
+            log.debug("adding arg: {}", arg.toString());
+            args.add(arg.toString());
+            arg = null; // done with this; hint to gc
+        }
+        return i;
+    }
+
 }

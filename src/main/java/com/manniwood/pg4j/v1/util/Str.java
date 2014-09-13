@@ -21,11 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.exceptionconverters;
+package com.manniwood.pg4j.v1.util;
 
-import com.manniwood.pg4j.v1.Pg4jException;
-import com.manniwood.pg4j.v1.Pg4jPgSqlException;
+/**
+ * Instead of relying on Guava or Commons for one or two utility classes, let's
+ * write our own simple utilities and only create a dependency on Guava or
+ * Commons after the dependence seems justifiable.
+ * 
+ * @author mwood
+ *
+ */
+public class Str {
 
-public interface ExceptionConverter {
-    Pg4jException convert(Pg4jPgSqlException e);
+    private Str() {
+        // utility class
+    }
+
+    public static boolean isNullOrEmpty(String str) {
+        return (str == null || str.isEmpty());
+    }
 }
