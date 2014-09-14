@@ -36,11 +36,11 @@ import com.manniwood.pg4j.v1.PgSession;
 import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
 import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.commands.DDL;
+import com.manniwood.pg4j.v1.commands.Insert;
+import com.manniwood.pg4j.v1.commands.Select;
 import com.manniwood.pg4j.v1.commands.Update;
 import com.manniwood.pg4j.v1.commands.UpdateB;
 import com.manniwood.pg4j.v1.commands.UpdateV;
-import com.manniwood.pg4j.v1.commands.Insert;
-import com.manniwood.pg4j.v1.commands.Select;
 import com.manniwood.pg4j.v1.resultsethandlers.ExplicitSettersListHandler;
 import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
 
@@ -154,4 +154,5 @@ public class PgSessionUpdateTest {
         Assert.assertEquals(numberUpdated, 1, "One user must be deleted.");
     }
 
+    // TODO: implement updateReturning
 }

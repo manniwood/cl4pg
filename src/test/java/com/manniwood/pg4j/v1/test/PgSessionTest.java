@@ -36,12 +36,14 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.manniwood.mpjw.test.etc.User;
+import com.manniwood.pg4j.v1.Pg4jException;
 import com.manniwood.pg4j.v1.PgSession;
 import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
 import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.commands.DDL;
 import com.manniwood.pg4j.v1.commands.Insert;
 import com.manniwood.pg4j.v1.commands.Select;
+import com.manniwood.pg4j.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.pg4j.v1.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
 import com.manniwood.pg4j.v1.test.exceptions.UserAlreadyExistsException;
@@ -211,4 +213,33 @@ public class PgSessionTest {
         pgSession.commit();
     }
 
+    @Test(priority = 4)
+    public void testRollback() {
+        Pg4jException expectedException = null;
+        try {
+            pgSession.run(DDL.config().sql("select flurby").done());
+        } catch (Pg4jException e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        log.info("test correctly caught following exception", expectedException);
+
+        /*
+         * Because of successful rollback, this next select should work, and we
+         * should NOT get this following exception: ERROR: 25P02: current
+         * transaction is aborted, commands ignored until end of transaction
+         * block
+         */
+        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
+        pgSession.run(Select.usingVariadicArgs()
+                .sql("select 1")
+                .resultSetHandler(handler)
+                .done());
+        Integer count = handler.getList().get(0);
+        Assert.assertEquals(count.intValue(),
+                            1,
+                            "Statement needs to return 1");
+    }
+
+    // TODO: implement insertReturning
 }

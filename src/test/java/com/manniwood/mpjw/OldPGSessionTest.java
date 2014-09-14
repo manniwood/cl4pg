@@ -517,6 +517,7 @@ public class OldPGSessionTest {
                             "Notifications must all be recieved, in the same order");
     }
 
+    // implemented in new
     @Test(priority = 8)
     public void testCopy() throws IOException {
 
@@ -563,6 +564,7 @@ public class OldPGSessionTest {
                             "User tables must be the same after copy");
     }
 
+    // implemented in new
     @Test(priority = 9)
     public void testRollback() {
         Throwable cause = null;

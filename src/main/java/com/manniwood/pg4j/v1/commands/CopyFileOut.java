@@ -35,12 +35,12 @@ import com.manniwood.mpjw.util.ResourceUtil;
 
 public class CopyFileOut implements Command {
 
-    private final String copyFileName;
+    private final String copyFile;
     private final String sql;
     private Writer fileWriter = null;
 
     private CopyFileOut(Builder builder) {
-        this.copyFileName = builder.copyFileName;
+        this.copyFile = builder.copyFile;
         this.sql = builder.sql;
     }
 
@@ -53,7 +53,7 @@ public class CopyFileOut implements Command {
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
         CopyManager copyManager = ((PGConnection) connection).getCopyAPI();
-        fileWriter = new FileWriter(copyFileName);
+        fileWriter = new FileWriter(copyFile);
         copyManager.copyOut(sql, fileWriter);
     }
 
@@ -69,15 +69,15 @@ public class CopyFileOut implements Command {
     }
 
     public static class Builder {
-        private String copyFileName;
+        private String copyFile;
         private String sql;
 
         public Builder() {
             // null constructor
         }
 
-        public Builder copyFileName(String copyFileName) {
-            this.copyFileName = copyFileName;
+        public Builder copyFile(String copyFile) {
+            this.copyFile = copyFile;
             return this;
         }
 

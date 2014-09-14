@@ -97,14 +97,14 @@ public class PgSessionCopyTest {
     @Test(priority = 0)
     public void testCopy() {
         pgSession.run(CopyFileOut.config()
-                .copyFileName(PgSessionTest.TEST_COPY_FILE)
+                .copyFile(PgSessionTest.TEST_COPY_FILE)
                 .sql("copy users to stdout")
                 .done());
         // can safely roll back, because file has already been created
         pgSession.rollback();
 
         pgSession.run(CopyFileIn.config()
-                .copyFileName(PgSessionTest.TEST_COPY_FILE)
+                .copyFile(PgSessionTest.TEST_COPY_FILE)
                 .sql("copy dup_users from stdin")
                 .done());
         pgSession.commit();
