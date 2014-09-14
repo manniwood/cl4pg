@@ -30,9 +30,10 @@ import org.testng.annotations.Test;
 
 import com.manniwood.mpjw.test.etc.TwoInts;
 import com.manniwood.pg4j.v1.PgSession;
-import com.manniwood.pg4j.v1.argsetters.ComplexBeanArgSetter;
 import com.manniwood.pg4j.v1.commands.CallStoredProcB;
 import com.manniwood.pg4j.v1.commands.DDL;
+import com.manniwood.pg4j.v1.commands.Select;
+import com.manniwood.pg4j.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
 
 /**
@@ -57,6 +58,7 @@ public class PgSessionStoredProcTest {
         pgSession.run(DDL.config().file("sql/create_swap_func.sql").done());
         pgSession.run(DDL.config().file("sql/create_add_to_first.sql").done());
         pgSession.run(DDL.config().file("sql/create_add_to_last.sql").done());
+        pgSession.run(DDL.config().file("sql/create_add_and_return.sql").done());
         pgSession.commit();
 
     }
@@ -66,6 +68,7 @@ public class PgSessionStoredProcTest {
         pgSession.run(DDL.config().file("sql/drop_swap_func.sql").done());
         pgSession.run(DDL.config().file("sql/drop_add_to_first.sql").done());
         pgSession.run(DDL.config().file("sql/drop_add_to_last.sql").done());
+        pgSession.run(DDL.config().file("sql/drop_add_and_return.sql").done());
         pgSession.commit();
     }
 
@@ -82,7 +85,6 @@ public class PgSessionStoredProcTest {
 
         pgSession.run(CallStoredProcB.<TwoInts> config()
                 .file("sql/swap.sql")
-                .argSetter(new ComplexBeanArgSetter<TwoInts>())
                 .arg(actual)
                 .done());
         pgSession.rollback();
@@ -103,7 +105,6 @@ public class PgSessionStoredProcTest {
 
         pgSession.run(CallStoredProcB.<TwoInts> config()
                 .file("sql/add_to_first.sql")
-                .argSetter(new ComplexBeanArgSetter<TwoInts>())
                 .arg(actual)
                 .done());
         pgSession.rollback();
@@ -126,7 +127,6 @@ public class PgSessionStoredProcTest {
 
         pgSession.run(CallStoredProcB.<TwoInts> config()
                 .file("sql/add_to_last.sql")
-                .argSetter(new ComplexBeanArgSetter<TwoInts>())
                 .arg(actual)
                 .done());
         pgSession.rollback();
@@ -136,4 +136,36 @@ public class PgSessionStoredProcTest {
                             "Add to last needs to have happened.");
     }
 
+    @Test(priority = 3)
+    public void testAddAndReturnV() {
+        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
+        pgSession.run(Select.usingVariadicArgs()
+                .sql("select add_and_return from add_and_return(#{java.lang.Integer}, #{java.lang.Integer})")
+                .args(1, 2)
+                .resultSetHandler(handler)
+                .done());
+        Integer sum = handler.getList().get(0);
+        Assert.assertEquals(sum.longValue(),
+                            3,
+                            "Stored proc needs to return 3");
+    }
+
+    @Test(priority = 4)
+    public void testAddAndReturnB() {
+
+        TwoInts addends = new TwoInts();
+        addends.setFirst(2);
+        addends.setSecond(3);
+
+        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
+        pgSession.run(Select.<TwoInts> usingBeanArg()
+                .sql("select add_and_return from add_and_return(#{getFirst}, #{getSecond})")
+                .arg(addends)
+                .resultSetHandler(handler)
+                .done());
+        Integer sum = handler.getList().get(0);
+        Assert.assertEquals(sum.longValue(),
+                            5,
+                            "Stored proc needs to return 3");
+    }
 }

@@ -31,7 +31,6 @@ import com.manniwood.mpjw.ComplexArg;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.converters.SetterAndConverterAndColNum;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.v1.argsetters.BeanArgSetter;
 import com.manniwood.pg4j.v1.argsetters.ComplexArgSetter;
 import com.manniwood.pg4j.v1.argsetters.ComplexBeanArgSetter;
 import com.manniwood.pg4j.v1.util.Str;
@@ -39,13 +38,11 @@ import com.manniwood.pg4j.v1.util.Str;
 public class CallStoredProcB<A> implements Command {
 
     private final String sql;
-    private final BeanArgSetter<A> beanArgSetter;
     private final A param;
     private CallableStatement cstmt;
 
     private CallStoredProcB(Builder<A> builder) {
         this.sql = builder.sql;
-        this.beanArgSetter = builder.beanArgSetter;
         this.param = builder.arg;
     }
 
@@ -57,10 +54,13 @@ public class CallStoredProcB<A> implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
-        cstmt = (CallableStatement) beanArgSetter.setSQLArguments(sql,
-                                                                  connection,
-                                                                  converterStore,
-                                                                  param);
+        // Stored procs with in/out params will only work with
+        // ComplexBeanArgSetter, so hard-code it here.
+        ComplexBeanArgSetter<A> beanArgSetter = new ComplexBeanArgSetter<>();
+        cstmt = beanArgSetter.setSQLArguments(sql,
+                                              connection,
+                                              converterStore,
+                                              param);
         cstmt.execute();
 
         // There is no result set handler here; we just set the
@@ -83,7 +83,6 @@ public class CallStoredProcB<A> implements Command {
 
     public static class Builder<A> {
         private String sql;
-        private BeanArgSetter<A> beanArgSetter = new ComplexBeanArgSetter<A>();
         private A arg;
 
         public Builder() {
@@ -97,11 +96,6 @@ public class CallStoredProcB<A> implements Command {
 
         public Builder<A> file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
-            return this;
-        }
-
-        public Builder<A> argSetter(BeanArgSetter<A> beanArgSetter) {
-            this.beanArgSetter = beanArgSetter;
             return this;
         }
 

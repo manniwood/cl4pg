@@ -666,6 +666,7 @@ public class OldPGSessionTest {
         pgSession.commit();
     }
 
+    // implemented in new
     @Test(priority = 13)
     public void testProcReturnScalar() {
         pgSession.ddl("@sql/create_add_and_return.sql");
