@@ -32,15 +32,15 @@ import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.argsetters.VariadicArgSetter;
 import com.manniwood.pg4j.v1.util.Str;
 
-public class DeleteV implements Command {
+public class UpdateV implements Command {
 
     private final String sql;
     private final VariadicArgSetter variadicArgSetter;
     private final Object[] args;
     private PreparedStatement pstmt;
-    private int numberOfRowsDeleted;
+    private int numberOfRowsAffected;
 
-    private DeleteV(Builder builder) {
+    private UpdateV(Builder builder) {
         this.sql = builder.sql;
         this.variadicArgSetter = builder.variadicArgSetter;
         this.args = builder.args;
@@ -58,7 +58,7 @@ public class DeleteV implements Command {
                                                   connection,
                                                   converterStore,
                                                   args);
-        numberOfRowsDeleted = pstmt.executeUpdate();
+        numberOfRowsAffected = pstmt.executeUpdate();
     }
 
     @Override
@@ -68,8 +68,8 @@ public class DeleteV implements Command {
         }
     }
 
-    public int getNumberOfRowsDeleted() {
-        return numberOfRowsDeleted;
+    public int getNumberOfRowsAffected() {
+        return numberOfRowsAffected;
     }
 
     public static Builder config() {
@@ -105,14 +105,14 @@ public class DeleteV implements Command {
             return this;
         }
 
-        public DeleteV done() {
+        public UpdateV done() {
             if (Str.isNullOrEmpty(sql)) {
                 throw new Pg4jConfigException("SQL string or file must be specified.");
             }
             // variadicArgSetter has a default, so that's OK.
             // args should be allowed to be null for those times
             // when there really are no arguments.
-            return new DeleteV(this);
+            return new UpdateV(this);
         }
     }
 

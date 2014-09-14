@@ -23,7 +23,6 @@ THE SOFTWARE.
  */
 package com.manniwood.pg4j.v1.test;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.testng.Assert;
@@ -54,11 +53,12 @@ import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
  * @author mwood
  *
  */
-public class PgSessionDeleteTest {
+public class PgSessionUpdateTest {
 
     private PgSession pgSession;
 
     private User expectedUser;
+    private User updatedUser;
 
     @BeforeClass
     public void init() {
@@ -69,10 +69,16 @@ public class PgSessionDeleteTest {
         pgSession.commit();
 
         expectedUser = new User();
-        expectedUser.setEmployeeId(PgSessionTest.THIRD_EMPLOYEE_ID);
         expectedUser.setId(UUID.fromString(PgSessionTest.THIRD_ID));
+        expectedUser.setEmployeeId(PgSessionTest.THIRD_EMPLOYEE_ID);
         expectedUser.setName(PgSessionTest.THIRD_USERNAME);
         expectedUser.setPassword(PgSessionTest.THIRD_PASSWORD);
+
+        updatedUser = new User();
+        updatedUser.setId(UUID.fromString(PgSessionTest.THIRD_ID));
+        updatedUser.setEmployeeId(PgSessionTest.UPDATED_THIRD_EMPLOYEE_ID);
+        updatedUser.setName(PgSessionTest.UPDATED_THIRD_USERNAME);
+        updatedUser.setPassword(PgSessionTest.UPDATED_THIRD_PASSWORD);
     }
 
     @BeforeMethod
@@ -101,7 +107,7 @@ public class PgSessionDeleteTest {
     }
 
     @AfterMethod
-    public void assertUserIsDeleted() {
+    public void assertUserIsUpdated() {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
@@ -110,40 +116,42 @@ public class PgSessionDeleteTest {
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
-        List<User> foundUsers = handler.getList();
-        pgSession.rollback();
+        User actualUser = handler.getList().get(0);
 
-        Assert.assertTrue(foundUsers.isEmpty(), "Deleted user must not be found.");
+        Assert.assertEquals(actualUser.getId(), UUID.fromString(PgSessionTest.THIRD_ID));
+        Assert.assertEquals(actualUser.getName(), PgSessionTest.UPDATED_THIRD_USERNAME);
+        Assert.assertEquals(actualUser.getEmployeeId(), PgSessionTest.UPDATED_THIRD_EMPLOYEE_ID);
+        Assert.assertEquals(actualUser.getPassword(), PgSessionTest.UPDATED_THIRD_PASSWORD);
     }
 
     @Test(priority = 0)
-    public void testDeleteB() {
+    public void testUpdateB() {
 
         UpdateB<User> del = Update.<User> usingBeanArg()
-                .file("sql/delete_user_bean.sql")
+                .file("sql/update_user.sql")
                 .argSetter(new SimpleBeanArgSetter<User>())
-                .arg(expectedUser)
+                .arg(updatedUser)
                 .done();
         pgSession.run(del);
         pgSession.commit();
-        int numberDeleted = del.getNumberOfRowsAffected();
+        int numberUpdated = del.getNumberOfRowsAffected();
 
-        Assert.assertEquals(numberDeleted, 1, "One user must be deleted.");
+        Assert.assertEquals(numberUpdated, 1, "One user must be updated.");
     }
 
     @Test(priority = 1)
-    public void testDeleteV() {
+    public void testUpdateV() {
 
         UpdateV del = Update.usingVariadicArgs()
-                .file("sql/delete_user.sql")
+                .file("sql/update_user_variadic.sql")
                 .argSetter(new SimpleVariadicArgSetter())
-                .args(UUID.fromString(PgSessionTest.THIRD_ID))
+                .args(updatedUser.getName(), updatedUser.getPassword(), updatedUser.getEmployeeId(), UUID.fromString(PgSessionTest.THIRD_ID))
                 .done();
         pgSession.run(del);
         pgSession.commit();
-        int numberDeleted = del.getNumberOfRowsAffected();
+        int numberUpdated = del.getNumberOfRowsAffected();
 
-        Assert.assertEquals(numberDeleted, 1, "One user must be deleted.");
+        Assert.assertEquals(numberUpdated, 1, "One user must be deleted.");
     }
 
 }

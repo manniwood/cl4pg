@@ -251,6 +251,7 @@ public class OldPGSessionTest {
         Assert.assertNull(foundUser, "Deleted user must not be found.");
     }
 
+    // implemented in new
     @Test(priority = 3)
     public void testUpdate() {
         User user = new User();

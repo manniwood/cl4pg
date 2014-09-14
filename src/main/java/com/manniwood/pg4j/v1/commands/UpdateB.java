@@ -32,15 +32,15 @@ import com.manniwood.pg4j.v1.argsetters.BeanArgSetter;
 import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
 import com.manniwood.pg4j.v1.util.Str;
 
-public class DeleteB<A> implements Command {
+public class UpdateB<A> implements Command {
 
     private final String sql;
     private final BeanArgSetter<A> beanArgSetter;
     private final A arg;
     private PreparedStatement pstmt;
-    private int numberOfRowsDeleted;
+    private int numberOfRowsAffected;
 
-    private DeleteB(Builder<A> builder) {
+    private UpdateB(Builder<A> builder) {
         this.sql = builder.sql;
         this.beanArgSetter = builder.beanArgSetter;
         this.arg = builder.arg;
@@ -58,7 +58,7 @@ public class DeleteB<A> implements Command {
                                               connection,
                                               converterStore,
                                               arg);
-        numberOfRowsDeleted = pstmt.executeUpdate();
+        numberOfRowsAffected = pstmt.executeUpdate();
     }
 
     @Override
@@ -68,8 +68,8 @@ public class DeleteB<A> implements Command {
         }
     }
 
-    public int getNumberOfRowsDeleted() {
-        return numberOfRowsDeleted;
+    public int getNumberOfRowsAffected() {
+        return numberOfRowsAffected;
     }
 
     public static <P> Builder<P> config() {
@@ -105,14 +105,14 @@ public class DeleteB<A> implements Command {
             return this;
         }
 
-        public DeleteB<A> done() {
+        public UpdateB<A> done() {
             if (Str.isNullOrEmpty(sql)) {
                 throw new Pg4jConfigException("SQL string or file must be specified.");
             }
             // beanArgSetter has a default, so that's OK.
             // arg should be allowed to be null for those times
             // when there really is no bean argument.
-            return new DeleteB<A>(this);
+            return new UpdateB<A>(this);
         }
     }
 

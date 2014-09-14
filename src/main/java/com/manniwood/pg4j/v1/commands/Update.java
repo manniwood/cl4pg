@@ -23,13 +23,13 @@ THE SOFTWARE.
  */
 package com.manniwood.pg4j.v1.commands;
 
-public class Delete {
+public class Update {
 
-    public static DeleteV.Builder usingVariadicArgs() {
-        return new DeleteV.Builder();
+    public static UpdateV.Builder usingVariadicArgs() {
+        return new UpdateV.Builder();
     }
 
-    public static <A> DeleteB.Builder<A> usingBeanArg() {
-        return new DeleteB.Builder<A>();
+    public static <A> UpdateB.Builder<A> usingBeanArg() {
+        return new UpdateB.Builder<A>();
     }
 }
