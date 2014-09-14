@@ -236,4 +236,7 @@ public class PgSessionSelectTest {
 
         Assert.assertEquals(actual, userWithNulls, "users must match");
     }
+
+    // TODO: test GuessScalarListHandler
+    // TODO: test ExplicitScalarListHandler
 }

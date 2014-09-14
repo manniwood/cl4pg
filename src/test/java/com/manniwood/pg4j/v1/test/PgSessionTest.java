@@ -209,7 +209,6 @@ public class PgSessionTest {
         pgSession.run(DDL.config().sql("drop table users").done());
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.commit();
-
     }
 
 }
