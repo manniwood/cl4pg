@@ -596,6 +596,7 @@ public class OldPGSessionTest {
         Assert.assertEquals(actual.intValue(), 1, "Statement needs to return 1");
     }
 
+    // implemented in new
     @Test(priority = 10)
     public void testProcSwap() {
         pgSession.ddl("@sql/create_swap_func.sql");
