@@ -55,6 +55,8 @@ public class PgSessionStoredProcTest {
                 .done();
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.run(DDL.config().file("sql/create_swap_func.sql").done());
+        pgSession.run(DDL.config().file("sql/create_add_to_first.sql").done());
+        pgSession.run(DDL.config().file("sql/create_add_to_last.sql").done());
         pgSession.commit();
 
     }
@@ -62,11 +64,13 @@ public class PgSessionStoredProcTest {
     @AfterClass
     public void tearDown() {
         pgSession.run(DDL.config().file("sql/drop_swap_func.sql").done());
+        pgSession.run(DDL.config().file("sql/drop_add_to_first.sql").done());
+        pgSession.run(DDL.config().file("sql/drop_add_to_last.sql").done());
         pgSession.commit();
     }
 
     @Test(priority = 0)
-    public void testGuessSettersListHandlerBeanArg() {
+    public void testSwapFunc() {
 
         TwoInts expected = new TwoInts();
         expected.setFirst(2);
@@ -84,6 +88,52 @@ public class PgSessionStoredProcTest {
         pgSession.rollback();
 
         Assert.assertEquals(actual, expected, "Swap needs to have happened.");
+    }
+
+    @Test(priority = 1)
+    public void testAddToFirstFunc() {
+
+        TwoInts expected = new TwoInts();
+        expected.setFirst(5);
+        expected.setSecond(3);
+
+        TwoInts actual = new TwoInts();
+        actual.setFirst(2);
+        actual.setSecond(3);
+
+        pgSession.run(CallStoredProcB.<TwoInts> config()
+                .file("sql/add_to_first.sql")
+                .argSetter(new ComplexBeanArgSetter<TwoInts>())
+                .arg(actual)
+                .done());
+        pgSession.rollback();
+
+        Assert.assertEquals(actual,
+                            expected,
+                            "Add to first needs to have happened.");
+    }
+
+    @Test(priority = 2)
+    public void testAddToLastFunc() {
+
+        TwoInts expected = new TwoInts();
+        expected.setFirst(2);
+        expected.setSecond(5);
+
+        TwoInts actual = new TwoInts();
+        actual.setFirst(2);
+        actual.setSecond(3);
+
+        pgSession.run(CallStoredProcB.<TwoInts> config()
+                .file("sql/add_to_last.sql")
+                .argSetter(new ComplexBeanArgSetter<TwoInts>())
+                .arg(actual)
+                .done());
+        pgSession.rollback();
+
+        Assert.assertEquals(actual,
+                            expected,
+                            "Add to last needs to have happened.");
     }
 
 }

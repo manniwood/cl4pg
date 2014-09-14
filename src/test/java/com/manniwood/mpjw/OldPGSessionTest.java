@@ -618,6 +618,7 @@ public class OldPGSessionTest {
         pgSession.commit();
     }
 
+    // implemented in new
     @Test(priority = 11)
     public void testProcAddInPlace1() {
         pgSession.ddl("@sql/create_add_to_first.sql");
@@ -641,6 +642,7 @@ public class OldPGSessionTest {
         pgSession.commit();
     }
 
+    // implemented in new
     @Test(priority = 12)
     public void testProcAddInPlace2() {
         pgSession.ddl("@sql/create_add_to_last.sql");
