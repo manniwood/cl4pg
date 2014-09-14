@@ -25,8 +25,6 @@ package com.manniwood.pg4j.v1.test;
 
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -56,66 +54,25 @@ import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
  *
  */
 public class PgSessionSelectTest {
-    private final static Logger log = LoggerFactory.getLogger(PgSessionSelectTest.class);
-
-    public static final String TEST_COPY_FILE = "/tmp/users.copy";
-
-    public static final String TEST_PASSWORD = "passwd";
-    public static final String TEST_USERNAME = "Hubert";
-    public static final int TEST_EMPLOYEE_ID = 13;
-    public static final String TEST_ID = "99999999-a4fa-49fc-b6b4-62eca118fbf7";
-
-    public static final String USER_WITH_NULLS_TEST_ID = "88888888-a4fa-49fc-b6b4-62eca118fbf7";
-
-    public static final String THIRD_PASSWORD = "blarg";
-    public static final String THIRD_USERNAME = "Manni";
-    public static final int THIRD_EMPLOYEE_ID = 12;
-    public static final String THIRD_ID = "77777777-a4fa-49fc-b6b4-62eca118fbf7";
-
-    public static final String UPDATED_THIRD_PASSWORD = "updated blarg";
-    public static final String UPDATED_THIRD_USERNAME = "Updated Manni";
-    public static final int UPDATED_THIRD_EMPLOYEE_ID = 89;
-
-    public static final String ID_1 = "11111111-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String ID_2 = "22222222-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String ID_3 = "33333333-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String USERNAME_1 = "user one";
-    public static final String USERNAME_2 = "user two";
-    public static final String USERNAME_3 = "user three";
-    public static final String PASSWORD_1 = "password one";
-    public static final String PASSWORD_2 = "password two";
-    public static final String PASSWORD_3 = "password three";
-    public static final int EMPLOYEE_ID_1 = 1;
-    public static final int EMPLOYEE_ID_2 = 2;
-    public static final int EMPLOYEE_ID_3 = 3;
 
     private PgSession pgSession;
     private static final User expected = createExpectedUser();
-    private static final ImmutableUser expectedImmutable = createExpectedImmutableUser();
     private static final User userWithNulls = createUserWithNulls();
 
     private static User createExpectedUser() {
         User expected;
         expected = new User();
-        expected.setEmployeeId(TEST_EMPLOYEE_ID);
-        expected.setId(UUID.fromString(TEST_ID));
-        expected.setName(TEST_USERNAME);
-        expected.setPassword(TEST_PASSWORD);
+        expected.setEmployeeId(PgSessionTest.TEST_EMPLOYEE_ID);
+        expected.setId(UUID.fromString(PgSessionTest.TEST_ID));
+        expected.setName(PgSessionTest.TEST_USERNAME);
+        expected.setPassword(PgSessionTest.TEST_PASSWORD);
         return expected;
-    }
-
-    private static ImmutableUser createExpectedImmutableUser() {
-        return new ImmutableUser(
-                                 UUID.fromString(TEST_ID),
-                                 TEST_USERNAME,
-                                 TEST_PASSWORD,
-                                 TEST_EMPLOYEE_ID);
     }
 
     private static User createUserWithNulls() {
         User expected;
         expected = new User();
-        expected.setId(UUID.fromString(USER_WITH_NULLS_TEST_ID));
+        expected.setId(UUID.fromString(PgSessionTest.USER_WITH_NULLS_TEST_ID));
         return expected;
     }
 
@@ -146,7 +103,7 @@ public class PgSessionSelectTest {
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
                 .argSetter(new SimpleVariadicArgSetter())
-                .args(UUID.fromString(TEST_ID))
+                .args(UUID.fromString(PgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -162,7 +119,7 @@ public class PgSessionSelectTest {
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
                 .argSetter(new SimpleVariadicArgSetter())
-                .args(UUID.fromString(TEST_ID))
+                .args(UUID.fromString(PgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -177,7 +134,7 @@ public class PgSessionSelectTest {
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
                 .argSetter(new SimpleVariadicArgSetter())
-                .args(UUID.fromString(TEST_ID))
+                .args(UUID.fromString(PgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -192,7 +149,7 @@ public class PgSessionSelectTest {
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_constructor.sql")
                 .argSetter(new SimpleVariadicArgSetter())
-                .args(UUID.fromString(TEST_ID))
+                .args(UUID.fromString(PgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -268,7 +225,7 @@ public class PgSessionSelectTest {
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
                 .argSetter(new SimpleVariadicArgSetter())
-                .args(UUID.fromString(USER_WITH_NULLS_TEST_ID))
+                .args(UUID.fromString(PgSessionTest.USER_WITH_NULLS_TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();

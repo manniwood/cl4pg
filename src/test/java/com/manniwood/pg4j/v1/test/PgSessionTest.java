@@ -65,7 +65,7 @@ public class PgSessionTest {
     public static final int TEST_EMPLOYEE_ID = 13;
     public static final String TEST_ID = "99999999-a4fa-49fc-b6b4-62eca118fbf7";
 
-    public static final String ANOTHER_TEST_ID = "88888888-a4fa-49fc-b6b4-62eca118fbf7";
+    public static final String USER_WITH_NULLS_TEST_ID = "88888888-a4fa-49fc-b6b4-62eca118fbf7";
 
     public static final String THIRD_PASSWORD = "blarg";
     public static final String THIRD_USERNAME = "Manni";

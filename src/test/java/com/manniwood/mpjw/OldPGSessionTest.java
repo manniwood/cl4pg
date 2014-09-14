@@ -218,6 +218,7 @@ public class OldPGSessionTest {
         // be used instead of primitive types when nulls are required.
     }
 
+    // implemented in new
     @Test(priority = 2)
     public void testDelete() {
         User user = new User();
@@ -247,7 +248,7 @@ public class OldPGSessionTest {
                                         User.class,
                                         UUID.fromString(THIRD_ID));
         pgSession.rollback();
-        Assert.assertNull(foundUser, "User must be found.");
+        Assert.assertNull(foundUser, "Deleted user must not be found.");
     }
 
     @Test(priority = 3)
