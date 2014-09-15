@@ -27,21 +27,21 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.util.List;
 
-import com.manniwood.mpjw.ComplexArg;
+import com.manniwood.mpjw.InOutArg;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.converters.SetterAndConverterAndColNum;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.v1.argsetters.ComplexArgSetter;
-import com.manniwood.pg4j.v1.argsetters.ComplexBeanArgSetter;
+import com.manniwood.pg4j.v1.argsetters.InOutArgSetter;
+import com.manniwood.pg4j.v1.argsetters.InOutBeanArgSetter;
 import com.manniwood.pg4j.v1.util.Str;
 
-public class CallStoredProcB<A> implements Command {
+public class CallStoredProcInOut<A> implements Command {
 
     private final String sql;
     private final A param;
     private CallableStatement cstmt;
 
-    private CallStoredProcB(Builder<A> builder) {
+    private CallStoredProcInOut(Builder<A> builder) {
         this.sql = builder.sql;
         this.param = builder.arg;
     }
@@ -56,7 +56,7 @@ public class CallStoredProcB<A> implements Command {
                         ConverterStore converterStore) throws Exception {
         // Stored procs with in/out params will only work with
         // ComplexBeanArgSetter, so hard-code it here.
-        ComplexBeanArgSetter<A> beanArgSetter = new ComplexBeanArgSetter<>();
+        InOutBeanArgSetter<A> beanArgSetter = new InOutBeanArgSetter<>();
         cstmt = beanArgSetter.setSQLArguments(sql,
                                               connection,
                                               converterStore,
@@ -65,7 +65,7 @@ public class CallStoredProcB<A> implements Command {
 
         // There is no result set handler here; we just set the
         // out parameters on the argument bean
-        List<ComplexArg> args = ((ComplexArgSetter) beanArgSetter).getArgs();
+        List<InOutArg> args = ((InOutArgSetter) beanArgSetter).getArgs();
         List<SetterAndConverterAndColNum> settersAndConverters = converterStore.specifySetters(cstmt, param.getClass(), args);
         converterStore.populateBeanUsingSetters(cstmt, param, settersAndConverters);
     }
@@ -104,14 +104,14 @@ public class CallStoredProcB<A> implements Command {
             return this;
         }
 
-        public CallStoredProcB<A> done() {
+        public CallStoredProcInOut<A> done() {
             if (Str.isNullOrEmpty(sql)) {
                 throw new Pg4jConfigException("SQL string or file must be specified.");
             }
             // beanArgSetter has a default, so that's OK.
             // arg should be allowed to be null for those times
             // when there really is no bean argument.
-            return new CallStoredProcB<A>(this);
+            return new CallStoredProcInOut<A>(this);
         }
     }
 

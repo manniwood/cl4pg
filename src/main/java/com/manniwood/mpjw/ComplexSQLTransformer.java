@@ -10,7 +10,7 @@ public class ComplexSQLTransformer extends BaseSQLTransformer implements SQLTran
 
     private final static Logger log = LoggerFactory.getLogger(ComplexSQLTransformer.class);
 
-    private final List<ComplexArg> args = new ArrayList<>();
+    private final List<InOutArg> args = new ArrayList<>();
 
     public ComplexSQLTransformer(String sql) {
         super(sql);
@@ -38,7 +38,7 @@ public class ComplexSQLTransformer extends BaseSQLTransformer implements SQLTran
             }
         }
         if (chrs[i] == '}') {
-            ComplexArg ca = new ComplexArg(arg1.toString(), arg2.toString());
+            InOutArg ca = new InOutArg(arg1.toString(), arg2.toString());
             log.debug("adding complex arg: {}", ca);
             args.add(ca);
             ca = null;  // done with this; hint to gc
@@ -46,7 +46,7 @@ public class ComplexSQLTransformer extends BaseSQLTransformer implements SQLTran
         return i;
     }
 
-    public List<ComplexArg> getArgs() {
+    public List<InOutArg> getArgs() {
         return args;
     }
 

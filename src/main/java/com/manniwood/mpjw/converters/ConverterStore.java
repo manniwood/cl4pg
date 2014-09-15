@@ -40,7 +40,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.mpjw.ComplexArg;
+import com.manniwood.mpjw.InOutArg;
 import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.util.ColumnLabelConverter;
 
@@ -129,11 +129,11 @@ public class ConverterStore {
     @SuppressWarnings("unchecked")
     public <P> void setSQLArguments(CallableStatement cstmt,
                                     P p,
-                                    List<ComplexArg> args) throws SQLException {
+                                    List<InOutArg> args) throws SQLException {
         int i = 0;
         Class<?> tclass = p.getClass();
         try {
-            for (ComplexArg arg : args) {
+            for (InOutArg arg : args) {
                 i++;
                 String getter = arg.getGetter();
                 if (getter != null && !getter.isEmpty()) {
@@ -221,13 +221,13 @@ public class ConverterStore {
 
     public <T> List<SetterAndConverterAndColNum> specifySetters(CallableStatement cstmt,
                                                                 Class<T> returnType,
-                                                                List<ComplexArg> args) throws SQLException {
+                                                                List<InOutArg> args) throws SQLException {
         List<SetterAndConverterAndColNum> settersAndConverters = new ArrayList<>();
         try {
             int absCol = 0;
             int setCol = 1;
             ResultSetMetaData md = cstmt.getMetaData();
-            for (ComplexArg arg : args) {
+            for (InOutArg arg : args) {
                 absCol++;
                 String setterName = arg.getSetter();
                 if (setterName == null || setterName.isEmpty()) {

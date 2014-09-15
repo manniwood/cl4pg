@@ -29,14 +29,14 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.mpjw.ComplexArg;
+import com.manniwood.mpjw.InOutArg;
 
-public abstract class ComplexArgSetter extends BaseArgSetter {
+public abstract class InOutArgSetter extends BaseArgSetter {
 
     private final static Logger log = LoggerFactory
-            .getLogger(ComplexArgSetter.class);
+            .getLogger(InOutArgSetter.class);
 
-    protected final List<ComplexArg> args = new ArrayList<>();
+    protected final List<InOutArg> args = new ArrayList<>();
 
     @Override
     public int extractArg(char[] chrs,
@@ -59,7 +59,7 @@ public abstract class ComplexArgSetter extends BaseArgSetter {
             }
         }
         if (chrs[i] == '}') {
-            ComplexArg ca = new ComplexArg(arg1.toString(), arg2.toString());
+            InOutArg ca = new InOutArg(arg1.toString(), arg2.toString());
             log.debug("adding complex arg: {}", ca);
             args.add(ca);
             ca = null; // done with this; hint to gc
@@ -67,7 +67,7 @@ public abstract class ComplexArgSetter extends BaseArgSetter {
         return i;
     }
 
-    public List<ComplexArg> getArgs() {
+    public List<InOutArg> getArgs() {
         return args;
     }
 }

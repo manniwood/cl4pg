@@ -23,16 +23,25 @@ THE SOFTWARE.
  */
 package com.manniwood.pg4j.v1.test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.TwoInts;
 import com.manniwood.pg4j.v1.PgSession;
-import com.manniwood.pg4j.v1.commands.CallStoredProcB;
+import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
+import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
+import com.manniwood.pg4j.v1.commands.CallStoredProcInOut;
 import com.manniwood.pg4j.v1.commands.DDL;
+import com.manniwood.pg4j.v1.commands.Insert;
 import com.manniwood.pg4j.v1.commands.Select;
+import com.manniwood.pg4j.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.pg4j.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
 
@@ -59,6 +68,30 @@ public class PgSessionStoredProcTest {
         pgSession.run(DDL.config().file("sql/create_add_to_first.sql").done());
         pgSession.run(DDL.config().file("sql/create_add_to_last.sql").done());
         pgSession.run(DDL.config().file("sql/create_add_and_return.sql").done());
+        pgSession.run(DDL.config().file("sql/create_get_user_by_id_func.sql").done());
+        pgSession.commit();
+
+        List<ImmutableUser> usersToLoad = new ArrayList<>();
+        usersToLoad.add(new ImmutableUser(UUID.fromString(PgSessionTest.ID_1),
+                                          PgSessionTest.USERNAME_1,
+                                          PgSessionTest.PASSWORD_1,
+                                          PgSessionTest.EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(PgSessionTest.ID_2),
+                                          PgSessionTest.USERNAME_2,
+                                          PgSessionTest.PASSWORD_2,
+                                          PgSessionTest.EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(PgSessionTest.ID_3),
+                                          PgSessionTest.USERNAME_3,
+                                          PgSessionTest.PASSWORD_3,
+                                          PgSessionTest.EMPLOYEE_ID_3));
+
+        for (ImmutableUser u : usersToLoad) {
+            pgSession.run(Insert.<ImmutableUser> usingBeanArg()
+                    .file("sql/insert_user.sql")
+                    .argSetter(new SimpleBeanArgSetter<ImmutableUser>())
+                    .arg(u)
+                    .done());
+        }
         pgSession.commit();
 
     }
@@ -69,6 +102,7 @@ public class PgSessionStoredProcTest {
         pgSession.run(DDL.config().file("sql/drop_add_to_first.sql").done());
         pgSession.run(DDL.config().file("sql/drop_add_to_last.sql").done());
         pgSession.run(DDL.config().file("sql/drop_add_and_return.sql").done());
+        pgSession.run(DDL.config().file("sql/drop_get_user_by_id_func.sql").done());
         pgSession.commit();
     }
 
@@ -83,7 +117,7 @@ public class PgSessionStoredProcTest {
         actual.setFirst(1);
         actual.setSecond(2);
 
-        pgSession.run(CallStoredProcB.<TwoInts> config()
+        pgSession.run(CallStoredProcInOut.<TwoInts> config()
                 .file("sql/swap.sql")
                 .arg(actual)
                 .done());
@@ -103,7 +137,7 @@ public class PgSessionStoredProcTest {
         actual.setFirst(2);
         actual.setSecond(3);
 
-        pgSession.run(CallStoredProcB.<TwoInts> config()
+        pgSession.run(CallStoredProcInOut.<TwoInts> config()
                 .file("sql/add_to_first.sql")
                 .arg(actual)
                 .done());
@@ -125,7 +159,7 @@ public class PgSessionStoredProcTest {
         actual.setFirst(2);
         actual.setSecond(3);
 
-        pgSession.run(CallStoredProcB.<TwoInts> config()
+        pgSession.run(CallStoredProcInOut.<TwoInts> config()
                 .file("sql/add_to_last.sql")
                 .arg(actual)
                 .done());
@@ -167,5 +201,19 @@ public class PgSessionStoredProcTest {
         Assert.assertEquals(sum.longValue(),
                             5,
                             "Stored proc needs to return 3");
+    }
+
+    @Test(priority = 5)
+    public void testRefCursorProc() {
+        GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
+        pgSession.run(Select.usingVariadicArgs()
+                .file("sql/select_user_guess_setters.sql")
+                .argSetter(new SimpleVariadicArgSetter())
+                .args(UUID.fromString(PgSessionTest.TEST_ID))
+                .resultSetHandler(handler)
+                .done());
+        pgSession.rollback();
+        ImmutableUser actualImmutable = handler.getList().get(0);
+
     }
 }

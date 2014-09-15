@@ -1,4 +1,4 @@
-{ #{refcursor} = call get_user_by_id(#{getId}) }
+{ #{java.sql.ResultSet} = call get_user_by_id(#{getId}) }
 
 
 

@@ -87,13 +87,13 @@ public class SQLTransformerTest {
 
     @Test
     public void testComplex1() {
-        List<ComplexArg> correctComplexArgs = new ArrayList<>();
-        correctComplexArgs.add(new ComplexArg("getFirst", "setFirst"));
-        correctComplexArgs.add(new ComplexArg("getSecond", "setSecond"));
+        List<InOutArg> correctComplexArgs = new ArrayList<>();
+        correctComplexArgs.add(new InOutArg("getFirst", "setFirst"));
+        correctComplexArgs.add(new InOutArg("getSecond", "setSecond"));
 
         String sql = ResourceUtil.slurpFileFromClasspath("sql/swap.sql");
         ParsedSQLWithComplexArgs tsql = SQLTransformerUtil.transformWithInOut(sql);
-        List<ComplexArg> args = tsql.getArgs();
+        List<InOutArg> args = tsql.getArgs();
         Assert.assertEquals(args.size(), correctComplexArgs.size(), "Must have all args.");
         for (int i = 0; i < correctComplexArgs.size(); i++) {
             Assert.assertEquals(args.get(i).getGetter(), correctComplexArgs.get(i).getGetter());
@@ -105,13 +105,13 @@ public class SQLTransformerTest {
 
     @Test
     public void testComplex2() {
-        List<ComplexArg> correctComplexArgs = new ArrayList<>();
-        correctComplexArgs.add(new ComplexArg(null, "setUpperString"));
-        correctComplexArgs.add(new ComplexArg("getLowerString", null));
+        List<InOutArg> correctComplexArgs = new ArrayList<>();
+        correctComplexArgs.add(new InOutArg(null, "setUpperString"));
+        correctComplexArgs.add(new InOutArg("getLowerString", null));
 
         String sql = ResourceUtil.slurpFileFromClasspath("sql/upper.sql");
         ParsedSQLWithComplexArgs tsql = SQLTransformerUtil.transformWithInOut(sql);
-        List<ComplexArg> args = tsql.getArgs();
+        List<InOutArg> args = tsql.getArgs();
         Assert.assertEquals(args.size(), correctComplexArgs.size(), "Must have all args.");
         for (int i = 0; i < correctComplexArgs.size(); i++) {
             log.info("correct: {} found: {}", correctComplexArgs.get(i), args.get(i));

@@ -26,12 +26,12 @@ package com.manniwood.mpjw;
 import java.util.List;
 
 public class ParsedSQLWithComplexArgs extends BaseParsedSQL implements ParsedSQLBundle {
-    private final List<ComplexArg> args;
-    public ParsedSQLWithComplexArgs(String sql, List<ComplexArg> args) {
+    private final List<InOutArg> args;
+    public ParsedSQLWithComplexArgs(String sql, List<InOutArg> args) {
         super(sql);
         this.args = args;
     }
-    public List<ComplexArg> getArgs() {
+    public List<InOutArg> getArgs() {
         return args;
     }
 

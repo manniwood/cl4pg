@@ -29,7 +29,7 @@ import java.sql.SQLException;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class ComplexBeanArgSetter<P> extends ComplexArgSetter implements BeanArgSetter<P> {
+public class InOutBeanArgSetter<P> extends InOutArgSetter implements BeanArgSetter<P> {
 
     @Override
     public CallableStatement setSQLArguments(String sql,

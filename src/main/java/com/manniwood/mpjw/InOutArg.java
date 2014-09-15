@@ -1,9 +1,9 @@
 package com.manniwood.mpjw;
 
-public class ComplexArg {
+public class InOutArg {
     private final String getter;
     private final String setter;
-    public ComplexArg(String arg1, String arg2) {
+    public InOutArg(String arg1, String arg2) {
         super();
         if (arg1 != null && arg1.startsWith("get")) {
             this.getter = arg1;
