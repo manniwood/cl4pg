@@ -26,27 +26,27 @@ package com.manniwood.pg4j.v1.commands;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.Types;
+import java.util.List;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.v1.argsetters.BeanArgSetter;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetterOld;
+import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
+import com.manniwood.pg4j.v1.argsetters.SqlParser;
 import com.manniwood.pg4j.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class CallStoredProcRefCursor<A> implements Command {
 
     private final String sql;
-    private final BeanArgSetter<A> beanArgSetter;
     private final ResultSetHandler resultSetHandler;
-    private final A param;
+    private final A arg;
     private CallableStatement pstmt;
 
     private CallStoredProcRefCursor(Builder<A> builder) {
         this.sql = builder.sql;
-        this.beanArgSetter = builder.beanArgSetter;
         this.resultSetHandler = builder.resultSetHandler;
-        this.param = builder.arg;
+        this.arg = builder.arg;
     }
 
     @Override
@@ -57,20 +57,43 @@ public class CallStoredProcRefCursor<A> implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
-        // TODO: START HERE:
-        // We need 2 new argsetters! We need a variadic arg setter
-        // that knows the first arg is the ResultSet, and to
-        // set that accordingly; we need a bean arg setter that
-        // knows the first arg is the ResultSet and sets that
-        // accordingly.
-        // RefCursorVariadicArgSetter
-        // RefCursorBeanArgSetter
-        pstmt = (CallableStatement) beanArgSetter.setSQLArguments(sql,
-                                                                  connection,
-                                                                  converterStore,
-                                                                  param);
-        ResultSet rs = pstmt.executeQuery();
 
+        // XXX: consider a parser listener that specially stores
+        // the first argument in a special var so that we do not have
+        // to play games with the list of getters later on.
+        // XXX: also, implement the variadic version of this.
+        BasicParserListener basicParserListener = new BasicParserListener();
+        SqlParser sqlParser = new SqlParser(basicParserListener);
+        String transformedSql = sqlParser.transform(sql);
+
+        CallableStatement cstmt = connection.prepareCall(transformedSql);
+        List<String> getters = basicParserListener.getArgs();
+
+        // The first "getter" needs to be the special keyword "refcursor"
+        if (getters == null || getters.isEmpty()) {
+            throw new Pg4jSyntaxException("There needs to be at least one refcursor argument.");
+        }
+        String firstArg = getters.get(0);
+        if (firstArg == null || !firstArg.equals("refcursor")) {
+            throw new Pg4jSyntaxException("The first argument, " + firstArg + ", needs to be the special refcursor keyword.");
+
+        }
+
+        // Register the first parameter as type other;
+        // later, it will be cast to a result set.
+        cstmt.registerOutParameter(1, Types.OTHER);
+
+        // Now we can throw away the refcursor argument.
+        getters.remove(0);
+
+        if (!getters.isEmpty()) {
+            // Because we have removed the first arg, when we set the
+            // arguments, the column number we start at is 2, not 1
+            converterStore.setSQLArguments(cstmt, arg, getters, 2);
+        }
+
+        cstmt.execute();
+        ResultSet rs = (ResultSet) cstmt.getObject(1);
         resultSetHandler.init(converterStore, rs);
         while (rs.next()) {
             resultSetHandler.processRow(rs);
@@ -90,7 +113,6 @@ public class CallStoredProcRefCursor<A> implements Command {
 
     public static class Builder<A> {
         private String sql;
-        private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetterOld<A>();
         private ResultSetHandler resultSetHandler;
         private A arg;
 
@@ -105,11 +127,6 @@ public class CallStoredProcRefCursor<A> implements Command {
 
         public Builder<A> file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
-            return this;
-        }
-
-        public Builder<A> argSetter(BeanArgSetter<A> beanArgSetter) {
-            this.beanArgSetter = beanArgSetter;
             return this;
         }
 

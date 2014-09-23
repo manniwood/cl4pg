@@ -35,8 +35,8 @@ import org.testng.annotations.Test;
 import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.TwoInts;
 import com.manniwood.pg4j.v1.PgSession;
-import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.commands.CallStoredProcInOut;
+import com.manniwood.pg4j.v1.commands.CallStoredProcRefCursor;
 import com.manniwood.pg4j.v1.commands.DDL;
 import com.manniwood.pg4j.v1.commands.Insert;
 import com.manniwood.pg4j.v1.commands.Select;
@@ -203,15 +203,18 @@ public class PgSessionStoredProcTest {
 
     @Test(priority = 5)
     public void testRefCursorProc() {
+        ImmutableUser expected = new ImmutableUser(UUID.fromString(PgSessionTest.ID_3),
+                                                   PgSessionTest.USERNAME_3,
+                                                   PgSessionTest.PASSWORD_3,
+                                                   PgSessionTest.EMPLOYEE_ID_3);
         GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(Select.usingVariadicArgs()
-                .file("sql/select_user_guess_setters.sql")
-                .argSetter(new SimpleVariadicArgSetter())
-                .args(UUID.fromString(PgSessionTest.TEST_ID))
+        pgSession.run(CallStoredProcRefCursor.<ImmutableUser> config()
+                .file("sql/select_user_b_refcursor.sql")
+                .arg(expected)
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
-        ImmutableUser actualImmutable = handler.getList().get(0);
-
+        ImmutableUser actual = handler.getList().get(0);
+        Assert.assertEquals(actual, expected, "Found user needs to match.");
     }
 }
