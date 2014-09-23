@@ -31,19 +31,19 @@ import com.manniwood.mpjw.InOutArg;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.converters.SetterAndConverterAndColNum;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.v1.argsetters.InOutArgSetter;
-import com.manniwood.pg4j.v1.argsetters.InOutBeanArgSetter;
+import com.manniwood.pg4j.v1.argsetters.SlashParserListener;
+import com.manniwood.pg4j.v1.argsetters.SqlParser;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class CallStoredProcInOut<A> implements Command {
 
     private final String sql;
-    private final A param;
+    private final A arg;
     private CallableStatement cstmt;
 
     private CallStoredProcInOut(Builder<A> builder) {
         this.sql = builder.sql;
-        this.param = builder.arg;
+        this.arg = builder.arg;
     }
 
     @Override
@@ -54,20 +54,23 @@ public class CallStoredProcInOut<A> implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
-        // Stored procs with in/out params will only work with
-        // ComplexBeanArgSetter, so hard-code it here.
-        InOutBeanArgSetter<A> beanArgSetter = new InOutBeanArgSetter<>();
-        cstmt = beanArgSetter.setSQLArguments(sql,
-                                              connection,
-                                              converterStore,
-                                              param);
+        SlashParserListener slashParserListener = new SlashParserListener();
+        SqlParser sqlParser = new SqlParser(slashParserListener);
+        String transformedSql = sqlParser.transform(sql);
+
+        CallableStatement cstmt = connection.prepareCall(transformedSql);
+        List<InOutArg> gettersAndSetters = slashParserListener.getArgs();
+
+        if (gettersAndSetters != null && !gettersAndSetters.isEmpty()) {
+            converterStore.setSQLArguments(cstmt, arg, gettersAndSetters);
+        }
+
         cstmt.execute();
 
         // There is no result set handler here; we just set the
         // out parameters on the argument bean
-        List<InOutArg> args = ((InOutArgSetter) beanArgSetter).getArgs();
-        List<SetterAndConverterAndColNum> settersAndConverters = converterStore.specifySetters(cstmt, param.getClass(), args);
-        converterStore.populateBeanUsingSetters(cstmt, param, settersAndConverters);
+        List<SetterAndConverterAndColNum> settersAndConverters = converterStore.specifySetters(cstmt, arg.getClass(), gettersAndSetters);
+        converterStore.populateBeanUsingSetters(cstmt, arg, settersAndConverters);
     }
 
     @Override

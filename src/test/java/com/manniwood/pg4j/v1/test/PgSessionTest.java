@@ -38,7 +38,6 @@ import org.testng.annotations.Test;
 import com.manniwood.mpjw.test.etc.User;
 import com.manniwood.pg4j.v1.Pg4jException;
 import com.manniwood.pg4j.v1.PgSession;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
 import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.commands.DDL;
 import com.manniwood.pg4j.v1.commands.Insert;
@@ -127,7 +126,6 @@ public class PgSessionTest {
         User expected = createExpectedUser();
         pgSession.run(Insert.<User> usingBeanArg()
                 .file("sql/insert_user.sql")
-                .argSetter(new SimpleBeanArgSetter<User>())
                 .arg(expected)
                 .done());
         pgSession.commit();
@@ -135,7 +133,6 @@ public class PgSessionTest {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         pgSession.run(Select.<User> usingBeanArg()
                 .file("sql/select_user_guess_setters_bean_param.sql")
-                .argSetter(new SimpleBeanArgSetter<User>())
                 .arg(expected)
                 .resultSetHandler(handler)
                 .done());
@@ -197,10 +194,16 @@ public class PgSessionTest {
         pgSession.commit();
 
         User expected = createExpectedUser();
-        pgSession.run(Insert.<User> usingBeanArg().file("sql/insert_user.sql").argSetter(new SimpleBeanArgSetter<User>()).arg(expected).done());
+        pgSession.run(Insert.<User> usingBeanArg()
+                .file("sql/insert_user.sql")
+                .arg(expected)
+                .done());
         pgSession.commit();
         try {
-            pgSession.run(Insert.<User> usingBeanArg().file("sql/insert_user.sql").argSetter(new SimpleBeanArgSetter<User>()).arg(expected).done());
+            pgSession.run(Insert.<User> usingBeanArg()
+                    .file("sql/insert_user.sql")
+                    .arg(expected)
+                    .done());
             pgSession.commit();
         } catch (UserAlreadyExistsException e) {
             log.info("Cannot insert user twice!");

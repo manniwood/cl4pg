@@ -25,10 +25,13 @@ package com.manniwood.pg4j.v1.commands;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.List;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
+import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
 import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
+import com.manniwood.pg4j.v1.argsetters.SqlParser;
 import com.manniwood.pg4j.v1.argsetters.VariadicArgSetter;
 import com.manniwood.pg4j.v1.util.Str;
 
@@ -54,10 +57,19 @@ public class UpdateV implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
-        pstmt = variadicArgSetter.setSQLArguments(sql,
-                                                  connection,
-                                                  converterStore,
-                                                  args);
+        BasicParserListener basicParserListener = new BasicParserListener();
+        SqlParser sqlParser = new SqlParser(basicParserListener);
+        String transformedSql = sqlParser.transform(sql);
+
+        PreparedStatement pstmt = connection.prepareStatement(transformedSql);
+        List<String> classNames = basicParserListener.getArgs();
+
+        if (classNames != null && !classNames.isEmpty()) {
+            for (int i = 0; i < classNames.size(); i++) {
+                converterStore.setSQLArgument(pstmt, i + 1, args[i], classNames.get(i));
+            }
+        }
+
         numberOfRowsAffected = pstmt.executeUpdate();
     }
 

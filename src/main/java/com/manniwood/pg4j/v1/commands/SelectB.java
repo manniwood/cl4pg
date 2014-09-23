@@ -26,27 +26,26 @@ package com.manniwood.pg4j.v1.commands;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.v1.argsetters.BeanArgSetter;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
+import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
+import com.manniwood.pg4j.v1.argsetters.SqlParser;
 import com.manniwood.pg4j.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class SelectB<A> implements Command {
 
     private final String sql;
-    private final BeanArgSetter<A> beanArgSetter;
     private final ResultSetHandler resultSetHandler;
-    private final A param;
+    private final A arg;
     private PreparedStatement pstmt;
 
     private SelectB(Builder<A> builder) {
         this.sql = builder.sql;
-        this.beanArgSetter = builder.beanArgSetter;
         this.resultSetHandler = builder.resultSetHandler;
-        this.param = builder.arg;
+        this.arg = builder.arg;
     }
 
     @Override
@@ -57,10 +56,16 @@ public class SelectB<A> implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
-        pstmt = beanArgSetter.setSQLArguments(sql,
-                                              connection,
-                                              converterStore,
-                                              param);
+        BasicParserListener basicParserListener = new BasicParserListener();
+        SqlParser sqlParser = new SqlParser(basicParserListener);
+        String transformedSql = sqlParser.transform(sql);
+
+        PreparedStatement pstmt = connection.prepareStatement(transformedSql);
+        List<String> getters = basicParserListener.getArgs();
+        if (getters != null && !getters.isEmpty()) {
+            converterStore.setSQLArguments(pstmt, arg, getters);
+        }
+
         ResultSet rs = pstmt.executeQuery();
 
         resultSetHandler.init(converterStore, rs);
@@ -82,7 +87,6 @@ public class SelectB<A> implements Command {
 
     public static class Builder<A> {
         private String sql;
-        private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetter<A>();
         private ResultSetHandler resultSetHandler;
         private A arg;
 
@@ -97,11 +101,6 @@ public class SelectB<A> implements Command {
 
         public Builder<A> file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
-            return this;
-        }
-
-        public Builder<A> argSetter(BeanArgSetter<A> beanArgSetter) {
-            this.beanArgSetter = beanArgSetter;
             return this;
         }
 

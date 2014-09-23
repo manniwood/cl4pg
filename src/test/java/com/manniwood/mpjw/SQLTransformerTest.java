@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.mpjw;
 
 import java.util.ArrayList;
@@ -41,7 +41,6 @@ public class SQLTransformerTest {
     public static List<String> correctGetters;
 
     public static List<String> correctScalarGetters;
-
 
     public static final String EXPECTED_SCALAR = "java.util.UUID";
 
@@ -88,8 +87,8 @@ public class SQLTransformerTest {
     @Test
     public void testComplex1() {
         List<InOutArg> correctComplexArgs = new ArrayList<>();
-        correctComplexArgs.add(new InOutArg("getFirst", "setFirst"));
-        correctComplexArgs.add(new InOutArg("getSecond", "setSecond"));
+        correctComplexArgs.add(new InOutArg("getFirst/setFirst"));
+        correctComplexArgs.add(new InOutArg("getSecond/setSecond"));
 
         String sql = ResourceUtil.slurpFileFromClasspath("sql/swap.sql");
         ParsedSQLWithComplexArgs tsql = SQLTransformerUtil.transformWithInOut(sql);
@@ -106,8 +105,8 @@ public class SQLTransformerTest {
     @Test
     public void testComplex2() {
         List<InOutArg> correctComplexArgs = new ArrayList<>();
-        correctComplexArgs.add(new InOutArg(null, "setUpperString"));
-        correctComplexArgs.add(new InOutArg("getLowerString", null));
+        correctComplexArgs.add(new InOutArg("setUpperString"));
+        correctComplexArgs.add(new InOutArg("getLowerString"));
 
         String sql = ResourceUtil.slurpFileFromClasspath("sql/upper.sql");
         ParsedSQLWithComplexArgs tsql = SQLTransformerUtil.transformWithInOut(sql);

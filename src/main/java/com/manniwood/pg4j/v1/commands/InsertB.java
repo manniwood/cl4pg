@@ -25,23 +25,22 @@ package com.manniwood.pg4j.v1.commands;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.List;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.v1.argsetters.BeanArgSetter;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
+import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
+import com.manniwood.pg4j.v1.argsetters.SqlParser;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class InsertB<A> implements Command {
 
     private final String sql;
-    private final BeanArgSetter<A> beanArgSetter;
     private final A arg;
     private PreparedStatement pstmt;
 
     private InsertB(Builder<A> builder) {
         this.sql = builder.sql;
-        this.beanArgSetter = builder.beanArgSetter;
         this.arg = builder.arg;
     }
 
@@ -53,10 +52,16 @@ public class InsertB<A> implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
-        pstmt = beanArgSetter.setSQLArguments(sql,
-                                              connection,
-                                              converterStore,
-                                              arg);
+        BasicParserListener basicParserListener = new BasicParserListener();
+        SqlParser sqlParser = new SqlParser(basicParserListener);
+        String transformedSql = sqlParser.transform(sql);
+
+        PreparedStatement pstmt = connection.prepareStatement(transformedSql);
+        List<String> getters = basicParserListener.getArgs();
+        if (getters != null && !getters.isEmpty()) {
+            converterStore.setSQLArguments(pstmt, arg, getters);
+        }
+
         pstmt.execute();
     }
 
@@ -73,7 +78,6 @@ public class InsertB<A> implements Command {
 
     public static class Builder<A> {
         private String sql;
-        private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetter<A>();
         private A arg;
 
         public Builder() {
@@ -87,11 +91,6 @@ public class InsertB<A> implements Command {
 
         public Builder<A> file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
-            return this;
-        }
-
-        public Builder<A> argSetter(BeanArgSetter<A> beanArgSetter) {
-            this.beanArgSetter = beanArgSetter;
             return this;
         }
 

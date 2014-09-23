@@ -36,7 +36,6 @@ import org.testng.annotations.Test;
 
 import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.pg4j.v1.PgSession;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
 import com.manniwood.pg4j.v1.commands.CopyFileIn;
 import com.manniwood.pg4j.v1.commands.CopyFileOut;
 import com.manniwood.pg4j.v1.commands.DDL;
@@ -87,7 +86,6 @@ public class PgSessionCopyTest {
         for (ImmutableUser u : usersToLoad) {
             pgSession.run(Insert.<ImmutableUser> usingBeanArg()
                     .file("sql/insert_user.sql")
-                    .argSetter(new SimpleBeanArgSetter<ImmutableUser>())
                     .arg(u)
                     .done());
         }

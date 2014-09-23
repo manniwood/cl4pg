@@ -18,30 +18,21 @@ public class ComplexSQLTransformer extends BaseSQLTransformer implements SQLTran
 
     @Override
     public int extractArg(
-        char[] chrs,
-        int chrsLen,
-        int i) {
-        StringBuilder arg1 = new StringBuilder();
-        StringBuilder arg2 = new StringBuilder();
+                          char[] chrs,
+                          int chrsLen,
+                          int i) {
+        StringBuilder arg = new StringBuilder();
         while (i < chrsLen && chrs[i] != '}') {
             i++;
-            if (chrs[i] == '/') {
-                while (i < chrsLen && chrs[i] != '}') {
-                    i++;
-                    if (chrs[i] != '}') {
-                        arg2.append(chrs[i]);
-                    }
-                }
-            }
             if (chrs[i] != '}') {
-                arg1.append(chrs[i]);
+                arg.append(chrs[i]);
             }
         }
         if (chrs[i] == '}') {
-            InOutArg ca = new InOutArg(arg1.toString(), arg2.toString());
+            InOutArg ca = new InOutArg(arg.toString());
             log.debug("adding complex arg: {}", ca);
             args.add(ca);
-            ca = null;  // done with this; hint to gc
+            ca = null; // done with this; hint to gc
         }
         return i;
     }

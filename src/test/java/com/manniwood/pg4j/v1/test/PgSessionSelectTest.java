@@ -33,7 +33,6 @@ import com.manniwood.mpjw.test.etc.ImmutableUser;
 import com.manniwood.mpjw.test.etc.User;
 import com.manniwood.mpjw.test.etc.Users;
 import com.manniwood.pg4j.v1.PgSession;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
 import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.commands.DDL;
 import com.manniwood.pg4j.v1.commands.Insert;
@@ -86,12 +85,10 @@ public class PgSessionSelectTest {
 
         pgSession.run(Insert.usingVariadicArgs()
                 .file("sql/insert_user_variadic.sql")
-                .argSetter(new SimpleVariadicArgSetter())
                 .args(expected.getId(), expected.getName(), expected.getPassword(), expected.getEmployeeId())
                 .done());
         pgSession.run(Insert.<User> usingBeanArg()
                 .file("sql/insert_user.sql")
-                .argSetter(new SimpleBeanArgSetter<User>())
                 .arg(userWithNulls)
                 .done());
         pgSession.commit();
@@ -163,7 +160,6 @@ public class PgSessionSelectTest {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         pgSession.run(Select.<User> usingBeanArg()
                 .file("sql/select_user_guess_setters_bean_param.sql")
-                .argSetter(new SimpleBeanArgSetter<User>())
                 .arg(expected)
                 .resultSetHandler(handler)
                 .done());
@@ -179,7 +175,6 @@ public class PgSessionSelectTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.<User> usingBeanArg()
                 .file("sql/select_user_use_setters_bean_param.sql")
-                .argSetter(new SimpleBeanArgSetter<User>())
                 .arg(expected)
                 .resultSetHandler(handler)
                 .done());
@@ -194,7 +189,6 @@ public class PgSessionSelectTest {
         GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(Select.<User> usingBeanArg()
                 .file("sql/select_user_guess_setters_bean_param.sql")
-                .argSetter(new SimpleBeanArgSetter<User>())
                 .arg(expected)
                 .resultSetHandler(handler)
                 .done());
@@ -209,7 +203,6 @@ public class PgSessionSelectTest {
         ExplicitConstructorListHandler<ImmutableUser> handler = new ExplicitConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(Select.<User> usingBeanArg()
                 .file("sql/select_user_use_constructor_bean_param.sql")
-                .argSetter(new SimpleBeanArgSetter<User>())
                 .arg(expected)
                 .resultSetHandler(handler)
                 .done());

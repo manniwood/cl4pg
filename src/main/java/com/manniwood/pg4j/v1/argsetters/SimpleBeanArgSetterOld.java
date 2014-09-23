@@ -29,7 +29,7 @@ import java.sql.SQLException;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 
-public class SimpleBeanArgSetter<P> extends SimpleArgSetter implements BeanArgSetter<P> {
+public class SimpleBeanArgSetterOld<P> extends SimpleArgSetter implements BeanArgSetter<P> {
 
     @Override
     public PreparedStatement setSQLArguments(String sql,

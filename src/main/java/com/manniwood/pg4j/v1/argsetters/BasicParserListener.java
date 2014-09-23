@@ -26,37 +26,17 @@ package com.manniwood.pg4j.v1.argsetters;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class BasicParserListener implements ParserListener {
 
-import com.manniwood.mpjw.InOutArg;
-
-public abstract class InOutArgSetter extends BaseArgSetter {
-
-    private final static Logger log = LoggerFactory
-            .getLogger(InOutArgSetter.class);
-
-    protected final List<InOutArg> args = new ArrayList<>();
+    protected final List<String> args = new ArrayList<>();
 
     @Override
-    public int extractArg(char[] chrs,
-                          int chrsLen,
-                          int i) {
-        StringBuilder arg = new StringBuilder();
-        while (i < chrsLen && chrs[i] != '}') {
-            i++;
-            arg.append(chrs[i]);
-        }
-        if (chrs[i] == '}') {
-            InOutArg ca = new InOutArg(arg.toString());
-            log.debug("adding complex arg: {}", ca);
-            args.add(ca);
-            ca = null; // done with this; hint to gc
-        }
-        return i;
+    public String arg(String arg) {
+        args.add(arg);
+        return "?";
     }
 
-    public List<InOutArg> getArgs() {
+    public List<String> getArgs() {
         return args;
     }
 }

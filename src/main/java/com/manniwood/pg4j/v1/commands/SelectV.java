@@ -26,10 +26,12 @@ package com.manniwood.pg4j.v1.commands;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
+import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
+import com.manniwood.pg4j.v1.argsetters.SqlParser;
 import com.manniwood.pg4j.v1.argsetters.VariadicArgSetter;
 import com.manniwood.pg4j.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.pg4j.v1.util.Str;
@@ -37,14 +39,12 @@ import com.manniwood.pg4j.v1.util.Str;
 public class SelectV implements Command {
 
     private final String sql;
-    private final VariadicArgSetter variadicArgSetter;
     private final ResultSetHandler resultSetHandler;
     private final Object[] args;
     private PreparedStatement pstmt;
 
     private SelectV(Builder builder) {
         this.sql = builder.sql;
-        this.variadicArgSetter = builder.variadicArgSetter;
         this.resultSetHandler = builder.resultSetHandler;
         this.args = builder.args;
     }
@@ -57,10 +57,20 @@ public class SelectV implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
-        pstmt = variadicArgSetter.setSQLArguments(sql,
-                                                  connection,
-                                                  converterStore,
-                                                  args);
+
+        BasicParserListener basicParserListener = new BasicParserListener();
+        SqlParser sqlParser = new SqlParser(basicParserListener);
+        String transformedSql = sqlParser.transform(sql);
+
+        PreparedStatement pstmt = connection.prepareStatement(transformedSql);
+        List<String> classNames = basicParserListener.getArgs();
+
+        if (classNames != null && !classNames.isEmpty()) {
+            for (int i = 0; i < classNames.size(); i++) {
+                converterStore.setSQLArgument(pstmt, i + 1, args[i], classNames.get(i));
+            }
+        }
+
         ResultSet rs = pstmt.executeQuery();
 
         resultSetHandler.init(converterStore, rs);
@@ -82,7 +92,6 @@ public class SelectV implements Command {
 
     public static class Builder {
         private String sql;
-        private VariadicArgSetter variadicArgSetter = new SimpleVariadicArgSetter();
         private ResultSetHandler resultSetHandler;
         private Object[] args;
 
@@ -101,7 +110,6 @@ public class SelectV implements Command {
         }
 
         public Builder argSetter(VariadicArgSetter variadicArgSetter) {
-            this.variadicArgSetter = variadicArgSetter;
             return this;
         }
 

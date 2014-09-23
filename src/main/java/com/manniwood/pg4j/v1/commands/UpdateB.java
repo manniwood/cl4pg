@@ -25,11 +25,14 @@ package com.manniwood.pg4j.v1.commands;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.List;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
+import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
 import com.manniwood.pg4j.v1.argsetters.BeanArgSetter;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
+import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetterOld;
+import com.manniwood.pg4j.v1.argsetters.SqlParser;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class UpdateB<A> implements Command {
@@ -54,10 +57,16 @@ public class UpdateB<A> implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
-        pstmt = beanArgSetter.setSQLArguments(sql,
-                                              connection,
-                                              converterStore,
-                                              arg);
+        BasicParserListener basicParserListener = new BasicParserListener();
+        SqlParser sqlParser = new SqlParser(basicParserListener);
+        String transformedSql = sqlParser.transform(sql);
+
+        PreparedStatement pstmt = connection.prepareStatement(transformedSql);
+        List<String> getters = basicParserListener.getArgs();
+        if (getters != null && !getters.isEmpty()) {
+            converterStore.setSQLArguments(pstmt, arg, getters);
+        }
+
         numberOfRowsAffected = pstmt.executeUpdate();
     }
 
@@ -78,7 +87,7 @@ public class UpdateB<A> implements Command {
 
     public static class Builder<A> {
         private String sql;
-        private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetter<A>();
+        private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetterOld<A>();
         private A arg;
 
         public Builder() {

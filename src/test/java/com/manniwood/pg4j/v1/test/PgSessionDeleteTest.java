@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
 
 import com.manniwood.mpjw.test.etc.User;
 import com.manniwood.pg4j.v1.PgSession;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
+import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetterOld;
 import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.commands.DDL;
 import com.manniwood.pg4j.v1.commands.Insert;
@@ -82,7 +82,6 @@ public class PgSessionDeleteTest {
 
         pgSession.run(Insert.<User> usingBeanArg()
                 .file("sql/insert_user.sql")
-                .argSetter(new SimpleBeanArgSetter<User>())
                 .arg(expectedUser)
                 .done());
         pgSession.commit();
@@ -121,7 +120,7 @@ public class PgSessionDeleteTest {
 
         UpdateB<User> del = Update.<User> usingBeanArg()
                 .file("sql/delete_user_bean.sql")
-                .argSetter(new SimpleBeanArgSetter<User>())
+                .argSetter(new SimpleBeanArgSetterOld<User>())
                 .arg(expectedUser)
                 .done();
         pgSession.run(del);

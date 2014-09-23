@@ -30,7 +30,7 @@ import java.sql.ResultSet;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
 import com.manniwood.pg4j.v1.argsetters.BeanArgSetter;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetter;
+import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetterOld;
 import com.manniwood.pg4j.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.pg4j.v1.util.Str;
 
@@ -90,7 +90,7 @@ public class CallStoredProcRefCursor<A> implements Command {
 
     public static class Builder<A> {
         private String sql;
-        private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetter<A>();
+        private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetterOld<A>();
         private ResultSetHandler resultSetHandler;
         private A arg;
 

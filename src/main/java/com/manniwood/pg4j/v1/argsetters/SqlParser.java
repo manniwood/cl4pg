@@ -23,40 +23,59 @@ THE SOFTWARE.
  */
 package com.manniwood.pg4j.v1.argsetters;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.mpjw.InOutArg;
-
-public abstract class InOutArgSetter extends BaseArgSetter {
+public class SqlParser {
 
     private final static Logger log = LoggerFactory
-            .getLogger(InOutArgSetter.class);
+            .getLogger(SqlParser.class);
 
-    protected final List<InOutArg> args = new ArrayList<>();
+    private final ParserListener parserListener;
 
-    @Override
-    public int extractArg(char[] chrs,
+    public SqlParser(ParserListener parserListener) {
+        this.parserListener = parserListener;
+    }
+
+    public String transform(String sql) {
+        log.debug("incoming sql:\n{}", sql);
+        char[] chrs = sql.toCharArray();
+        int chrsLen = chrs.length;
+        StringBuilder sqlSb = new StringBuilder();
+        for (int i = 0; i < chrsLen; i++) {
+            if (chrs[i] == '#') {
+                i++;
+                if (i >= chrsLen) {
+                    break;
+                }
+                if (chrs[i] == '{') {
+                    i = extractArg(sqlSb, chrs, chrsLen, i);
+                }
+            } else {
+                sqlSb.append(chrs[i]);
+            }
+        }
+        String transformedSql = sqlSb.toString();
+        log.debug("outgoing sql:\n{}", transformedSql);
+        return transformedSql;
+    }
+
+    public int extractArg(StringBuilder sqlSb,
+                          char[] chrs,
                           int chrsLen,
                           int i) {
         StringBuilder arg = new StringBuilder();
         while (i < chrsLen && chrs[i] != '}') {
             i++;
-            arg.append(chrs[i]);
+            if (chrs[i] != '}') {
+                arg.append(chrs[i]);
+            }
         }
         if (chrs[i] == '}') {
-            InOutArg ca = new InOutArg(arg.toString());
-            log.debug("adding complex arg: {}", ca);
-            args.add(ca);
-            ca = null; // done with this; hint to gc
+            log.debug("adding arg: {}", arg.toString());
+            String replacer = parserListener.arg(arg.toString());
+            sqlSb.append("?");
         }
         return i;
-    }
-
-    public List<InOutArg> getArgs() {
-        return args;
     }
 }
