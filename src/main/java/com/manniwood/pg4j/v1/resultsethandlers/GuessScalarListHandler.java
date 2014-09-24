@@ -28,8 +28,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.manniwood.pg4j.v1.converters.Converter;
 import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.typeconverters.Converter;
 
 public class GuessScalarListHandler<R> implements ResultSetHandler {
 

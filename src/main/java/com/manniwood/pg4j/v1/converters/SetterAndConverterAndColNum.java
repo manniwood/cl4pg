@@ -25,6 +25,8 @@ package com.manniwood.pg4j.v1.converters;
 
 import java.lang.reflect.Method;
 
+import com.manniwood.pg4j.v1.typeconverters.Converter;
+
 public class SetterAndConverterAndColNum {
 
     private final Converter<?> converter;

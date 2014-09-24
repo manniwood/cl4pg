@@ -21,35 +21,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.pg4j.v1.converters;
+package com.manniwood.pg4j.v1.typeconverters;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
-public class IntConverter extends BaseConverter<Integer>{
+public abstract class BaseConverter<T> implements Converter<T> {
+    // XXX: handle setting null here?
+    @Override
+    public abstract void setItem(PreparedStatement pstmt, int i, T t) throws SQLException;
 
     @Override
-    public void setItem(PreparedStatement pstmt, int i, Integer t) throws SQLException {
-        // XXX: will not deal with null int value
-        int myInt = t.intValue();
-        pstmt.setInt(i, myInt);
-    }
+    public abstract T getItem(ResultSet rs, int i) throws SQLException;
 
     @Override
-    public Integer getItem(ResultSet rs, int i) throws SQLException {
-        return rs.getInt(i);
-    }
+    public abstract void registerOutParameter(CallableStatement cstmt, int i) throws SQLException;
 
     @Override
-    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.INTEGER);
-    }
-
-    @Override
-    public Integer getItem(CallableStatement cstmt, int i) throws SQLException {
-        return cstmt.getInt(i);
-    }
+    public abstract T getItem(CallableStatement cstmt, int i) throws SQLException;
 }

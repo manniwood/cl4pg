@@ -21,34 +21,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.pg4j.v1.converters;
+package com.manniwood.pg4j.v1.typeconverters;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.UUID;
 
-public class UUIDConverter extends BaseConverter<UUID>{
+public class IntConverter extends BaseConverter<Integer>{
 
     @Override
-    public void setItem(PreparedStatement pstmt, int i, UUID t) throws SQLException {
-        pstmt.setObject(i, t);
+    public void setItem(PreparedStatement pstmt, int i, Integer t) throws SQLException {
+        // XXX: will not deal with null int value
+        int myInt = t.intValue();
+        pstmt.setInt(i, myInt);
     }
 
     @Override
-    public UUID getItem(ResultSet rs, int i)  throws SQLException {
-        return (UUID) rs.getObject(i);
+    public Integer getItem(ResultSet rs, int i) throws SQLException {
+        return rs.getInt(i);
     }
 
     @Override
     public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.OTHER);
+        cstmt.registerOutParameter(i, Types.INTEGER);
     }
 
     @Override
-    public UUID getItem(CallableStatement cstmt, int i)  throws SQLException {
-        return (UUID) cstmt.getObject(i);
+    public Integer getItem(CallableStatement cstmt, int i) throws SQLException {
+        return cstmt.getInt(i);
     }
 }

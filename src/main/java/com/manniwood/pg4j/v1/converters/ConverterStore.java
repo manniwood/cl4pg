@@ -42,6 +42,11 @@ import org.slf4j.LoggerFactory;
 
 import com.manniwood.pg4j.v1.Pg4jException;
 import com.manniwood.pg4j.v1.sqlparsers.InOutArg;
+import com.manniwood.pg4j.v1.typeconverters.Converter;
+import com.manniwood.pg4j.v1.typeconverters.IntConverter;
+import com.manniwood.pg4j.v1.typeconverters.LongConverter;
+import com.manniwood.pg4j.v1.typeconverters.StringConverter;
+import com.manniwood.pg4j.v1.typeconverters.UUIDConverter;
 import com.manniwood.pg4j.v1.util.ColumnLabelConverter;
 
 public class ConverterStore {

@@ -26,6 +26,8 @@ package com.manniwood.pg4j.v1.converters;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
+import com.manniwood.pg4j.v1.typeconverters.Converter;
+
 public class ConstructorAndConverters {
 
     private final Constructor<?> constructor;
