@@ -21,17 +21,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.mpjw.commands;
+package com.manniwood.pg4j.v1.commands;
 
 import java.sql.Connection;
 
-import com.manniwood.pg4j.v1.commands.Command;
 import com.manniwood.pg4j.v1.converters.ConverterStore;
 
-public class Rollback extends ConnectionCommand implements Command {
+public class Rollback implements Command {
+
+    private final String sql = "rollback";
+    private final Connection conn;
 
     public Rollback(Connection conn) {
-        this.sql = "rollback;";
         this.conn = conn;
     }
 
@@ -39,7 +40,16 @@ public class Rollback extends ConnectionCommand implements Command {
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
         conn.rollback();
+    }
 
+    @Override
+    public String getSQL() {
+        return sql;
+    }
+
+    @Override
+    public void cleanUp() throws Exception {
+        // nothing to clean up
     }
 
 }

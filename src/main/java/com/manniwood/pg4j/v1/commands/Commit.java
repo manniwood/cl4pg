@@ -21,17 +21,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.mpjw.commands;
+package com.manniwood.pg4j.v1.commands;
 
 import java.sql.Connection;
 
-import com.manniwood.pg4j.v1.commands.Command;
 import com.manniwood.pg4j.v1.converters.ConverterStore;
 
-public class Commit extends ConnectionCommand implements Command {
+public class Commit implements Command {
+
+    private final String sql = "commit";
+    private final Connection conn;
 
     public Commit(Connection conn) {
-        this.sql = "commit;";
         this.conn = conn;
     }
 
@@ -39,7 +40,16 @@ public class Commit extends ConnectionCommand implements Command {
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
         conn.commit();
+    }
 
+    @Override
+    public String getSQL() {
+        return sql;
+    }
+
+    @Override
+    public void cleanUp() throws Exception {
+        // nothing to clean up
     }
 
 }
