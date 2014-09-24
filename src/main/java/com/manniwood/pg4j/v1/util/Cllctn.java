@@ -39,7 +39,7 @@ public class Cllctn {
         // utility class
     }
 
-    public static boolean isNullOrEmpty(Collection collection) {
+    public static boolean isNullOrEmpty(Collection<?> collection) {
         return (collection == null || collection.isEmpty());
     }
 }
