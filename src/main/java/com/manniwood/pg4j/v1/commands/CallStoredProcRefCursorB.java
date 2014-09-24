@@ -23,31 +23,31 @@ THE SOFTWARE.
  */
 package com.manniwood.pg4j.v1.commands;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Types;
 import java.util.List;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
+import com.manniwood.pg4j.v1.argsetters.SpecialFirstArgParserListener;
 import com.manniwood.pg4j.v1.argsetters.SqlParser;
-import com.manniwood.pg4j.v1.argsetters.VariadicArgSetter;
 import com.manniwood.pg4j.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.pg4j.v1.util.Cllctn;
 import com.manniwood.pg4j.v1.util.Str;
 
-public class SelectV implements Command {
+public class CallStoredProcRefCursorB<A> implements Command {
 
     private final String sql;
     private final ResultSetHandler resultSetHandler;
-    private final Object[] args;
-    private PreparedStatement pstmt;
+    private final A arg;
+    private CallableStatement cstmt;
 
-    private SelectV(Builder builder) {
+    private CallStoredProcRefCursorB(Builder<A> builder) {
         this.sql = builder.sql;
         this.resultSetHandler = builder.resultSetHandler;
-        this.args = builder.args;
+        this.arg = builder.arg;
     }
 
     @Override
@@ -59,21 +59,35 @@ public class SelectV implements Command {
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
 
-        BasicParserListener basicParserListener = new BasicParserListener();
-        SqlParser sqlParser = new SqlParser(basicParserListener);
+        SpecialFirstArgParserListener specialFirstArgParserListener = new SpecialFirstArgParserListener();
+        SqlParser sqlParser = new SqlParser(specialFirstArgParserListener);
         String transformedSql = sqlParser.transform(sql);
 
-        PreparedStatement pstmt = connection.prepareStatement(transformedSql);
-        List<String> classNames = basicParserListener.getArgs();
+        cstmt = connection.prepareCall(transformedSql);
+        String firstArg = specialFirstArgParserListener.getFirstArg();
+        List<String> getters = specialFirstArgParserListener.getArgs();
 
-        if (!Cllctn.isNullOrEmpty(classNames)) {
-            for (int i = 0; i < classNames.size(); i++) {
-                converterStore.setSQLArgument(pstmt, i + 1, args[i], classNames.get(i));
-            }
+        // The first "getter" needs to be the special keyword "refcursor"
+        if (Str.isNullOrEmpty(firstArg)) {
+            throw new Pg4jSyntaxException("There needs to be a refcursor argument.");
+        }
+        if (!firstArg.equals("refcursor")) {
+            throw new Pg4jSyntaxException("The first argument, " + firstArg + ", needs to be the special refcursor keyword, not " + firstArg + ".");
+
         }
 
-        ResultSet rs = pstmt.executeQuery();
+        // Register the first parameter as type other;
+        // later, it will be cast to a result set.
+        cstmt.registerOutParameter(1, Types.OTHER);
 
+        if (!Cllctn.isNullOrEmpty(getters)) {
+            // Because the first arg is the refcursor arg,
+            // the callable statement arg number we start at is 2, not 1.
+            converterStore.setSQLArguments(cstmt, arg, getters, 2);
+        }
+
+        cstmt.execute();
+        ResultSet rs = (ResultSet) cstmt.getObject(1);
         resultSetHandler.init(converterStore, rs);
         while (rs.next()) {
             resultSetHandler.processRow(rs);
@@ -82,49 +96,45 @@ public class SelectV implements Command {
 
     @Override
     public void cleanUp() throws Exception {
-        if (pstmt != null) {
-            pstmt.close();
+        if (cstmt != null) {
+            cstmt.close();
         }
     }
 
-    public static Builder config() {
-        return new Builder();
+    public static <A> Builder<A> config() {
+        return new Builder<A>();
     }
 
-    public static class Builder {
+    public static class Builder<A> {
         private String sql;
         private ResultSetHandler resultSetHandler;
-        private Object[] args;
+        private A arg;
 
         public Builder() {
             // null constructor
         }
 
-        public Builder sql(String sql) {
+        public Builder<A> sql(String sql) {
             this.sql = sql;
             return this;
         }
 
-        public Builder file(String filename) {
+        public Builder<A> file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
             return this;
         }
 
-        public Builder argSetter(VariadicArgSetter variadicArgSetter) {
-            return this;
-        }
-
-        public Builder resultSetHandler(ResultSetHandler resultSetHandler) {
+        public Builder<A> resultSetHandler(ResultSetHandler resultSetHandler) {
             this.resultSetHandler = resultSetHandler;
             return this;
         }
 
-        public Builder args(Object... args) {
-            this.args = args;
+        public Builder<A> arg(A arg) {
+            this.arg = arg;
             return this;
         }
 
-        public SelectV done() {
+        public CallStoredProcRefCursorB<A> done() {
             if (Str.isNullOrEmpty(sql)) {
                 throw new Pg4jConfigException("SQL string or file must be specified.");
             }
@@ -132,9 +142,9 @@ public class SelectV implements Command {
                 throw new Pg4jConfigException("A result set handler must be specified.");
             }
             // beanArgSetter has a default, so that's OK.
-            // args should be allowed to be null for those times
-            // when there really are no arguments.
-            return new SelectV(this);
+            // arg should be allowed to be null for those times
+            // when there really is no bean argument.
+            return new CallStoredProcRefCursorB<A>(this);
         }
     }
 

@@ -202,15 +202,32 @@ public class PgSessionStoredProcTest {
     }
 
     @Test(priority = 5)
-    public void testRefCursorProc() {
+    public void testRefCursorProcV() {
         ImmutableUser expected = new ImmutableUser(UUID.fromString(PgSessionTest.ID_3),
                                                    PgSessionTest.USERNAME_3,
                                                    PgSessionTest.PASSWORD_3,
                                                    PgSessionTest.EMPLOYEE_ID_3);
         GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(CallStoredProcRefCursor.<ImmutableUser> config()
+        pgSession.run(CallStoredProcRefCursor.<ImmutableUser> usingBeanArg()
                 .sql("{ #{refcursor} = call get_user_by_id(#{getId}) }")
                 .arg(expected)
+                .resultSetHandler(handler)
+                .done());
+        pgSession.rollback();
+        ImmutableUser actual = handler.getList().get(0);
+        Assert.assertEquals(actual, expected, "Found user needs to match.");
+    }
+
+    @Test(priority = 6)
+    public void testRefCursorProcB() {
+        ImmutableUser expected = new ImmutableUser(UUID.fromString(PgSessionTest.ID_3),
+                                                   PgSessionTest.USERNAME_3,
+                                                   PgSessionTest.PASSWORD_3,
+                                                   PgSessionTest.EMPLOYEE_ID_3);
+        GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
+        pgSession.run(CallStoredProcRefCursor.usingVariadicArgs()
+                .sql("{ #{refcursor} = call get_user_by_id(#{java.util.UUID}) }")
+                .args(expected.getId())
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();

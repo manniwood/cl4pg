@@ -23,130 +23,18 @@ THE SOFTWARE.
  */
 package com.manniwood.pg4j.v1.commands;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Types;
-import java.util.List;
+public class CallStoredProcRefCursor {
 
-import com.manniwood.mpjw.converters.ConverterStore;
-import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.v1.argsetters.SpecialFirstArgParserListener;
-import com.manniwood.pg4j.v1.argsetters.SqlParser;
-import com.manniwood.pg4j.v1.resultsethandlers.ResultSetHandler;
-import com.manniwood.pg4j.v1.util.Cllctn;
-import com.manniwood.pg4j.v1.util.Str;
-
-public class CallStoredProcRefCursor<A> implements Command {
-
-    private final String sql;
-    private final ResultSetHandler resultSetHandler;
-    private final A arg;
-    private CallableStatement pstmt;
-
-    private CallStoredProcRefCursor(Builder<A> builder) {
-        this.sql = builder.sql;
-        this.resultSetHandler = builder.resultSetHandler;
-        this.arg = builder.arg;
+    private CallStoredProcRefCursor() {
+        // utility class
     }
 
-    @Override
-    public String getSQL() {
-        return sql;
+    public static CallStoredProcRefCursorV.Builder usingVariadicArgs() {
+        return new CallStoredProcRefCursorV.Builder();
     }
 
-    @Override
-    public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
-
-        // TODO: implement the variadic version of this.
-        SpecialFirstArgParserListener specialFirstArgParserListener = new SpecialFirstArgParserListener();
-        SqlParser sqlParser = new SqlParser(specialFirstArgParserListener);
-        String transformedSql = sqlParser.transform(sql);
-
-        CallableStatement cstmt = connection.prepareCall(transformedSql);
-        String firstArg = specialFirstArgParserListener.getFirstArg();
-        List<String> getters = specialFirstArgParserListener.getArgs();
-
-        // The first "getter" needs to be the special keyword "refcursor"
-        if (Str.isNullOrEmpty(firstArg)) {
-            throw new Pg4jSyntaxException("There needs to be a refcursor argument.");
-        }
-        if (!firstArg.equals("refcursor")) {
-            throw new Pg4jSyntaxException("The first argument, " + firstArg + ", needs to be the special refcursor keyword, not " + firstArg + ".");
-
-        }
-
-        // Register the first parameter as type other;
-        // later, it will be cast to a result set.
-        cstmt.registerOutParameter(1, Types.OTHER);
-
-        if (!Cllctn.isNullOrEmpty(getters)) {
-            // Because the first arg is the refcursor arg,
-            // the callable statement arg number we start at is 2, not 1.
-            converterStore.setSQLArguments(cstmt, arg, getters, 2);
-        }
-
-        cstmt.execute();
-        ResultSet rs = (ResultSet) cstmt.getObject(1);
-        resultSetHandler.init(converterStore, rs);
-        while (rs.next()) {
-            resultSetHandler.processRow(rs);
-        }
-    }
-
-    @Override
-    public void cleanUp() throws Exception {
-        if (pstmt != null) {
-            pstmt.close();
-        }
-    }
-
-    public static <A> Builder<A> config() {
-        return new Builder<A>();
-    }
-
-    public static class Builder<A> {
-        private String sql;
-        private ResultSetHandler resultSetHandler;
-        private A arg;
-
-        public Builder() {
-            // null constructor
-        }
-
-        public Builder<A> sql(String sql) {
-            this.sql = sql;
-            return this;
-        }
-
-        public Builder<A> file(String filename) {
-            this.sql = ResourceUtil.slurpFileFromClasspath(filename);
-            return this;
-        }
-
-        public Builder<A> resultSetHandler(ResultSetHandler resultSetHandler) {
-            this.resultSetHandler = resultSetHandler;
-            return this;
-        }
-
-        public Builder<A> arg(A arg) {
-            this.arg = arg;
-            return this;
-        }
-
-        public CallStoredProcRefCursor<A> done() {
-            if (Str.isNullOrEmpty(sql)) {
-                throw new Pg4jConfigException("SQL string or file must be specified.");
-            }
-            if (resultSetHandler == null) {
-                throw new Pg4jConfigException("A result set handler must be specified.");
-            }
-            // beanArgSetter has a default, so that's OK.
-            // arg should be allowed to be null for those times
-            // when there really is no bean argument.
-            return new CallStoredProcRefCursor<A>(this);
-        }
+    public static <A> CallStoredProcRefCursorB.Builder<A> usingBeanArg() {
+        return new CallStoredProcRefCursorB.Builder<A>();
     }
 
 }

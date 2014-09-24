@@ -25,6 +25,10 @@ package com.manniwood.pg4j.v1.commands;
 
 public class Select {
 
+    private Select() {
+        // utility class
+    }
+
     public static SelectV.Builder usingVariadicArgs() {
         return new SelectV.Builder();
     }
