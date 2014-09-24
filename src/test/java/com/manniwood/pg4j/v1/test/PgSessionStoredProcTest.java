@@ -32,8 +32,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.manniwood.mpjw.test.etc.ImmutableUser;
-import com.manniwood.mpjw.test.etc.TwoInts;
 import com.manniwood.pg4j.v1.PgSession;
 import com.manniwood.pg4j.v1.commands.CallStoredProcInOut;
 import com.manniwood.pg4j.v1.commands.CallStoredProcRefCursor;
@@ -42,6 +40,8 @@ import com.manniwood.pg4j.v1.commands.Insert;
 import com.manniwood.pg4j.v1.commands.Select;
 import com.manniwood.pg4j.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.pg4j.v1.resultsethandlers.GuessScalarListHandler;
+import com.manniwood.pg4j.v1.test.etc.ImmutableUser;
+import com.manniwood.pg4j.v1.test.etc.TwoInts;
 import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
 
 /**

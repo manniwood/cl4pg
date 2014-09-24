@@ -21,51 +21,48 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw.test.etc;
+package com.manniwood.pg4j.v1.test.etc;
 
 import java.util.Objects;
 import java.util.UUID;
 
-public class User {
+public class ImmutableUser {
 
-    private UUID id;
-    private String name;
-    private String password;
-    private int employeeId;
+    private final UUID id;
+    private final String name;
+    private final String password;
+    private final int employeeId;
 
-    public User() {
+    public ImmutableUser(UUID id, String name, String password, Integer employeeId) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.password = password;
+        this.employeeId = employeeId.intValue();
+    }
+
+    public ImmutableUser(UUID id, String name, String password, int employeeId) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.password = password;
+        this.employeeId = employeeId;
     }
 
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public int getEmployeeId() {
         return employeeId;
-    }
-
-    public void setEmployeeId(int employeeId) {
-        this.employeeId = employeeId;
     }
 
     @Override
@@ -81,11 +78,10 @@ public class User {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final User other = (User) obj;
+        final ImmutableUser other = (ImmutableUser) obj;
         return Objects.equals(id, other.id)
                 && Objects.equals(name, other.name)
                 && Objects.equals(password, other.password)
                 && employeeId == other.employeeId;
     }
-
 }

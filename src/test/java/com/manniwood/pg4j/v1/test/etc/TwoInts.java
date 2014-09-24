@@ -1,4 +1,4 @@
-package com.manniwood.mpjw.test.etc;
+package com.manniwood.pg4j.v1.test.etc;
 
 public class TwoInts {
     private int first;

@@ -35,7 +35,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.manniwood.mpjw.test.etc.User;
 import com.manniwood.pg4j.v1.Pg4jException;
 import com.manniwood.pg4j.v1.PgSession;
 import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
@@ -44,6 +43,7 @@ import com.manniwood.pg4j.v1.commands.Insert;
 import com.manniwood.pg4j.v1.commands.Select;
 import com.manniwood.pg4j.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.pg4j.v1.resultsethandlers.GuessSettersListHandler;
+import com.manniwood.pg4j.v1.test.etc.User;
 import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
 import com.manniwood.pg4j.v1.test.exceptions.UserAlreadyExistsException;
 

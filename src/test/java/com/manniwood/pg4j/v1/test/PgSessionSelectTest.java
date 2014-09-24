@@ -29,9 +29,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.manniwood.mpjw.test.etc.ImmutableUser;
-import com.manniwood.mpjw.test.etc.User;
-import com.manniwood.mpjw.test.etc.Users;
 import com.manniwood.pg4j.v1.PgSession;
 import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.commands.DDL;
@@ -41,6 +38,9 @@ import com.manniwood.pg4j.v1.resultsethandlers.ExplicitConstructorListHandler;
 import com.manniwood.pg4j.v1.resultsethandlers.ExplicitSettersListHandler;
 import com.manniwood.pg4j.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.pg4j.v1.resultsethandlers.GuessSettersListHandler;
+import com.manniwood.pg4j.v1.test.etc.ImmutableUser;
+import com.manniwood.pg4j.v1.test.etc.User;
+import com.manniwood.pg4j.v1.test.etc.Users;
 import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
 
 /**

@@ -32,7 +32,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.manniwood.mpjw.test.etc.User;
 import com.manniwood.pg4j.v1.PgSession;
 import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetterOld;
 import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
@@ -43,6 +42,7 @@ import com.manniwood.pg4j.v1.commands.Update;
 import com.manniwood.pg4j.v1.commands.UpdateB;
 import com.manniwood.pg4j.v1.commands.UpdateV;
 import com.manniwood.pg4j.v1.resultsethandlers.ExplicitSettersListHandler;
+import com.manniwood.pg4j.v1.test.etc.User;
 import com.manniwood.pg4j.v1.test.exceptionmappers.TestExceptionConverter;
 
 /**
