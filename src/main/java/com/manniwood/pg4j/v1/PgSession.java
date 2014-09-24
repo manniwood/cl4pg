@@ -174,11 +174,11 @@ public class PgSession {
     }
 
     public void commit() {
-        CommandRunner.execute(new Commit(conn), conn, converterStore);
+        run(new Commit(conn));
     }
 
     public void rollback() {
-        CommandRunner.execute(new Rollback(conn), conn, converterStore);
+        run(new Rollback(conn));
     }
 
     public void run(Command command) {

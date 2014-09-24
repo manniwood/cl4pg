@@ -103,11 +103,11 @@ public class CallStoredProcRefCursorV implements Command {
         }
     }
 
-    public static <A> Builder<A> config() {
-        return new Builder<A>();
+    public static Builder config() {
+        return new Builder();
     }
 
-    public static class Builder<A> {
+    public static class Builder {
         private String sql;
         private ResultSetHandler resultSetHandler;
         private Object[] args;
@@ -116,12 +116,12 @@ public class CallStoredProcRefCursorV implements Command {
             // null constructor
         }
 
-        public Builder<A> sql(String sql) {
+        public Builder sql(String sql) {
             this.sql = sql;
             return this;
         }
 
-        public Builder<A> file(String filename) {
+        public Builder file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
             return this;
         }
