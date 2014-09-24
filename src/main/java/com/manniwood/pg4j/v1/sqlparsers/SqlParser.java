@@ -74,7 +74,7 @@ public class SqlParser {
         if (chrs[i] == '}') {
             log.debug("adding arg: {}", arg.toString());
             String replacer = parserListener.arg(arg.toString());
-            sqlSb.append("?");
+            sqlSb.append(replacer);
         }
         return i;
     }
