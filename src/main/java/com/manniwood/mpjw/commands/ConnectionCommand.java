@@ -2,7 +2,10 @@ package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
 
-public class ConnectionCommand implements OldCommand {
+import com.manniwood.pg4j.v1.commands.Command;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
+
+public class ConnectionCommand implements Command {
 
     protected String sql;
     protected Connection conn;
@@ -13,13 +16,9 @@ public class ConnectionCommand implements OldCommand {
     }
 
     @Override
-    public void execute() throws Exception {
+    public void execute(Connection connection,
+                        ConverterStore converterStore) throws Exception {
         // do nothing, but be overridden
-    }
-
-    @Override
-    public Connection getConnection() {
-        return conn;
     }
 
     @Override

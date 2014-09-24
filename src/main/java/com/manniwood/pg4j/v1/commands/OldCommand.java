@@ -21,35 +21,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw.commands;
+package com.manniwood.pg4j.v1.commands;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
-import com.manniwood.pg4j.v1.converters.ConverterStore;
+public interface OldCommand {
+    /**
+     * Get the SQL statement used by this command.
+     * @return
+     */
+    String getSQL();
 
-public class Notify extends PreparedStatementCommand implements OldCommand {
+    /**
+     * Execute this command.
+     * @throws Exception
+     */
+    void execute() throws Exception;
 
-    public static final String PG_NOTIFY_SQL = "select pg_notify(?, ?)";
-    private final ConverterStore converterStore;
-    private final String channel;
-    private final String payload;
+    /**
+     * Get the connection used to run this command.
+     * @return
+     */
+    Connection getConnection();
 
-    public Notify(ConverterStore converterStore, Connection conn, String channel, String payload) {
-        super();
-        this.sql = PG_NOTIFY_SQL;
-        this.converterStore = converterStore;
-        this.conn = conn;
-        this.channel = channel;
-        this.payload = payload;
-    }
-
-    @Override
-    public void execute() throws SQLException {
-        pstmt = conn.prepareStatement(sql);
-        converterStore.setSQLArgument(pstmt, 1, channel, String.class.getName());
-        converterStore.setSQLArgument(pstmt, 2, payload, String.class.getName());
-        pstmt.execute();
-    }
-
+    /**
+     * Clean up / close all resources used to execute
+     * this command. For instance, close prepared statements,
+     * or close open files/streams used in copy commands.
+     */
+    void cleanUp() throws Exception;
 }

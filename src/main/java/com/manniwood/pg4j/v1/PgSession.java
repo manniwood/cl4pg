@@ -34,8 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.manniwood.mpjw.commands.Commit;
-import com.manniwood.mpjw.commands.CopyFileIn;
-import com.manniwood.mpjw.commands.CopyFileOut;
 import com.manniwood.mpjw.commands.Rollback;
 import com.manniwood.pg4j.v1.commands.Command;
 import com.manniwood.pg4j.v1.commands.GetNotifications;
@@ -176,26 +174,12 @@ public class PgSession {
     }
 
     public void commit() {
-        CommandRunner.execute(new Commit(conn));
+        CommandRunner.execute(new Commit(conn), conn, converterStore);
     }
 
     public void rollback() {
-        CommandRunner.execute(new Rollback(conn));
+        CommandRunner.execute(new Rollback(conn), conn, converterStore);
     }
-
-    // TODO: make a version of this that just takes a reader, too
-    public void copyIn(String copyFileName,
-                       String sql) {
-        CommandRunner.execute(new CopyFileIn(conn, copyFileName, sql));
-    }
-
-    // TODO: make a version of this that just takes a reader, too
-    public void copyOut(String copyFileName,
-                        String sql) {
-        CommandRunner.execute(new CopyFileOut(conn, copyFileName, sql));
-    }
-
-    // TODO: make copy between two connections
 
     public void run(Command command) {
         try {

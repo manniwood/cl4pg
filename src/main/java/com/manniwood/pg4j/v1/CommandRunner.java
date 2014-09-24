@@ -25,40 +25,10 @@ package com.manniwood.pg4j.v1;
 
 import java.sql.Connection;
 
-import com.manniwood.mpjw.commands.OldCommand;
 import com.manniwood.pg4j.v1.commands.Command;
 import com.manniwood.pg4j.v1.converters.ConverterStore;
 
 public class CommandRunner {
-    public static void execute(OldCommand pg) {
-        try {
-            pg.execute();
-        } catch (Exception e) {
-            // Above, catch Exception instead of SQLException so that you can
-            // also
-            // roll back on other problems.
-            try {
-                pg.getConnection().rollback();
-            } catch (Exception e1) {
-                // put e inside e1, so the user has all of the exceptions
-                e1.initCause(e);
-                throw new Pg4jException("Could not roll back connection after catching exception trying to execute:\n"
-                        + pg.getSQL(),
-                                        e1);
-            }
-            throw new Pg4jException("ROLLED BACK. Exception while trying to run this sql statement:\n"
-                    + pg.getSQL(),
-                                    e);
-        } finally {
-            try {
-                pg.cleanUp();
-            } catch (Exception e) {
-                throw new Pg4jException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
-                        + pg.getSQL(),
-                                        e);
-            }
-        }
-    }
 
     public static void execute(Command command,
                                Connection conn,

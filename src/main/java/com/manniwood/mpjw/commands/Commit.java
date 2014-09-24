@@ -20,13 +20,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.mpjw.commands;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
-public class Commit extends ConnectionCommand implements OldCommand {
+import com.manniwood.pg4j.v1.commands.Command;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
+
+public class Commit extends ConnectionCommand implements Command {
 
     public Commit(Connection conn) {
         this.sql = "commit;";
@@ -34,8 +36,10 @@ public class Commit extends ConnectionCommand implements OldCommand {
     }
 
     @Override
-    public void execute() throws SQLException {
+    public void execute(Connection connection,
+                        ConverterStore converterStore) throws Exception {
         conn.commit();
+
     }
 
 }
