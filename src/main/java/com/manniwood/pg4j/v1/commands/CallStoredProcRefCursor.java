@@ -31,9 +31,10 @@ import java.util.List;
 
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.util.ResourceUtil;
-import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
+import com.manniwood.pg4j.v1.argsetters.SpecialFirstArgParserListener;
 import com.manniwood.pg4j.v1.argsetters.SqlParser;
 import com.manniwood.pg4j.v1.resultsethandlers.ResultSetHandler;
+import com.manniwood.pg4j.v1.util.Cllctn;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class CallStoredProcRefCursor<A> implements Command {
@@ -58,24 +59,21 @@ public class CallStoredProcRefCursor<A> implements Command {
     public void execute(Connection connection,
                         ConverterStore converterStore) throws Exception {
 
-        // XXX: consider a parser listener that specially stores
-        // the first argument in a special var so that we do not have
-        // to play games with the list of getters later on.
-        // XXX: also, implement the variadic version of this.
-        BasicParserListener basicParserListener = new BasicParserListener();
-        SqlParser sqlParser = new SqlParser(basicParserListener);
+        // TODO: implement the variadic version of this.
+        SpecialFirstArgParserListener specialFirstArgParserListener = new SpecialFirstArgParserListener();
+        SqlParser sqlParser = new SqlParser(specialFirstArgParserListener);
         String transformedSql = sqlParser.transform(sql);
 
         CallableStatement cstmt = connection.prepareCall(transformedSql);
-        List<String> getters = basicParserListener.getArgs();
+        String firstArg = specialFirstArgParserListener.getFirstArg();
+        List<String> getters = specialFirstArgParserListener.getArgs();
 
         // The first "getter" needs to be the special keyword "refcursor"
-        if (getters == null || getters.isEmpty()) {
-            throw new Pg4jSyntaxException("There needs to be at least one refcursor argument.");
+        if (Str.isNullOrEmpty(firstArg)) {
+            throw new Pg4jSyntaxException("There needs to be a refcursor argument.");
         }
-        String firstArg = getters.get(0);
-        if (firstArg == null || !firstArg.equals("refcursor")) {
-            throw new Pg4jSyntaxException("The first argument, " + firstArg + ", needs to be the special refcursor keyword.");
+        if (!firstArg.equals("refcursor")) {
+            throw new Pg4jSyntaxException("The first argument, " + firstArg + ", needs to be the special refcursor keyword, not " + firstArg + ".");
 
         }
 
@@ -83,12 +81,9 @@ public class CallStoredProcRefCursor<A> implements Command {
         // later, it will be cast to a result set.
         cstmt.registerOutParameter(1, Types.OTHER);
 
-        // Now we can throw away the refcursor argument.
-        getters.remove(0);
-
-        if (!getters.isEmpty()) {
-            // Because we have removed the first arg, when we set the
-            // arguments, the column number we start at is 2, not 1
+        if (!Cllctn.isNullOrEmpty(getters)) {
+            // Because the first arg is the refcursor arg,
+            // the callable statement arg number we start at is 2, not 1.
             converterStore.setSQLArguments(cstmt, arg, getters, 2);
         }
 

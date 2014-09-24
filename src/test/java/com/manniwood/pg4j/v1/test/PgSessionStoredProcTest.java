@@ -209,7 +209,7 @@ public class PgSessionStoredProcTest {
                                                    PgSessionTest.EMPLOYEE_ID_3);
         GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(CallStoredProcRefCursor.<ImmutableUser> config()
-                .file("sql/select_user_b_refcursor.sql")
+                .sql("{ #{refcursor} = call get_user_by_id(#{getId}) }")
                 .arg(expected)
                 .resultSetHandler(handler)
                 .done());

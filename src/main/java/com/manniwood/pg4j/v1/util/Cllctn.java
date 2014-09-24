@@ -21,25 +21,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.argsetters;
+package com.manniwood.pg4j.v1.util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
-import com.manniwood.mpjw.InOutArg;
+/**
+ * Instead of relying on Guava or Commons for one or two utility classes, let's
+ * write our own simple utilities and only create a dependency on Guava or
+ * Commons after the dependence seems justifiable.
+ *
+ * @author mwood
+ *
+ */
+public class Cllctn {
 
-public class SlashParserListener implements ParserListener {
-
-    private final List<InOutArg> args = new ArrayList<>();
-
-    @Override
-    public String arg(String arg) {
-
-        args.add(new InOutArg(arg));
-        return "?";
+    private Cllctn() {
+        // utility class
     }
 
-    public List<InOutArg> getArgs() {
-        return args;
+    public static boolean isNullOrEmpty(Collection collection) {
+        return (collection == null || collection.isEmpty());
     }
 }

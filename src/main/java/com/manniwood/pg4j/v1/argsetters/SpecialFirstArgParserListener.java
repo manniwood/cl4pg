@@ -26,20 +26,30 @@ package com.manniwood.pg4j.v1.argsetters;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.manniwood.mpjw.InOutArg;
+public class SpecialFirstArgParserListener implements ParserListener {
 
-public class SlashParserListener implements ParserListener {
+    private int argNumber = 0;
 
-    private final List<InOutArg> args = new ArrayList<>();
+    private String firstArg;
+
+    private final List<String> args = new ArrayList<>();
 
     @Override
     public String arg(String arg) {
-
-        args.add(new InOutArg(arg));
+        if (argNumber == 0) {
+            firstArg = arg;
+        } else {
+            args.add(arg);
+        }
+        argNumber++;
         return "?";
     }
 
-    public List<InOutArg> getArgs() {
+    public List<String> getArgs() {
         return args;
+    }
+
+    public String getFirstArg() {
+        return firstArg;
     }
 }

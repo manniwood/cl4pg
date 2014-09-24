@@ -28,7 +28,7 @@ import java.util.List;
 
 public class BasicParserListener implements ParserListener {
 
-    protected final List<String> args = new ArrayList<>();
+    private final List<String> args = new ArrayList<>();
 
     @Override
     public String arg(String arg) {
