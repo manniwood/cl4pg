@@ -25,7 +25,7 @@ package com.manniwood.pg4j.v1.commands;
 
 import java.sql.Connection;
 
-import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
 
 public interface Command {
     /**

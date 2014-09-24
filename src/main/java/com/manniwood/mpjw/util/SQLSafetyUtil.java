@@ -20,23 +20,24 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.mpjw.util;
 
-import com.manniwood.mpjw.MPJWException;
+import com.manniwood.pg4j.v1.Pg4jException;
 
 public class SQLSafetyUtil {
     /**
-     * MUST prevent SQL injection attack. Easiest way is to scrub
-     * anything that is not a-z/A-Z, meaning all whitespace and punctuation
-     * will get removed, preventing little Bobby Droptables.
+     * MUST prevent SQL injection attack. Easiest way is to scrub anything that
+     * is not a-z/A-Z, meaning all whitespace and punctuation will get removed,
+     * preventing little Bobby Droptables.
+     * 
      * @param channel2
      * @return
      */
     public static String throwIfUnsafe(String str) {
         for (char c : str.toCharArray()) {
-            if ( ! Character.isLetter(c)) {
-                throw new MPJWException("The character " + c + " in string " + str + " is not safe for use in SQL");
+            if (!Character.isLetter(c)) {
+                throw new Pg4jException("The character " + c + " in string " + str + " is not safe for use in SQL");
             }
         }
         return str;

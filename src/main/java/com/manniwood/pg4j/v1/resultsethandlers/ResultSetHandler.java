@@ -26,7 +26,7 @@ package com.manniwood.pg4j.v1.resultsethandlers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
 
 public interface ResultSetHandler {
     void init(ConverterStore converterStore,

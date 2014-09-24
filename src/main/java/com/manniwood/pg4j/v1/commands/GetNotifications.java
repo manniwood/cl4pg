@@ -31,7 +31,7 @@ import org.postgresql.PGNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
 
 public class GetNotifications implements Command {
     private final static Logger log = LoggerFactory.getLogger(GetNotifications.class);

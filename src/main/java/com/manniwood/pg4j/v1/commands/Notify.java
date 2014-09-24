@@ -29,7 +29,7 @@ import java.sql.PreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class Notify implements Command {

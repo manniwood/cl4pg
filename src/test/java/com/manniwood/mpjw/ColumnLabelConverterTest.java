@@ -26,7 +26,7 @@ package com.manniwood.mpjw;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.manniwood.mpjw.util.ColumnLabelConverter;
+import com.manniwood.pg4j.v1.util.ColumnLabelConverter;
 
 public class ColumnLabelConverterTest {
 

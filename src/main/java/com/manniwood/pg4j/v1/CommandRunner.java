@@ -25,10 +25,9 @@ package com.manniwood.pg4j.v1;
 
 import java.sql.Connection;
 
-import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.commands.OldCommand;
-import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.pg4j.v1.commands.Command;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
 
 public class CommandRunner {
     public static void execute(OldCommand pg) {
@@ -43,18 +42,18 @@ public class CommandRunner {
             } catch (Exception e1) {
                 // put e inside e1, so the user has all of the exceptions
                 e1.initCause(e);
-                throw new MPJWException("Could not roll back connection after catching exception trying to execute:\n"
+                throw new Pg4jException("Could not roll back connection after catching exception trying to execute:\n"
                         + pg.getSQL(),
                                         e1);
             }
-            throw new MPJWException("ROLLED BACK. Exception while trying to run this sql statement:\n"
+            throw new Pg4jException("ROLLED BACK. Exception while trying to run this sql statement:\n"
                     + pg.getSQL(),
                                     e);
         } finally {
             try {
                 pg.cleanUp();
             } catch (Exception e) {
-                throw new MPJWException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
+                throw new Pg4jException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
                         + pg.getSQL(),
                                         e);
             }
@@ -75,18 +74,18 @@ public class CommandRunner {
             } catch (Exception e1) {
                 // put e inside e1, so the user has all of the exceptions
                 e1.initCause(e);
-                throw new MPJWException("Could not roll back connection after catching exception trying to execute:\n"
+                throw new Pg4jException("Could not roll back connection after catching exception trying to execute:\n"
                         + command.getSQL(),
                                         e1);
             }
-            throw new MPJWException("ROLLED BACK. Exception while trying to run this sql statement:\n"
+            throw new Pg4jException("ROLLED BACK. Exception while trying to run this sql statement:\n"
                     + command.getSQL(),
                                     e);
         } finally {
             try {
                 command.cleanUp();
             } catch (Exception e) {
-                throw new MPJWException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
+                throw new Pg4jException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
                         + command.getSQL(),
                                         e);
             }

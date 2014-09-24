@@ -20,30 +20,39 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
-package com.manniwood.mpjw;
+ */
+package com.manniwood.pg4j.v1.util;
 
-public class MoreThanOneResultException extends MPJWException {
+public class ColumnLabelConverter {
 
-    private static final long serialVersionUID = 1L;
-
-    public MoreThanOneResultException() {
+    private ColumnLabelConverter() {
+        // utility class
     }
 
-    public MoreThanOneResultException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    /**
+     * Convert a column label, such as updated_on to a Java bean set method,
+     * such as setUpdatedOn.
+     * 
+     * @param label
+     * @return
+     */
+    public static String convert(String label) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("set");
+        sb.append(Character.toUpperCase(label.charAt(0)));
+        boolean needsUpper = false;
+        for (int i = 1; i < label.length(); i++) {
+            char c = label.charAt(i);
+            if (c == '_') {
+                needsUpper = true;
+                continue;
+            }
+            if (needsUpper) {
+                c = Character.toUpperCase(c);
+                needsUpper = false;
+            }
+            sb.append(c);
+        }
+        return sb.toString();
     }
-
-    public MoreThanOneResultException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public MoreThanOneResultException(String message) {
-        super(message);
-    }
-
-    public MoreThanOneResultException(Throwable cause) {
-        super(cause);
-    }
-
 }

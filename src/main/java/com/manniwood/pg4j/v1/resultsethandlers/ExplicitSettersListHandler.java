@@ -28,8 +28,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.manniwood.mpjw.converters.ConverterStore;
-import com.manniwood.mpjw.converters.SetterAndConverter;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.converters.SetterAndConverter;
 
 public class ExplicitSettersListHandler<R> implements ResultSetHandler {
 

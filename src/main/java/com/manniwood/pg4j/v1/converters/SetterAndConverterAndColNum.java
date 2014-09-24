@@ -21,35 +21,42 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw.converters;
+package com.manniwood.pg4j.v1.converters;
 
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.lang.reflect.Method;
 
-public class IntConverter extends BaseConverter<Integer>{
+public class SetterAndConverterAndColNum {
 
-    @Override
-    public void setItem(PreparedStatement pstmt, int i, Integer t) throws SQLException {
-        // XXX: will not deal with null int value
-        int myInt = t.intValue();
-        pstmt.setInt(i, myInt);
+    private final Converter<?> converter;
+    private final Method setter;
+    private final int colNum;
+    private final int setCol;
+
+    public SetterAndConverterAndColNum(
+            Converter<?> converter,
+            Method setter,
+            int colNum,
+            int setCol) {
+        super();
+        this.converter = converter;
+        this.setter = setter;
+        this.colNum = colNum;
+        this.setCol = setCol;
     }
 
-    @Override
-    public Integer getItem(ResultSet rs, int i) throws SQLException {
-        return rs.getInt(i);
+    public Converter<?> getConverter() {
+        return converter;
     }
 
-    @Override
-    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.INTEGER);
+    public Method getSetter() {
+        return setter;
     }
 
-    @Override
-    public Integer getItem(CallableStatement cstmt, int i) throws SQLException {
-        return cstmt.getInt(i);
+    public int getColNum() {
+        return colNum;
+    }
+
+    public int getSetCol() {
+        return setCol;
     }
 }

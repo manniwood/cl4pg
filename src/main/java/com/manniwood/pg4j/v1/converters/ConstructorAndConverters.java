@@ -21,24 +21,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw.converters;
+package com.manniwood.pg4j.v1.converters;
 
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.lang.reflect.Constructor;
+import java.util.List;
 
-public abstract class BaseConverter<T> implements Converter<T> {
-    // XXX: handle setting null here?
-    @Override
-    public abstract void setItem(PreparedStatement pstmt, int i, T t) throws SQLException;
+public class ConstructorAndConverters {
 
-    @Override
-    public abstract T getItem(ResultSet rs, int i) throws SQLException;
+    private final Constructor<?> constructor;
+    private final List<Converter<?>> converters;
 
-    @Override
-    public abstract void registerOutParameter(CallableStatement cstmt, int i) throws SQLException;
+    public ConstructorAndConverters(Constructor<?> constructor,
+            List<Converter<?>> converters) {
+        super();
+        this.constructor = constructor;
+        this.converters = converters;
+    }
 
-    @Override
-    public abstract T getItem(CallableStatement cstmt, int i) throws SQLException;
+    public Constructor<?> getConstructor() {
+        return constructor;
+    }
+
+    public List<Converter<?>> getConverters() {
+        return converters;
+    }
+
 }

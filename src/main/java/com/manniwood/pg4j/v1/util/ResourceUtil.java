@@ -20,33 +20,39 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
-package com.manniwood.mpjw.util;
+ */
+package com.manniwood.pg4j.v1.util;
 
-public class ColumnLabelConverter {
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
-    /**
-     * Convert a column label, such as updated_on
-     * to a Java bean set method, such as setUpdatedOn.
-     * @param label
-     * @return
-     */
-    public static String convert(String label) {
+import com.manniwood.pg4j.v1.Pg4jException;
+
+public class ResourceUtil {
+
+    public static String slurpFileFromClasspath(String path) {
         StringBuilder sb = new StringBuilder();
-        sb.append("set");
-        sb.append(Character.toUpperCase(label.charAt(0)));
-        boolean needsUpper = false;
-        for (int i = 1; i < label.length(); i++) {
-            char c = label.charAt(i);
-            if (c == '_') {
-                needsUpper = true;
-                continue;
+        InputStream is = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
+        if (is == null) {
+            throw new Pg4jException("SQL file \"" + path + "\" could not be found in the CLASSPATH.");
+        }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+                sb.append("\n");
             }
-            if (needsUpper) {
-                c = Character.toUpperCase(c);
-                needsUpper = false;
+        } catch (IOException e) {
+            throw new Pg4jException("Could not read file " + path, e);
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                throw new Pg4jException("Could not close file " + path, e);
             }
-            sb.append(c);
         }
         return sb.toString();
     }

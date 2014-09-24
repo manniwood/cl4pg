@@ -21,42 +21,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw.converters;
+package com.manniwood.pg4j.v1.converters;
 
-import java.lang.reflect.Method;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 
-public class SetterAndConverterAndColNum {
+public class LongConverter extends BaseConverter<Long>{
 
-    private final Converter<?> converter;
-    private final Method setter;
-    private final int colNum;
-    private final int setCol;
-
-    public SetterAndConverterAndColNum(
-            Converter<?> converter,
-            Method setter,
-            int colNum,
-            int setCol) {
-        super();
-        this.converter = converter;
-        this.setter = setter;
-        this.colNum = colNum;
-        this.setCol = setCol;
+    @Override
+    public void setItem(PreparedStatement pstmt, int i, Long t) throws SQLException {
+        // XXX: will not deal with null long value
+        long myInt = t.longValue();
+        pstmt.setLong(i, myInt);
     }
 
-    public Converter<?> getConverter() {
-        return converter;
+    @Override
+    public Long getItem(ResultSet rs, int i) throws SQLException {
+        return rs.getLong(i);
     }
 
-    public Method getSetter() {
-        return setter;
+    @Override
+    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
+        cstmt.registerOutParameter(i, Types.BIGINT);
     }
 
-    public int getColNum() {
-        return colNum;
+    @Override
+    public Long getItem(CallableStatement cstmt, int i) throws SQLException {
+        return cstmt.getLong(i);
     }
 
-    public int getSetCol() {
-        return setCol;
-    }
 }

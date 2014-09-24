@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw.converters;
+package com.manniwood.pg4j.v1.converters;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -29,28 +29,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class LongConverter extends BaseConverter<Long>{
+public class IntConverter extends BaseConverter<Integer>{
 
     @Override
-    public void setItem(PreparedStatement pstmt, int i, Long t) throws SQLException {
-        // XXX: will not deal with null long value
-        long myInt = t.longValue();
-        pstmt.setLong(i, myInt);
+    public void setItem(PreparedStatement pstmt, int i, Integer t) throws SQLException {
+        // XXX: will not deal with null int value
+        int myInt = t.intValue();
+        pstmt.setInt(i, myInt);
     }
 
     @Override
-    public Long getItem(ResultSet rs, int i) throws SQLException {
-        return rs.getLong(i);
+    public Integer getItem(ResultSet rs, int i) throws SQLException {
+        return rs.getInt(i);
     }
 
     @Override
     public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.BIGINT);
+        cstmt.registerOutParameter(i, Types.INTEGER);
     }
 
     @Override
-    public Long getItem(CallableStatement cstmt, int i) throws SQLException {
-        return cstmt.getLong(i);
+    public Integer getItem(CallableStatement cstmt, int i) throws SQLException {
+        return cstmt.getInt(i);
     }
-
 }

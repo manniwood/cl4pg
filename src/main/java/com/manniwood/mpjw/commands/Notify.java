@@ -26,7 +26,7 @@ package com.manniwood.mpjw.commands;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
 
 public class Notify extends PreparedStatementCommand implements OldCommand {
 

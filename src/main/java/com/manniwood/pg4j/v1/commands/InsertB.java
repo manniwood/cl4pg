@@ -27,10 +27,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-import com.manniwood.mpjw.converters.ConverterStore;
-import com.manniwood.mpjw.util.ResourceUtil;
 import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
 import com.manniwood.pg4j.v1.argsetters.SqlParser;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.util.ResourceUtil;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class InsertB<A> implements Command {

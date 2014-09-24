@@ -27,7 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.manniwood.mpjw.converters.ConverterStore;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
 
 public class SimpleBeanArgSetterOld<P> extends SimpleArgSetter implements BeanArgSetter<P> {
 

@@ -26,8 +26,8 @@ package com.manniwood.pg4j.v1.commands;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-import com.manniwood.mpjw.converters.ConverterStore;
-import com.manniwood.mpjw.util.ResourceUtil;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.util.ResourceUtil;
 
 public class DDL implements Command {
 

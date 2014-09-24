@@ -21,29 +21,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw.converters;
+package com.manniwood.pg4j.v1.converters;
 
-import java.lang.reflect.Constructor;
-import java.util.List;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 
-public class ConstructorAndConverters {
+public class StringConverter extends BaseConverter<String>{
 
-    private final Constructor<?> constructor;
-    private final List<Converter<?>> converters;
-
-    public ConstructorAndConverters(Constructor<?> constructor,
-            List<Converter<?>> converters) {
-        super();
-        this.constructor = constructor;
-        this.converters = converters;
+    @Override
+    public void setItem(PreparedStatement pstmt, int i, String t) throws SQLException {
+        pstmt.setString(i, t);
     }
 
-    public Constructor<?> getConstructor() {
-        return constructor;
+    @Override
+    public String getItem(ResultSet rs, int i) throws SQLException {
+        return rs.getString(i);
     }
 
-    public List<Converter<?>> getConverters() {
-        return converters;
+    @Override
+    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
+        cstmt.registerOutParameter(i, Types.VARCHAR);
     }
 
+    @Override
+    public String getItem(CallableStatement cstmt, int i) throws SQLException {
+        return cstmt.getString(i);
+    }
 }

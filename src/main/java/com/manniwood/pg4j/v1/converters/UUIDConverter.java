@@ -21,30 +21,34 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.manniwood.mpjw;
+package com.manniwood.pg4j.v1.converters;
 
-public class MPJWException extends RuntimeException {
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.UUID;
 
-    private static final long serialVersionUID = 1L;
+public class UUIDConverter extends BaseConverter<UUID>{
 
-    public MPJWException() {
-        super();
+    @Override
+    public void setItem(PreparedStatement pstmt, int i, UUID t) throws SQLException {
+        pstmt.setObject(i, t);
     }
 
-    public MPJWException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    @Override
+    public UUID getItem(ResultSet rs, int i)  throws SQLException {
+        return (UUID) rs.getObject(i);
     }
 
-    public MPJWException(String message, Throwable cause) {
-        super(message, cause);
+    @Override
+    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
+        cstmt.registerOutParameter(i, Types.OTHER);
     }
 
-    public MPJWException(String message) {
-        super(message);
+    @Override
+    public UUID getItem(CallableStatement cstmt, int i)  throws SQLException {
+        return (UUID) cstmt.getObject(i);
     }
-
-    public MPJWException(Throwable cause) {
-        super(cause);
-    }
-
 }

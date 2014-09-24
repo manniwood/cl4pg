@@ -30,8 +30,8 @@ import java.sql.Connection;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
 
-import com.manniwood.mpjw.converters.ConverterStore;
-import com.manniwood.mpjw.util.ResourceUtil;
+import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.util.ResourceUtil;
 
 public class CopyFileOut implements Command {
 
