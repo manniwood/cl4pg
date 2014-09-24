@@ -1,8 +1,8 @@
 apply plugin: 'java'
 
 group = 'com.manniwood'
-version = '1.0.0'
-description = "Manni's PostgreSQL JDBC Wrapper"
+version = '1.0.0-SNAPSHOT'
+description = "pg4j"
 
 repositories {
     mavenCentral()
