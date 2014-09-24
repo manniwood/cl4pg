@@ -27,10 +27,10 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.util.List;
 
-import com.manniwood.mpjw.InOutArg;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.mpjw.converters.SetterAndConverterAndColNum;
 import com.manniwood.mpjw.util.ResourceUtil;
+import com.manniwood.pg4j.v1.InOutArg;
 import com.manniwood.pg4j.v1.argsetters.SlashParserListener;
 import com.manniwood.pg4j.v1.argsetters.SqlParser;
 import com.manniwood.pg4j.v1.util.Str;

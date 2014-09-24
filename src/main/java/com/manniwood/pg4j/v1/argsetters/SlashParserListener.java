@@ -26,7 +26,7 @@ package com.manniwood.pg4j.v1.argsetters;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.manniwood.mpjw.InOutArg;
+import com.manniwood.pg4j.v1.InOutArg;
 
 public class SlashParserListener implements ParserListener {
 

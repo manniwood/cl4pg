@@ -21,10 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.mpjw;
+package com.manniwood.pg4j.v1;
 
 import java.sql.Connection;
 
+import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.commands.OldCommand;
 import com.manniwood.mpjw.converters.ConverterStore;
 import com.manniwood.pg4j.v1.commands.Command;

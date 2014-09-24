@@ -40,9 +40,9 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.mpjw.InOutArg;
 import com.manniwood.mpjw.MPJWException;
 import com.manniwood.mpjw.util.ColumnLabelConverter;
+import com.manniwood.pg4j.v1.InOutArg;
 
 public class ConverterStore {
 

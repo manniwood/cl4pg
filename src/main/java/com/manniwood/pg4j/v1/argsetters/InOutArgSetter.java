@@ -29,7 +29,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.mpjw.InOutArg;
+import com.manniwood.pg4j.v1.InOutArg;
 
 public abstract class InOutArgSetter extends BaseArgSetter {
 

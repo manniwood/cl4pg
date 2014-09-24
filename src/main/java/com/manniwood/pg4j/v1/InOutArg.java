@@ -1,4 +1,4 @@
-package com.manniwood.mpjw;
+package com.manniwood.pg4j.v1;
 
 public class InOutArg {
     private final String getter;
