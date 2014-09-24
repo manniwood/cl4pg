@@ -21,35 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.argsetters;
+package com.manniwood.pg4j.v1.sqlparsers;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpecialFirstArgParserListener implements ParserListener {
-
-    private int argNumber = 0;
-
-    private String firstArg;
+public class BasicParserListener implements ParserListener {
 
     private final List<String> args = new ArrayList<>();
 
     @Override
     public String arg(String arg) {
-        if (argNumber == 0) {
-            firstArg = arg;
-        } else {
-            args.add(arg);
-        }
-        argNumber++;
+        args.add(arg);
         return "?";
     }
 
     public List<String> getArgs() {
         return args;
-    }
-
-    public String getFirstArg() {
-        return firstArg;
     }
 }

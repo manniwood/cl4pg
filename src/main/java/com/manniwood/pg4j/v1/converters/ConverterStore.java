@@ -40,8 +40,8 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.pg4j.v1.InOutArg;
 import com.manniwood.pg4j.v1.Pg4jException;
+import com.manniwood.pg4j.v1.sqlparsers.InOutArg;
 import com.manniwood.pg4j.v1.util.ColumnLabelConverter;
 
 public class ConverterStore {

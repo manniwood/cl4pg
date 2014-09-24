@@ -28,11 +28,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
 
-import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
-import com.manniwood.pg4j.v1.argsetters.SqlParser;
-import com.manniwood.pg4j.v1.argsetters.VariadicArgSetter;
 import com.manniwood.pg4j.v1.converters.ConverterStore;
 import com.manniwood.pg4j.v1.resultsethandlers.ResultSetHandler;
+import com.manniwood.pg4j.v1.sqlparsers.BasicParserListener;
+import com.manniwood.pg4j.v1.sqlparsers.SqlParser;
 import com.manniwood.pg4j.v1.util.Cllctn;
 import com.manniwood.pg4j.v1.util.ResourceUtil;
 import com.manniwood.pg4j.v1.util.Str;
@@ -107,10 +106,6 @@ public class SelectV implements Command {
 
         public Builder file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
-            return this;
-        }
-
-        public Builder argSetter(VariadicArgSetter variadicArgSetter) {
             return this;
         }
 

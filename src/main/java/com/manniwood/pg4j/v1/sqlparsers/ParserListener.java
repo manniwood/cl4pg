@@ -21,25 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.argsetters;
+package com.manniwood.pg4j.v1.sqlparsers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.manniwood.pg4j.v1.InOutArg;
-
-public class SlashParserListener implements ParserListener {
-
-    private final List<InOutArg> args = new ArrayList<>();
-
-    @Override
-    public String arg(String arg) {
-
-        args.add(new InOutArg(arg));
-        return "?";
-    }
-
-    public List<InOutArg> getArgs() {
-        return args;
-    }
+public interface ParserListener {
+    String arg(String arg);
 }

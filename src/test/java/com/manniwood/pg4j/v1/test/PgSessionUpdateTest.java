@@ -32,8 +32,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.manniwood.pg4j.v1.PgSession;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetterOld;
-import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.commands.DDL;
 import com.manniwood.pg4j.v1.commands.Insert;
 import com.manniwood.pg4j.v1.commands.Select;
@@ -95,7 +93,6 @@ public class PgSessionUpdateTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .argSetter(new SimpleVariadicArgSetter())
                 .args(UUID.fromString(PgSessionTest.THIRD_ID))
                 .resultSetHandler(handler)
                 .done());
@@ -110,7 +107,6 @@ public class PgSessionUpdateTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .argSetter(new SimpleVariadicArgSetter())
                 .args(UUID.fromString(PgSessionTest.THIRD_ID))
                 .resultSetHandler(handler)
                 .done());
@@ -128,7 +124,6 @@ public class PgSessionUpdateTest {
 
         UpdateB<User> del = Update.<User> usingBeanArg()
                 .file("sql/update_user.sql")
-                .argSetter(new SimpleBeanArgSetterOld<User>())
                 .arg(updatedUser)
                 .done();
         pgSession.run(del);
@@ -143,7 +138,6 @@ public class PgSessionUpdateTest {
 
         UpdateV del = Update.usingVariadicArgs()
                 .file("sql/update_user_variadic.sql")
-                .argSetter(new SimpleVariadicArgSetter())
                 .args(updatedUser.getName(), updatedUser.getPassword(), updatedUser.getEmployeeId(), UUID.fromString(PgSessionTest.THIRD_ID))
                 .done();
         pgSession.run(del);

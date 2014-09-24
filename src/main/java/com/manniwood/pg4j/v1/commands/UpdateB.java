@@ -27,25 +27,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
-import com.manniwood.pg4j.v1.argsetters.BeanArgSetter;
-import com.manniwood.pg4j.v1.argsetters.SimpleBeanArgSetterOld;
-import com.manniwood.pg4j.v1.argsetters.SqlParser;
 import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.sqlparsers.BasicParserListener;
+import com.manniwood.pg4j.v1.sqlparsers.SqlParser;
 import com.manniwood.pg4j.v1.util.ResourceUtil;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class UpdateB<A> implements Command {
 
     private final String sql;
-    private final BeanArgSetter<A> beanArgSetter;
     private final A arg;
     private PreparedStatement pstmt;
     private int numberOfRowsAffected;
 
     private UpdateB(Builder<A> builder) {
         this.sql = builder.sql;
-        this.beanArgSetter = builder.beanArgSetter;
         this.arg = builder.arg;
     }
 
@@ -87,7 +83,6 @@ public class UpdateB<A> implements Command {
 
     public static class Builder<A> {
         private String sql;
-        private BeanArgSetter<A> beanArgSetter = new SimpleBeanArgSetterOld<A>();
         private A arg;
 
         public Builder() {
@@ -101,11 +96,6 @@ public class UpdateB<A> implements Command {
 
         public Builder<A> file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
-            return this;
-        }
-
-        public Builder<A> argSetter(BeanArgSetter<A> beanArgSetter) {
-            this.beanArgSetter = beanArgSetter;
             return this;
         }
 

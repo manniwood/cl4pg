@@ -1,4 +1,4 @@
-package com.manniwood.pg4j.v1;
+package com.manniwood.pg4j.v1.sqlparsers;
 
 public class InOutArg {
     private final String getter;

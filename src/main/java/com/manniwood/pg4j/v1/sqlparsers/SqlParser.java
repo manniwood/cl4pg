@@ -21,23 +21,47 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.argsetters;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.manniwood.pg4j.v1.sqlparsers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SimpleArgSetter extends BaseArgSetter {
+public class SqlParser {
 
-    private final static Logger  log  = LoggerFactory
-                                              .getLogger(SimpleArgSetter.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(SqlParser.class);
 
-    protected final List<String> args = new ArrayList<>();
+    private final ParserListener parserListener;
 
-    @Override
-    public int extractArg(char[] chrs,
+    public SqlParser(ParserListener parserListener) {
+        this.parserListener = parserListener;
+    }
+
+    public String transform(String sql) {
+        log.debug("incoming sql:\n{}", sql);
+        char[] chrs = sql.toCharArray();
+        int chrsLen = chrs.length;
+        StringBuilder sqlSb = new StringBuilder();
+        for (int i = 0; i < chrsLen; i++) {
+            if (chrs[i] == '#') {
+                i++;
+                if (i >= chrsLen) {
+                    break;
+                }
+                if (chrs[i] == '{') {
+                    i = extractArg(sqlSb, chrs, chrsLen, i);
+                }
+            } else {
+                sqlSb.append(chrs[i]);
+            }
+        }
+        String transformedSql = sqlSb.toString();
+        log.debug("outgoing sql:\n{}", transformedSql);
+        return transformedSql;
+    }
+
+    public int extractArg(StringBuilder sqlSb,
+                          char[] chrs,
                           int chrsLen,
                           int i) {
         StringBuilder arg = new StringBuilder();
@@ -49,10 +73,9 @@ public abstract class SimpleArgSetter extends BaseArgSetter {
         }
         if (chrs[i] == '}') {
             log.debug("adding arg: {}", arg.toString());
-            args.add(arg.toString());
-            arg = null; // done with this; hint to gc
+            String replacer = parserListener.arg(arg.toString());
+            sqlSb.append("?");
         }
         return i;
     }
-
 }

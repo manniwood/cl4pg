@@ -27,25 +27,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-import com.manniwood.pg4j.v1.argsetters.BasicParserListener;
-import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
-import com.manniwood.pg4j.v1.argsetters.SqlParser;
-import com.manniwood.pg4j.v1.argsetters.VariadicArgSetter;
 import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.sqlparsers.BasicParserListener;
+import com.manniwood.pg4j.v1.sqlparsers.SqlParser;
 import com.manniwood.pg4j.v1.util.ResourceUtil;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class UpdateV implements Command {
 
     private final String sql;
-    private final VariadicArgSetter variadicArgSetter;
     private final Object[] args;
     private PreparedStatement pstmt;
     private int numberOfRowsAffected;
 
     private UpdateV(Builder builder) {
         this.sql = builder.sql;
-        this.variadicArgSetter = builder.variadicArgSetter;
         this.args = builder.args;
     }
 
@@ -90,7 +86,6 @@ public class UpdateV implements Command {
 
     public static class Builder {
         private String sql;
-        private VariadicArgSetter variadicArgSetter = new SimpleVariadicArgSetter();
         private Object[] args;
 
         public Builder() {
@@ -104,11 +99,6 @@ public class UpdateV implements Command {
 
         public Builder file(String filename) {
             this.sql = ResourceUtil.slurpFileFromClasspath(filename);
-            return this;
-        }
-
-        public Builder argSetter(VariadicArgSetter variadicArgSetter) {
-            this.variadicArgSetter = variadicArgSetter;
             return this;
         }
 

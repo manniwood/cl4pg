@@ -37,7 +37,6 @@ import org.testng.annotations.Test;
 
 import com.manniwood.pg4j.v1.Pg4jException;
 import com.manniwood.pg4j.v1.PgSession;
-import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.commands.DDL;
 import com.manniwood.pg4j.v1.commands.Insert;
 import com.manniwood.pg4j.v1.commands.Select;
@@ -170,7 +169,6 @@ public class PgSessionTest {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
-                .argSetter(new SimpleVariadicArgSetter())
                 .args(UUID.fromString(TEST_ID))
                 .resultSetHandler(handler)
                 .done());

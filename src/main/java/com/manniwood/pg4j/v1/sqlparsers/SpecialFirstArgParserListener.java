@@ -21,28 +21,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.argsetters;
+package com.manniwood.pg4j.v1.sqlparsers;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.manniwood.pg4j.v1.converters.ConverterStore;
+public class SpecialFirstArgParserListener implements ParserListener {
 
-public class InOutBeanArgSetter<P> extends InOutArgSetter implements BeanArgSetter<P> {
+    private int argNumber = 0;
+
+    private String firstArg;
+
+    private final List<String> args = new ArrayList<>();
 
     @Override
-    public CallableStatement setSQLArguments(String sql,
-                                             Connection connection,
-                                             ConverterStore converterStore,
-                                             P param) throws SQLException {
-        transform(sql);
-        CallableStatement cstmt = connection.prepareCall(transformedSQL);
-        if (args == null || args.isEmpty()) {
-            return cstmt;
+    public String arg(String arg) {
+        if (argNumber == 0) {
+            firstArg = arg;
+        } else {
+            args.add(arg);
         }
-        converterStore.setSQLArguments(cstmt, param, args);
-        return cstmt;
+        argNumber++;
+        return "?";
     }
 
+    public List<String> getArgs() {
+        return args;
+    }
+
+    public String getFirstArg() {
+        return firstArg;
+    }
 }

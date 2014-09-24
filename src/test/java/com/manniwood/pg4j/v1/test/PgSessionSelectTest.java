@@ -30,7 +30,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.manniwood.pg4j.v1.PgSession;
-import com.manniwood.pg4j.v1.argsetters.SimpleVariadicArgSetter;
 import com.manniwood.pg4j.v1.commands.DDL;
 import com.manniwood.pg4j.v1.commands.Insert;
 import com.manniwood.pg4j.v1.commands.Select;
@@ -99,7 +98,6 @@ public class PgSessionSelectTest {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
-                .argSetter(new SimpleVariadicArgSetter())
                 .args(UUID.fromString(PgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
@@ -115,7 +113,6 @@ public class PgSessionSelectTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .argSetter(new SimpleVariadicArgSetter())
                 .args(UUID.fromString(PgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
@@ -130,7 +127,6 @@ public class PgSessionSelectTest {
         GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
-                .argSetter(new SimpleVariadicArgSetter())
                 .args(UUID.fromString(PgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
@@ -145,7 +141,6 @@ public class PgSessionSelectTest {
         ExplicitConstructorListHandler<ImmutableUser> handler = new ExplicitConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_constructor.sql")
-                .argSetter(new SimpleVariadicArgSetter())
                 .args(UUID.fromString(PgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
@@ -217,7 +212,6 @@ public class PgSessionSelectTest {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
-                .argSetter(new SimpleVariadicArgSetter())
                 .args(UUID.fromString(PgSessionTest.USER_WITH_NULLS_TEST_ID))
                 .resultSetHandler(handler)
                 .done());
