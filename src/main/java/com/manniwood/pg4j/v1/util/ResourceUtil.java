@@ -28,7 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.manniwood.pg4j.v1.Pg4jException;
+import com.manniwood.pg4j.v1.Pg4jFileNotFoundException;
+import com.manniwood.pg4j.v1.Pg4jIOException;
 
 public class ResourceUtil {
 
@@ -36,7 +37,7 @@ public class ResourceUtil {
         StringBuilder sb = new StringBuilder();
         InputStream is = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
         if (is == null) {
-            throw new Pg4jException("SQL file \"" + path + "\" could not be found in the CLASSPATH.");
+            throw new Pg4jFileNotFoundException("File \"" + path + "\" could not be found in the CLASSPATH.");
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String line;
@@ -46,12 +47,12 @@ public class ResourceUtil {
                 sb.append("\n");
             }
         } catch (IOException e) {
-            throw new Pg4jException("Could not read file " + path, e);
+            throw new Pg4jIOException("Could not read file " + path, e);
         } finally {
             try {
                 reader.close();
             } catch (IOException e) {
-                throw new Pg4jException("Could not close file " + path, e);
+                throw new Pg4jIOException("Could not close file " + path, e);
             }
         }
         return sb.toString();

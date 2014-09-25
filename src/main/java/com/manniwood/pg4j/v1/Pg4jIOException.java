@@ -21,26 +21,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.pg4j.v1.util;
+package com.manniwood.pg4j.v1;
 
-import java.util.HashMap;
-import java.util.Map;
+public class Pg4jIOException extends Pg4jException {
 
-public class SqlCache {
+    private static final long serialVersionUID = 1L;
 
-    Map<String, String> cache = new HashMap<>();
-
-    public SqlCache() {
-
+    public Pg4jIOException() {
+        super();
     }
 
-    public String slurpFileFromClasspath(String path) {
-        String sql = cache.get(path);
-        if (sql != null) {
-            return sql;
-        }
-        sql = ResourceUtil.slurpFileFromClasspath(path);
-        cache.put(path, sql);
-        return sql;
+    public Pg4jIOException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
+
+    public Pg4jIOException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public Pg4jIOException(String message) {
+        super(message);
+    }
+
+    public Pg4jIOException(Throwable cause) {
+        super(cause);
+    }
+
 }
