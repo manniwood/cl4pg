@@ -32,17 +32,19 @@ import com.manniwood.pg4j.v1.converters.SetterAndConverterAndColNum;
 import com.manniwood.pg4j.v1.sqlparsers.InOutArg;
 import com.manniwood.pg4j.v1.sqlparsers.SlashParserListener;
 import com.manniwood.pg4j.v1.sqlparsers.SqlParser;
-import com.manniwood.pg4j.v1.util.ResourceUtil;
+import com.manniwood.pg4j.v1.util.SqlCache;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class CallStoredProcInOut<A> implements Command {
 
     private final String sql;
+    private final String filename;
     private final A arg;
     private CallableStatement cstmt;
 
     private CallStoredProcInOut(Builder<A> builder) {
         this.sql = builder.sql;
+        this.filename = builder.filename;
         this.arg = builder.arg;
     }
 
@@ -53,10 +55,13 @@ public class CallStoredProcInOut<A> implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
+                        ConverterStore converterStore,
+                        SqlCache sqlCache) throws Exception {
+        String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
+
         SlashParserListener slashParserListener = new SlashParserListener();
         SqlParser sqlParser = new SqlParser(slashParserListener);
-        String transformedSql = sqlParser.transform(sql);
+        String transformedSql = sqlParser.transform(theSql);
 
         CallableStatement cstmt = connection.prepareCall(transformedSql);
         List<InOutArg> gettersAndSetters = slashParserListener.getArgs();
@@ -86,6 +91,7 @@ public class CallStoredProcInOut<A> implements Command {
 
     public static class Builder<A> {
         private String sql;
+        private String filename;
         private A arg;
 
         public Builder() {
@@ -98,7 +104,7 @@ public class CallStoredProcInOut<A> implements Command {
         }
 
         public Builder<A> file(String filename) {
-            this.sql = ResourceUtil.slurpFileFromClasspath(filename);
+            this.filename = filename;
             return this;
         }
 
@@ -108,7 +114,7 @@ public class CallStoredProcInOut<A> implements Command {
         }
 
         public CallStoredProcInOut<A> done() {
-            if (Str.isNullOrEmpty(sql)) {
+            if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
                 throw new Pg4jConfigException("SQL string or file must be specified.");
             }
             return new CallStoredProcInOut<A>(this);

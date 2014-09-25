@@ -33,18 +33,20 @@ import com.manniwood.pg4j.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.pg4j.v1.sqlparsers.BasicParserListener;
 import com.manniwood.pg4j.v1.sqlparsers.SqlParser;
 import com.manniwood.pg4j.v1.util.Cllctn;
-import com.manniwood.pg4j.v1.util.ResourceUtil;
+import com.manniwood.pg4j.v1.util.SqlCache;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class SelectV implements Command {
 
     private final String sql;
+    private final String filename;
     private final ResultSetHandler resultSetHandler;
     private final Object[] args;
     private PreparedStatement pstmt;
 
     private SelectV(Builder builder) {
         this.sql = builder.sql;
+        this.filename = builder.filename;
         this.resultSetHandler = builder.resultSetHandler;
         this.args = builder.args;
     }
@@ -56,11 +58,13 @@ public class SelectV implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
+                        ConverterStore converterStore,
+                        SqlCache sqlCache) throws Exception {
+        String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
 
         BasicParserListener basicParserListener = new BasicParserListener();
         SqlParser sqlParser = new SqlParser(basicParserListener);
-        String transformedSql = sqlParser.transform(sql);
+        String transformedSql = sqlParser.transform(theSql);
 
         PreparedStatement pstmt = connection.prepareStatement(transformedSql);
         List<String> classNames = basicParserListener.getArgs();
@@ -92,6 +96,7 @@ public class SelectV implements Command {
 
     public static class Builder {
         private String sql;
+        private String filename;
         private ResultSetHandler resultSetHandler;
         private Object[] args;
 
@@ -105,7 +110,7 @@ public class SelectV implements Command {
         }
 
         public Builder file(String filename) {
-            this.sql = ResourceUtil.slurpFileFromClasspath(filename);
+            this.filename = filename;
             return this;
         }
 
@@ -120,7 +125,7 @@ public class SelectV implements Command {
         }
 
         public SelectV done() {
-            if (Str.isNullOrEmpty(sql)) {
+            if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
                 throw new Pg4jConfigException("SQL string or file must be specified.");
             }
             if (resultSetHandler == null) {

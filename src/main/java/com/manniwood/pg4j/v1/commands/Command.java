@@ -26,6 +26,7 @@ package com.manniwood.pg4j.v1.commands;
 import java.sql.Connection;
 
 import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.util.SqlCache;
 
 public interface Command {
     /**
@@ -41,7 +42,8 @@ public interface Command {
      * @throws Exception
      */
     void execute(Connection connection,
-                 ConverterStore converterStore) throws Exception;
+                 ConverterStore converterStore,
+                 SqlCache sqlCache) throws Exception;
 
     /**
      * Clean up / close all resources used to execute this command. For

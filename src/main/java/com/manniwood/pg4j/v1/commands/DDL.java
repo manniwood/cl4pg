@@ -27,15 +27,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 import com.manniwood.pg4j.v1.converters.ConverterStore;
-import com.manniwood.pg4j.v1.util.ResourceUtil;
+import com.manniwood.pg4j.v1.util.SqlCache;
+import com.manniwood.pg4j.v1.util.Str;
 
 public class DDL implements Command {
 
     private final String sql;
+    private final String filename;
     private PreparedStatement pstmt;
 
     private DDL(Builder builder) {
         this.sql = builder.sql;
+        this.filename = builder.filename;
     }
 
     @Override
@@ -45,8 +48,11 @@ public class DDL implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
-        pstmt = connection.prepareStatement(sql);
+                        ConverterStore converterStore,
+                        SqlCache sqlCache) throws Exception {
+        String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
+
+        pstmt = connection.prepareStatement(theSql);
         pstmt.execute();
     }
 
@@ -63,6 +69,7 @@ public class DDL implements Command {
 
     public static class Builder {
         private String sql;
+        private String filename;
 
         public Builder() {
             // null constructor
@@ -74,11 +81,14 @@ public class DDL implements Command {
         }
 
         public Builder file(String filename) {
-            this.sql = ResourceUtil.slurpFileFromClasspath(filename);
+            this.filename = filename;
             return this;
         }
 
         public DDL done() {
+            if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
+                throw new Pg4jConfigException("SQL string or file must be specified.");
+            }
             return new DDL(this);
         }
     }

@@ -26,6 +26,7 @@ package com.manniwood.pg4j.v1.commands;
 import java.sql.Connection;
 
 import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.util.SqlCache;
 
 public class Commit implements Command {
 
@@ -38,7 +39,8 @@ public class Commit implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
+                        ConverterStore converterStore,
+                        SqlCache sqlCache) throws Exception {
         conn.commit();
     }
 

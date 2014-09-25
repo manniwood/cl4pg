@@ -31,17 +31,20 @@ import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
 
 import com.manniwood.pg4j.v1.converters.ConverterStore;
-import com.manniwood.pg4j.v1.util.ResourceUtil;
+import com.manniwood.pg4j.v1.util.SqlCache;
+import com.manniwood.pg4j.v1.util.Str;
 
 public class CopyFileOut implements Command {
 
     private final String copyFile;
     private final String sql;
+    private final String filename;
     private Writer fileWriter = null;
 
     private CopyFileOut(Builder builder) {
         this.copyFile = builder.copyFile;
         this.sql = builder.sql;
+        this.filename = builder.filename;
     }
 
     @Override
@@ -51,10 +54,12 @@ public class CopyFileOut implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
+                        ConverterStore converterStore,
+                        SqlCache sqlCache) throws Exception {
+        String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
         CopyManager copyManager = ((PGConnection) connection).getCopyAPI();
         fileWriter = new FileWriter(copyFile);
-        copyManager.copyOut(sql, fileWriter);
+        copyManager.copyOut(theSql, fileWriter);
     }
 
     @Override
@@ -71,6 +76,7 @@ public class CopyFileOut implements Command {
     public static class Builder {
         private String copyFile;
         private String sql;
+        private String filename;
 
         public Builder() {
             // null constructor
@@ -87,11 +93,14 @@ public class CopyFileOut implements Command {
         }
 
         public Builder file(String filename) {
-            this.sql = ResourceUtil.slurpFileFromClasspath(filename);
+            this.filename = filename;
             return this;
         }
 
         public CopyFileOut done() {
+            if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
+                throw new Pg4jConfigException("SQL string or file must be specified.");
+            }
             return new CopyFileOut(this);
         }
     }

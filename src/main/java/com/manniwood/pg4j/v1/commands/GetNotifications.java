@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.util.SqlCache;
 
 public class GetNotifications implements Command {
     private final static Logger log = LoggerFactory.getLogger(GetNotifications.class);
@@ -54,7 +55,8 @@ public class GetNotifications implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
+                        ConverterStore converterStore,
+                        SqlCache sqlCache) throws Exception {
         log.debug("Outgoing SQL: {}", sql);
         pstmt = connection.prepareStatement(sql);
         pstmt.execute();

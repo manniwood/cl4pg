@@ -42,10 +42,13 @@ import com.manniwood.pg4j.v1.commands.Rollback;
 import com.manniwood.pg4j.v1.converters.ConverterStore;
 import com.manniwood.pg4j.v1.exceptionconverters.DefaultExceptionConverter;
 import com.manniwood.pg4j.v1.exceptionconverters.ExceptionConverter;
+import com.manniwood.pg4j.v1.util.SqlCache;
 
 public class PgSession {
 
     private final static Logger log = LoggerFactory.getLogger(PgSession.class);
+
+    private final SqlCache sqlCache = new SqlCache();
 
     private Connection conn = null;
 
@@ -183,7 +186,7 @@ public class PgSession {
 
     public void run(Command command) {
         try {
-            command.execute(conn, converterStore);
+            command.execute(conn, converterStore, sqlCache);
         } catch (Exception e) {
             rollback(e, command.getSQL());
             throw createPg4jException(e, command.getSQL());

@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.manniwood.pg4j.v1.Pg4jException;
 import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.util.SqlCache;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class Listen implements Command {
@@ -55,7 +56,8 @@ public class Listen implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
+                        ConverterStore converterStore,
+                        SqlCache sqlCache) throws Exception {
 
         // Ask postgresql to correctly quote this identifier, to make it
         // safe to use in the next sql statement.

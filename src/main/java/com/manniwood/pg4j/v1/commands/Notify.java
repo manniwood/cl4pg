@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.manniwood.pg4j.v1.converters.ConverterStore;
+import com.manniwood.pg4j.v1.util.SqlCache;
 import com.manniwood.pg4j.v1.util.Str;
 
 public class Notify implements Command {
@@ -85,7 +86,8 @@ public class Notify implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore) throws Exception {
+                        ConverterStore converterStore,
+                        SqlCache sqlCache) throws Exception {
         log.debug("Outgoing SQL: {}", sql);
         pstmt = connection.prepareStatement(sql);
         converterStore.setSQLArgument(pstmt, 1, channel, String.class.getName());
