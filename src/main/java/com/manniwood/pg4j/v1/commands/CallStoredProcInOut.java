@@ -111,9 +111,6 @@ public class CallStoredProcInOut<A> implements Command {
             if (Str.isNullOrEmpty(sql)) {
                 throw new Pg4jConfigException("SQL string or file must be specified.");
             }
-            // beanArgSetter has a default, so that's OK.
-            // arg should be allowed to be null for those times
-            // when there really is no bean argument.
             return new CallStoredProcInOut<A>(this);
         }
     }

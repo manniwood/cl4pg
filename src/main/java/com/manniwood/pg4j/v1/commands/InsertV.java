@@ -106,9 +106,6 @@ public class InsertV implements Command {
             if (Str.isNullOrEmpty(sql)) {
                 throw new Pg4jConfigException("SQL string or file must be specified.");
             }
-            // variadicArgSetter has a default, so that's OK.
-            // args should be allowed to be null for those times
-            // when there really are no arguments.
             return new InsertV(this);
         }
     }

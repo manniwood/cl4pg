@@ -143,9 +143,6 @@ public class CallStoredProcRefCursorV implements Command {
             if (resultSetHandler == null) {
                 throw new Pg4jConfigException("A result set handler must be specified.");
             }
-            // beanArgSetter has a default, so that's OK.
-            // arg should be allowed to be null for those times
-            // when there really is no bean argument.
             return new CallStoredProcRefCursorV(this);
         }
     }

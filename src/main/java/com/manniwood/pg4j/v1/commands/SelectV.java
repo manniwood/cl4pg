@@ -126,9 +126,6 @@ public class SelectV implements Command {
             if (resultSetHandler == null) {
                 throw new Pg4jConfigException("A result set handler must be specified.");
             }
-            // beanArgSetter has a default, so that's OK.
-            // args should be allowed to be null for those times
-            // when there really are no arguments.
             return new SelectV(this);
         }
     }
