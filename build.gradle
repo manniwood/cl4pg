@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 group = 'com.manniwood'
 version = '1.0.0-SNAPSHOT'
-description = "pg4j"
+description = "cl4pg -- The Convenience Library for PostgreSQL"
 
 repositories {
     mavenCentral()
