@@ -43,7 +43,6 @@ import com.manniwood.cl4pg.commands.Select;
 import com.manniwood.cl4pg.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.cl4pg.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.cl4pg.test.etc.User;
-import com.manniwood.cl4pg.test.exceptionmappers.TestExceptionConverter;
 import com.manniwood.cl4pg.test.exceptions.UserAlreadyExistsException;
 
 /**
@@ -93,9 +92,11 @@ public class PgSessionTest {
 
     @BeforeClass
     public void init() {
-        pgSession = PgSession.configure()
-                .exceptionConverter(new TestExceptionConverter())
-                .done();
+        pgSession = PgSession.buildFromDefaultConfFile();
+        /*
+         * pgSession = PgSession.configure() .exceptionConverter(new
+         * TestExceptionConverter()) .done();
+         */
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.commit();
     }

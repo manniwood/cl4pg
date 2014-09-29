@@ -40,7 +40,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.cl4pg.Cl4pgException;
+import com.manniwood.cl4pg.Cl4pgReflectionException;
 import com.manniwood.cl4pg.sqlparsers.InOutArg;
 import com.manniwood.cl4pg.typeconverters.Converter;
 import com.manniwood.cl4pg.typeconverters.IntConverter;
@@ -127,7 +127,7 @@ public class ConverterStore {
                 i++;
             }
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
     }
 
@@ -164,7 +164,7 @@ public class ConverterStore {
                 }
             }
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
     }
 
@@ -177,7 +177,7 @@ public class ConverterStore {
         try {
             parameterType = Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         Converter converter = converters.get(parameterType);
         converter.setItem(pstmt, i, parameterType.cast(param));
@@ -199,7 +199,7 @@ public class ConverterStore {
                 settersAndConverters.add(new SetterAndConverter(converter, setter));
             }
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         return settersAndConverters;
     }
@@ -219,7 +219,7 @@ public class ConverterStore {
                 settersAndConverters.add(new SetterAndConverter(converter, setter));
             }
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         return settersAndConverters;
     }
@@ -251,7 +251,7 @@ public class ConverterStore {
                 setCol++;
             }
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         return settersAndConverters;
     }
@@ -264,16 +264,16 @@ public class ConverterStore {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
             if (numCols > 1) {
-                throw new Cl4pgException("Only one column is allowed to be in the result set.");
+                throw new IllegalArgumentException("Only one column is allowed to be in the result set.");
             }
             String className = md.getColumnClassName(1);
             parameterType = Class.forName(className);
             converter = converters.get(parameterType);
         } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         if (converter == null) {
-            throw new Cl4pgException("Converter not found for column return type " + parameterType);
+            throw new IllegalArgumentException("Converter not found for column return type " + parameterType);
         }
         return converter;
     }
@@ -285,16 +285,16 @@ public class ConverterStore {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
             if (numCols > 1) {
-                throw new Cl4pgException("Only one column is allowed to be in the result set.");
+                throw new Cl4pgReflectionException("Only one column is allowed to be in the result set.");
             }
             String className = md.getColumnClassName(1);
             parameterType = Class.forName(className);
             converter = converters.get(parameterType);
         } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         if (converter == null) {
-            throw new Cl4pgException("Converter not found for column return type " + parameterType);
+            throw new IllegalArgumentException("Converter not found for column return type " + parameterType);
         }
         return converter;
     }
@@ -306,13 +306,13 @@ public class ConverterStore {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
             if (numCols > 1) {
-                throw new Cl4pgException("Only one column is allowed to be in the result set.");
+                throw new Cl4pgReflectionException("Only one column is allowed to be in the result set.");
             }
             String className = md.getColumnLabel(1);
             Class<?> parameterType = className2Class(className);
             converter = converters.get(parameterType);
         } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         return converter;
     }
@@ -329,7 +329,7 @@ public class ConverterStore {
                 col++;
             }
         } catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         return t;
     }
@@ -343,7 +343,7 @@ public class ConverterStore {
                 sac.getSetter().invoke(t, sac.getConverter().getItem(cstmt, sac.getColNum()));
             }
         } catch (IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         return t;
     }
@@ -365,7 +365,7 @@ public class ConverterStore {
             }
             constructor = returnType.getDeclaredConstructor(parameterTypes);
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         return new ConstructorAndConverters(constructor, convs);
     }
@@ -387,7 +387,7 @@ public class ConverterStore {
             }
             constructor = returnType.getDeclaredConstructor(parameterTypes);
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         return new ConstructorAndConverters(constructor, convs);
     }
@@ -408,7 +408,7 @@ public class ConverterStore {
             Constructor<?> constructor = cac.getConstructor();
             t = (T) constructor.newInstance(params);
         } catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-            throw new Cl4pgException(e);
+            throw new Cl4pgReflectionException(e);
         }
         return t;
     }

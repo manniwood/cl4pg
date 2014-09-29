@@ -23,6 +23,10 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -40,11 +44,33 @@ import com.manniwood.cl4pg.commands.Listen;
 import com.manniwood.cl4pg.commands.Notify;
 import com.manniwood.cl4pg.commands.Rollback;
 import com.manniwood.cl4pg.converters.ConverterStore;
-import com.manniwood.cl4pg.exceptionconverters.DefaultExceptionConverter;
 import com.manniwood.cl4pg.exceptionconverters.ExceptionConverter;
+import com.manniwood.cl4pg.util.ResourceUtil;
 import com.manniwood.cl4pg.util.SqlCache;
+import com.manniwood.cl4pg.util.Str;
 
 public class PgSession {
+
+    public static final String DEFAULT_HOSTNAME = "localhost";
+    public static final int DEFAULT_PORT = 5432;
+    public static final String DEFAULT_DATABASE = "postgres";
+    public static final String DEFAULT_USERNAME = "postgres";
+    public static final String DEFAULT_PASSWORD = "postgres";
+    public static final String DEFAULT_APP_NAME = "cl4pg";
+    public static final String DEFAULT_EXCEPTION_CONVERTER_CLASS = "com.manniwood.cl4pg.exceptionconverters.DefaultExceptionConverter";
+    public static final int DEFAULT_TRANSACTION_ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
+    public static final String DEFAULT_CONF_FILE = "cl4pg.properties";
+    public static final String HOSTNAME_KEY = "hostname";
+    public static final String PORT_KEY = "port";
+    public static final String DATABASE_KEY = "database";
+    public static final String USERNAME_KEY = "user"; // ugly, but matches name
+                                                      // in Pg Driver
+    public static final String PASSWORD_KEY = "password";
+    public static final String APP_NAME_KEY = "ApplicationName"; // ugly, but
+                                                                 // matches name
+                                                                 // in Pg Driver
+    public static final String EXCEPTION_CONVERTER_KEY = "ExceptionConverter";
+    public static final String TRANSACTION_ISOLATION_LEVEL_KEY = "TransactionIsolationLevel";
 
     private final static Logger log = LoggerFactory.getLogger(PgSession.class);
 
@@ -52,22 +78,84 @@ public class PgSession {
 
     private Connection conn = null;
 
-    private ExceptionConverter exceptionConverter = new DefaultExceptionConverter();
+    private ExceptionConverter exceptionConverter = null;
     private ConverterStore converterStore = new ConverterStore();
 
     public static PgSession.Builder configure() {
         return new PgSession.Builder();
     }
 
+    public static PgSession buildFromDefaultConfFile() {
+        return buildFromConfFile(DEFAULT_CONF_FILE);
+    }
+
+    public static PgSession buildFromConfFile(String path) {
+        Properties props = new Properties();
+        InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
+        if (inStream == null) {
+            throw new Cl4pgConfFileException("Could not find conf file \"" + path + "\"");
+        }
+        try {
+            props.load(inStream);
+        } catch (IOException e) {
+            throw new Cl4pgConfFileException("Could not read conf file \"" + path + "\"", e);
+        }
+
+        Builder builder = new PgSession.Builder();
+
+        String hostname = props.getProperty(HOSTNAME_KEY);
+        if (!Str.isNullOrEmpty(hostname)) {
+            builder.hostname(hostname);
+        }
+
+        String portStr = props.getProperty(PORT_KEY);
+        if (!Str.isNullOrEmpty(portStr)) {
+            builder.port(Integer.parseInt(portStr));
+        }
+
+        String database = props.getProperty(DATABASE_KEY);
+        if (!Str.isNullOrEmpty(database)) {
+            builder.database(database);
+        }
+
+        String username = props.getProperty(USERNAME_KEY);
+        if (!Str.isNullOrEmpty(username)) {
+            builder.username(username);
+        }
+
+        String password = props.getProperty(PASSWORD_KEY);
+        if (!Str.isNullOrEmpty(password)) {
+            builder.password(password);
+        }
+
+        String appName = props.getProperty(APP_NAME_KEY);
+        if (!Str.isNullOrEmpty(appName)) {
+            builder.appName(appName);
+        }
+
+        String exceptionConverterStr = props.getProperty(EXCEPTION_CONVERTER_KEY);
+        if (!Str.isNullOrEmpty(exceptionConverterStr)) {
+            builder.exceptionConverter(exceptionConverterStr);
+        }
+
+        String transactionIsolationLevelStr = props.getProperty(TRANSACTION_ISOLATION_LEVEL_KEY);
+        if (!Str.isNullOrEmpty(transactionIsolationLevelStr)) {
+            builder.transactionIsolationLevel(Integer.parseInt(transactionIsolationLevelStr));
+        }
+
+        return builder.done();
+    }
+
     public static class Builder {
-        private String hostname = "localhost";
-        private int port = 5432;
-        private String database = "postgres";
-        private String username = "postgres";
-        private String password = "postgres";
-        private String appName = "Pg4j";
-        private ExceptionConverter exceptionConverter = new DefaultExceptionConverter();
-        private int transactionIsolationLevel = Connection.TRANSACTION_READ_COMMITTED;
+        private String hostname = DEFAULT_HOSTNAME;
+        private int port = DEFAULT_PORT;
+        private String database = DEFAULT_DATABASE;
+        private String username = DEFAULT_USERNAME;
+        private String password = DEFAULT_PASSWORD;
+        private String appName = DEFAULT_APP_NAME;
+        private String exceptionConverterStr = DEFAULT_EXCEPTION_CONVERTER_CLASS;
+        private ExceptionConverter exceptionConverter = null;
+        private int transactionIsolationLevel = DEFAULT_TRANSACTION_ISOLATION_LEVEL;
 
         public Builder() {
             // null constructor
@@ -109,6 +197,11 @@ public class PgSession {
             return this;
         }
 
+        public Builder exceptionConverter(String exceptionConverterStr) {
+            this.exceptionConverterStr = exceptionConverterStr;
+            return this;
+        }
+
         public Builder exceptionConverter(ExceptionConverter exceptionConverter) {
             this.exceptionConverter = exceptionConverter;
             return this;
@@ -132,6 +225,19 @@ public class PgSession {
         }
 
         public PgSession done() {
+            if (this.exceptionConverter == null) {
+                if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
+                    this.exceptionConverterStr = DEFAULT_EXCEPTION_CONVERTER_CLASS;
+                }
+                try {
+                    Class<?> clazz = Class.forName(this.exceptionConverterStr);
+                    Constructor<?> constructor = clazz.getDeclaredConstructor();
+                    this.exceptionConverter = (ExceptionConverter) constructor.newInstance();
+                } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+                        | IllegalArgumentException | InvocationTargetException e) {
+                    throw new Cl4pgReflectionException("Could not instantiate exception converter " + this.exceptionConverterStr, e);
+                }
+            }
             return new PgSession(this);
         }
     }
@@ -140,24 +246,27 @@ public class PgSession {
     }
 
     private PgSession(Builder builder) {
+
         this.exceptionConverter = builder.exceptionConverter;
+
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            throw new Cl4pgException("Could not find PostgreSQL JDBC Driver", e);
+            throw new Cl4pgReflectionException("Could not find PostgreSQL JDBC Driver", e);
         }
         String url = "jdbc:postgresql://" + builder.hostname + ":" + builder.port + "/" + builder.database;
         Properties props = new Properties();
-        props.setProperty("user", builder.username);
-        props.setProperty("password", builder.password);
-        props.setProperty("ApplicationName", builder.appName);
+        props.setProperty(USERNAME_KEY, builder.username);
+        props.setProperty(PASSWORD_KEY, builder.password);
+        props.setProperty(APP_NAME_KEY, builder.appName);
         log.info("Application Name: {}", builder.appName);
         try {
             conn = DriverManager.getConnection(url, props);
             conn.setTransactionIsolation(builder.transactionIsolationLevel);
             conn.setAutoCommit(false);
         } catch (SQLException e) {
-            throw new Cl4pgException("Could not connect to db", e);
+            throw new Cl4pgFailedConnectionException("Could not connect to db using the following url \"" + url + "\" and the following properties: " + props,
+                                                     e);
         }
     }
 
@@ -194,8 +303,9 @@ public class PgSession {
             try {
                 command.cleanUp();
             } catch (Exception e) {
-                throw new Cl4pgException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
-                        + command.getSQL(), e);
+                throw new Cl4pgFailedCleanupException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
+                                                              + command.getSQL(),
+                                                      e);
             }
         }
     }
@@ -212,12 +322,12 @@ public class PgSession {
     }
 
     private Cl4pgException createPg4jException(Exception e,
-                                              String sql) {
+                                               String sql) {
         if (e instanceof PSQLException) {
             PSQLException psqle = (PSQLException) e;
             Cl4pgPgSqlException pe = new Cl4pgPgSqlException(psqle.getServerErrorMessage(),
-                                                           "ROLLED BACK. Exception while trying to run this sql statement:\n" + sql,
-                                                           e);
+                                                             "ROLLED BACK. Exception while trying to run this sql statement:\n" + sql,
+                                                             e);
             return exceptionConverter.convert(pe);
         } else if (e instanceof SQLException) {
             return new Cl4pgSqlException("ROLLED BACK. Exception while trying to run this sql statement:\n" + sql, e);

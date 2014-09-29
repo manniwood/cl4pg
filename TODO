@@ -14,4 +14,3 @@ reflection calls into compiled code faster (instead of waiting
 for the default number of invocations).
 10) sql to be executed on startup of connection
 12) Converters registerable and addable by end-users
-13) Better conf capabilities

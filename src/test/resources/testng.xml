@@ -2,7 +2,7 @@
 <suite name="mpjw" parallel="false">
     <test verbose="2" name="mpjw" annotations="JDK" preserve-order="true">
         <classes>
-            <class name="com.manniwood.pg4j.v1.test.factory.Pg4jTestFactory" />
+            <class name="com.manniwood.cl4pg.test.factory.Cl4pgTestFactory" />
         </classes>
     </test>
 </suite>
