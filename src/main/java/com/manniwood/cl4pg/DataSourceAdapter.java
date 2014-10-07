@@ -25,6 +25,10 @@ package com.manniwood.cl4pg;
 
 import java.sql.Connection;
 
+import com.manniwood.cl4pg.exceptionconverters.ExceptionConverter;
+
 public interface DataSourceAdapter {
     Connection getConnection();
+
+    ExceptionConverter getExceptionConverter();
 }

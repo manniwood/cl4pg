@@ -73,10 +73,10 @@ public class CallStoredProcRefCursorV implements Command {
 
         // The first "getter" needs to be the special keyword "refcursor"
         if (Str.isNullOrEmpty(firstArg)) {
-            throw new Pg4jSyntaxException("There needs to be a refcursor argument.");
+            throw new Cl4pgSyntaxException("There needs to be a refcursor argument.");
         }
         if (!firstArg.equals("refcursor")) {
-            throw new Pg4jSyntaxException("The first argument, " + firstArg + ", needs to be the special refcursor keyword, not " + firstArg + ".");
+            throw new Cl4pgSyntaxException("The first argument, " + firstArg + ", needs to be the special refcursor keyword, not " + firstArg + ".");
 
         }
 
@@ -143,10 +143,10 @@ public class CallStoredProcRefCursorV implements Command {
 
         public CallStoredProcRefCursorV done() {
             if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
-                throw new Pg4jConfigException("SQL string or file must be specified.");
+                throw new Cl4pgConfigException("SQL string or file must be specified.");
             }
             if (resultSetHandler == null) {
-                throw new Pg4jConfigException("A result set handler must be specified.");
+                throw new Cl4pgConfigException("A result set handler must be specified.");
             }
             return new CallStoredProcRefCursorV(this);
         }

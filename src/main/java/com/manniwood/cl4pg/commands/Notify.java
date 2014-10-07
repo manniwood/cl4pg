@@ -43,10 +43,10 @@ public class Notify implements Command {
 
     private Notify(Builder builder) {
         if (Str.isNullOrEmpty(builder.channel)) {
-            throw new Pg4jConfigException("Channel must be specified.");
+            throw new Cl4pgConfigException("Channel must be specified.");
         }
         if (Str.isNullOrEmpty(builder.payload)) {
-            throw new Pg4jConfigException("Payload must be specified.");
+            throw new Cl4pgConfigException("Payload must be specified.");
         }
         this.channel = builder.channel;
         this.payload = builder.payload;

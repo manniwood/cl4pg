@@ -63,6 +63,8 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
 
     private final static Logger log = LoggerFactory.getLogger(PgSimpleDataSourceAdapter.class);
 
+    private ExceptionConverter exceptionConverter;
+
     private PGSimpleDataSource ds;
     private int transactionIsolationLevel;
 
@@ -77,6 +79,11 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             throw new Cl4pgFailedConnectionException("Could not get connection.", e);
         }
         return conn;
+    }
+
+    @Override
+    public ExceptionConverter getExceptionConverter() {
+        return exceptionConverter;
     }
 
     public static PgSimpleDataSourceAdapter.Builder configure() {
@@ -256,6 +263,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         ds.setApplicationName(builder.appName);
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
+        exceptionConverter = builder.exceptionConverter;
     }
 
 }

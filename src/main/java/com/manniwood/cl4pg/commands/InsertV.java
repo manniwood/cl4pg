@@ -110,7 +110,7 @@ public class InsertV implements Command {
 
         public InsertV done() {
             if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
-                throw new Pg4jConfigException("SQL string or file must be specified.");
+                throw new Cl4pgConfigException("SQL string or file must be specified.");
             }
             return new InsertV(this);
         }

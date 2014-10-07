@@ -122,10 +122,10 @@ public class SelectB<A> implements Command {
 
         public SelectB<A> done() {
             if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
-                throw new Pg4jConfigException("SQL string or file must be specified.");
+                throw new Cl4pgConfigException("SQL string or file must be specified.");
             }
             if (resultSetHandler == null) {
-                throw new Pg4jConfigException("A result set handler must be specified.");
+                throw new Cl4pgConfigException("A result set handler must be specified.");
             }
             return new SelectB<A>(this);
         }

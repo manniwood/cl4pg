@@ -25,27 +25,27 @@ package com.manniwood.cl4pg.commands;
 
 import com.manniwood.cl4pg.Cl4pgException;
 
-public class Pg4jConfigException extends Cl4pgException {
+public class Cl4pgSyntaxException extends Cl4pgException {
 
     private static final long serialVersionUID = 1L;
 
-    public Pg4jConfigException() {
+    public Cl4pgSyntaxException() {
         super();
     }
 
-    public Pg4jConfigException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public Cl4pgSyntaxException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public Pg4jConfigException(String message, Throwable cause) {
+    public Cl4pgSyntaxException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public Pg4jConfigException(String message) {
+    public Cl4pgSyntaxException(String message) {
         super(message);
     }
 
-    public Pg4jConfigException(Throwable cause) {
+    public Cl4pgSyntaxException(Throwable cause) {
         super(cause);
     }
 

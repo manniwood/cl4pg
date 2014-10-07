@@ -99,7 +99,7 @@ public class CopyFileOut implements Command {
 
         public CopyFileOut done() {
             if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
-                throw new Pg4jConfigException("SQL string or file must be specified.");
+                throw new Cl4pgConfigException("SQL string or file must be specified.");
             }
             return new CopyFileOut(this);
         }

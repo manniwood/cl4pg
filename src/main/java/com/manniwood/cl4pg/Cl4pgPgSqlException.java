@@ -29,23 +29,23 @@ public class Cl4pgPgSqlException extends Cl4pgSqlException {
 
     private static final long serialVersionUID = 1L;
 
-    private String            sqlState;
-    private String            serverMessage;
-    private String            severity;
-    private String            detail;
-    private String            hint;
-    private int               position;
-    private String            where;
-    private String            schema;
-    private String            table;
-    private String            column;
-    private String            dataType;
-    private String            constraint;
-    private String            file;
-    private int               line;
-    private String            routine;
-    private String            internalQuery;
-    private int               internalPosition;
+    private String sqlState;
+    private String serverMessage;
+    private String severity;
+    private String detail;
+    private String hint;
+    private int position;
+    private String where;
+    private String schema;
+    private String table;
+    private String column;
+    private String dataType;
+    private String constraint;
+    private String file;
+    private int line;
+    private String routine;
+    private String internalQuery;
+    private int internalPosition;
 
     public Cl4pgPgSqlException() {
         super();
@@ -253,7 +253,8 @@ public class Cl4pgPgSqlException extends Cl4pgSqlException {
 
     @Override
     public String toString() {
-        return "Pg4jPgSqlException [sqlState=" + sqlState + ", serverMessage=" + serverMessage + ", severity=" + severity + ", detail=" + detail + ", hint="
+        return "" + Cl4pgPgSqlException.class.getSimpleName() + " [sqlState=" + sqlState + ", serverMessage=" + serverMessage + ", severity=" + severity
+                + ", detail=" + detail + ", hint="
                 + hint + ", position=" + position + ", where=" + where + ", schema=" + schema + ", table=" + table + ", column=" + column + ", dataType="
                 + dataType + ", constraint=" + constraint + ", file=" + file + ", line=" + line + ", routine=" + routine + ", internalQuery=" + internalQuery
                 + ", internalPosition=" + internalPosition + "]";
