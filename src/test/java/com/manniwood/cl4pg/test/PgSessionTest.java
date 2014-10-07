@@ -37,6 +37,8 @@ import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.Cl4pgException;
 import com.manniwood.cl4pg.PgSession;
+import com.manniwood.cl4pg.PgSessionPool;
+import com.manniwood.cl4pg.PgSimpleDataSourceAdapter;
 import com.manniwood.cl4pg.commands.DDL;
 import com.manniwood.cl4pg.commands.Insert;
 import com.manniwood.cl4pg.commands.Select;
@@ -92,11 +94,11 @@ public class PgSessionTest {
 
     @BeforeClass
     public void init() {
-        pgSession = PgSession.buildFromDefaultConfFile();
-        /*
-         * pgSession = PgSession.configure() .exceptionConverter(new
-         * TestExceptionConverter()) .done();
-         */
+
+        PgSimpleDataSourceAdapter adapter = PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
+        PgSessionPool pool = new PgSessionPool(adapter);
+        pgSession = pool.getSession();
+
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.commit();
     }
@@ -154,7 +156,9 @@ public class PgSessionTest {
         expected.add("baz");
         expected.add("bal");
 
-        PgSession pgSession2 = PgSession.configure().done();
+        PgSimpleDataSourceAdapter adapter = PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
+        PgSessionPool pool = new PgSessionPool(adapter);
+        PgSession pgSession2 = pool.getSession();
 
         pgSession2.pgListen("foo \" bar");
         pgSession2.commit();
@@ -184,6 +188,7 @@ public class PgSessionTest {
             actual.add(notification.getParameter());
         }
         Assert.assertEquals(actual, expected, "Notifications must all be recieved, in the same order");
+        pgSession2.close();
     }
 
     @Test(priority = 3)

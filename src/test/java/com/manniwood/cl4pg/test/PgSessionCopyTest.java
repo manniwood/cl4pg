@@ -31,10 +31,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.PgSession;
+import com.manniwood.cl4pg.PgSessionPool;
+import com.manniwood.cl4pg.PgSimpleDataSourceAdapter;
 import com.manniwood.cl4pg.commands.CopyFileIn;
 import com.manniwood.cl4pg.commands.CopyFileOut;
 import com.manniwood.cl4pg.commands.DDL;
@@ -62,9 +65,14 @@ public class PgSessionCopyTest {
 
         Files.deleteIfExists(Paths.get(PgSessionTest.TEST_COPY_FILE));
 
-        pgSession = PgSession.configure()
+        PgSimpleDataSourceAdapter adapter = PgSimpleDataSourceAdapter.configure()
                 .exceptionConverter(new TestExceptionConverter())
                 .done();
+
+        PgSessionPool pool = new PgSessionPool(adapter);
+
+        pgSession = pool.getSession();
+
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.run(DDL.config().file("sql/create_temp_dup_users_table.sql").done());
         pgSession.commit();
@@ -90,6 +98,11 @@ public class PgSessionCopyTest {
                     .done());
         }
         pgSession.commit();
+    }
+
+    @AfterClass
+    public void tearDown() {
+        pgSession.close();
     }
 
     @Test(priority = 0)

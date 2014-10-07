@@ -33,6 +33,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.PgSession;
+import com.manniwood.cl4pg.PgSessionPool;
+import com.manniwood.cl4pg.PgSimpleDataSourceAdapter;
 import com.manniwood.cl4pg.commands.CallStoredProcInOut;
 import com.manniwood.cl4pg.commands.CallStoredProcRefCursor;
 import com.manniwood.cl4pg.commands.DDL;
@@ -59,9 +61,15 @@ public class PgSessionStoredProcTest {
 
     @BeforeClass
     public void init() {
-        pgSession = PgSession.configure()
+
+        PgSimpleDataSourceAdapter adapter = PgSimpleDataSourceAdapter.configure()
                 .exceptionConverter(new TestExceptionConverter())
                 .done();
+
+        PgSessionPool pool = new PgSessionPool(adapter);
+
+        pgSession = pool.getSession();
+
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.run(DDL.config().file("sql/create_swap_func.sql").done());
         pgSession.run(DDL.config().file("sql/create_add_to_first.sql").done());
@@ -102,6 +110,7 @@ public class PgSessionStoredProcTest {
         pgSession.run(DDL.config().file("sql/drop_add_and_return.sql").done());
         pgSession.run(DDL.config().file("sql/drop_get_user_by_id_func.sql").done());
         pgSession.commit();
+        pgSession.close();
     }
 
     @Test(priority = 0)

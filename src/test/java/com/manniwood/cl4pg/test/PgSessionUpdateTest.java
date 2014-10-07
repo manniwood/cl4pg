@@ -32,6 +32,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.PgSession;
+import com.manniwood.cl4pg.PgSessionPool;
+import com.manniwood.cl4pg.PgSimpleDataSourceAdapter;
 import com.manniwood.cl4pg.commands.DDL;
 import com.manniwood.cl4pg.commands.Insert;
 import com.manniwood.cl4pg.commands.Select;
@@ -60,9 +62,14 @@ public class PgSessionUpdateTest {
 
     @BeforeClass
     public void init() {
-        pgSession = PgSession.configure()
+        PgSimpleDataSourceAdapter adapter = PgSimpleDataSourceAdapter.configure()
                 .exceptionConverter(new TestExceptionConverter())
                 .done();
+
+        PgSessionPool pool = new PgSessionPool(adapter);
+
+        pgSession = pool.getSession();
+
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.commit();
 
