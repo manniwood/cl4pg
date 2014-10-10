@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2014 Manni Wood
+Copyright (t) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,30 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.test.factory;
+package com.manniwood.cl4pg.v1.test;
 
-import org.testng.annotations.Factory;
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
 
-import com.manniwood.cl4pg.v1.test.PgSessionCopyTest;
-import com.manniwood.cl4pg.v1.test.PgSessionDeleteTest;
-import com.manniwood.cl4pg.v1.test.PgSessionSelectTest;
-import com.manniwood.cl4pg.v1.test.PgSessionStoredProcTest;
-import com.manniwood.cl4pg.v1.test.PgSessionUpdateTest;
-import com.manniwood.cl4pg.v1.test.PoolingPgSessionTest;
-import com.manniwood.cl4pg.v1.test.SimplePgSessionTest;
+public class SimplePgSessionTest extends AbstractPgSessionTest {
 
-public class Cl4pgTestFactory {
-    @Factory
-    public Object[] allTests() {
-        return new Object[] {
-                new PgSessionCopyTest(),
-                new PgSessionDeleteTest(),
-                new PgSessionSelectTest(),
-                new PgSessionStoredProcTest(),
-                new SimplePgSessionTest(),
-                new PoolingPgSessionTest(),
-                new PgSessionUpdateTest()
-        };
+    @Override
+    protected DataSourceAdapter configureDataSourceAdapter() {
+        return PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
     }
 
 }

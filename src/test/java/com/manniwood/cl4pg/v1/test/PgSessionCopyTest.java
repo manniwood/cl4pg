@@ -63,7 +63,7 @@ public class PgSessionCopyTest {
     @BeforeClass
     public void init() throws IOException {
 
-        Files.deleteIfExists(Paths.get(PgSessionTest.TEST_COPY_FILE));
+        Files.deleteIfExists(Paths.get(AbstractPgSessionTest.TEST_COPY_FILE));
 
         PgSimpleDataSourceAdapter adapter = PgSimpleDataSourceAdapter.configure()
                 .exceptionConverter(new TestExceptionConverter())
@@ -78,18 +78,18 @@ public class PgSessionCopyTest {
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
-        usersToLoad.add(new ImmutableUser(UUID.fromString(PgSessionTest.ID_1),
-                                          PgSessionTest.USERNAME_1,
-                                          PgSessionTest.PASSWORD_1,
-                                          PgSessionTest.EMPLOYEE_ID_1));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(PgSessionTest.ID_2),
-                                          PgSessionTest.USERNAME_2,
-                                          PgSessionTest.PASSWORD_2,
-                                          PgSessionTest.EMPLOYEE_ID_2));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(PgSessionTest.ID_3),
-                                          PgSessionTest.USERNAME_3,
-                                          PgSessionTest.PASSWORD_3,
-                                          PgSessionTest.EMPLOYEE_ID_3));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_1),
+                                          AbstractPgSessionTest.USERNAME_1,
+                                          AbstractPgSessionTest.PASSWORD_1,
+                                          AbstractPgSessionTest.EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_2),
+                                          AbstractPgSessionTest.USERNAME_2,
+                                          AbstractPgSessionTest.PASSWORD_2,
+                                          AbstractPgSessionTest.EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_3),
+                                          AbstractPgSessionTest.USERNAME_3,
+                                          AbstractPgSessionTest.PASSWORD_3,
+                                          AbstractPgSessionTest.EMPLOYEE_ID_3));
 
         for (ImmutableUser u : usersToLoad) {
             pgSession.run(Insert.<ImmutableUser> usingBeanArg()
@@ -108,14 +108,14 @@ public class PgSessionCopyTest {
     @Test(priority = 0)
     public void testCopy() {
         pgSession.run(CopyFileOut.config()
-                .copyFile(PgSessionTest.TEST_COPY_FILE)
+                .copyFile(AbstractPgSessionTest.TEST_COPY_FILE)
                 .sql("copy users to stdout")
                 .done());
         // can safely roll back, because file has already been created
         pgSession.rollback();
 
         pgSession.run(CopyFileIn.config()
-                .copyFile(PgSessionTest.TEST_COPY_FILE)
+                .copyFile(AbstractPgSessionTest.TEST_COPY_FILE)
                 .sql("copy dup_users from stdin")
                 .done());
         pgSession.commit();

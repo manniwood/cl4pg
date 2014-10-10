@@ -79,18 +79,18 @@ public class PgSessionStoredProcTest {
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
-        usersToLoad.add(new ImmutableUser(UUID.fromString(PgSessionTest.ID_1),
-                                          PgSessionTest.USERNAME_1,
-                                          PgSessionTest.PASSWORD_1,
-                                          PgSessionTest.EMPLOYEE_ID_1));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(PgSessionTest.ID_2),
-                                          PgSessionTest.USERNAME_2,
-                                          PgSessionTest.PASSWORD_2,
-                                          PgSessionTest.EMPLOYEE_ID_2));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(PgSessionTest.ID_3),
-                                          PgSessionTest.USERNAME_3,
-                                          PgSessionTest.PASSWORD_3,
-                                          PgSessionTest.EMPLOYEE_ID_3));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_1),
+                                          AbstractPgSessionTest.USERNAME_1,
+                                          AbstractPgSessionTest.PASSWORD_1,
+                                          AbstractPgSessionTest.EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_2),
+                                          AbstractPgSessionTest.USERNAME_2,
+                                          AbstractPgSessionTest.PASSWORD_2,
+                                          AbstractPgSessionTest.EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_3),
+                                          AbstractPgSessionTest.USERNAME_3,
+                                          AbstractPgSessionTest.PASSWORD_3,
+                                          AbstractPgSessionTest.EMPLOYEE_ID_3));
 
         for (ImmutableUser u : usersToLoad) {
             pgSession.run(Insert.<ImmutableUser> usingBeanArg()
@@ -212,10 +212,10 @@ public class PgSessionStoredProcTest {
 
     @Test(priority = 5)
     public void testRefCursorProcV() {
-        ImmutableUser expected = new ImmutableUser(UUID.fromString(PgSessionTest.ID_3),
-                                                   PgSessionTest.USERNAME_3,
-                                                   PgSessionTest.PASSWORD_3,
-                                                   PgSessionTest.EMPLOYEE_ID_3);
+        ImmutableUser expected = new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_3),
+                                                   AbstractPgSessionTest.USERNAME_3,
+                                                   AbstractPgSessionTest.PASSWORD_3,
+                                                   AbstractPgSessionTest.EMPLOYEE_ID_3);
         GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(CallStoredProcRefCursor.<ImmutableUser> usingBeanArg()
                 .sql("{ #{refcursor} = call get_user_by_id(#{getId}) }")
@@ -229,10 +229,10 @@ public class PgSessionStoredProcTest {
 
     @Test(priority = 6)
     public void testRefCursorProcB() {
-        ImmutableUser expected = new ImmutableUser(UUID.fromString(PgSessionTest.ID_3),
-                                                   PgSessionTest.USERNAME_3,
-                                                   PgSessionTest.PASSWORD_3,
-                                                   PgSessionTest.EMPLOYEE_ID_3);
+        ImmutableUser expected = new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_3),
+                                                   AbstractPgSessionTest.USERNAME_3,
+                                                   AbstractPgSessionTest.PASSWORD_3,
+                                                   AbstractPgSessionTest.EMPLOYEE_ID_3);
         GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(CallStoredProcRefCursor.usingVariadicArgs()
                 .sql("{ #{refcursor} = call get_user_by_id(#{java.util.UUID}) }")

@@ -74,16 +74,16 @@ public class PgSessionUpdateTest {
         pgSession.commit();
 
         expectedUser = new User();
-        expectedUser.setId(UUID.fromString(PgSessionTest.THIRD_ID));
-        expectedUser.setEmployeeId(PgSessionTest.THIRD_EMPLOYEE_ID);
-        expectedUser.setName(PgSessionTest.THIRD_USERNAME);
-        expectedUser.setPassword(PgSessionTest.THIRD_PASSWORD);
+        expectedUser.setId(UUID.fromString(AbstractPgSessionTest.THIRD_ID));
+        expectedUser.setEmployeeId(AbstractPgSessionTest.THIRD_EMPLOYEE_ID);
+        expectedUser.setName(AbstractPgSessionTest.THIRD_USERNAME);
+        expectedUser.setPassword(AbstractPgSessionTest.THIRD_PASSWORD);
 
         updatedUser = new User();
-        updatedUser.setId(UUID.fromString(PgSessionTest.THIRD_ID));
-        updatedUser.setEmployeeId(PgSessionTest.UPDATED_THIRD_EMPLOYEE_ID);
-        updatedUser.setName(PgSessionTest.UPDATED_THIRD_USERNAME);
-        updatedUser.setPassword(PgSessionTest.UPDATED_THIRD_PASSWORD);
+        updatedUser.setId(UUID.fromString(AbstractPgSessionTest.THIRD_ID));
+        updatedUser.setEmployeeId(AbstractPgSessionTest.UPDATED_THIRD_EMPLOYEE_ID);
+        updatedUser.setName(AbstractPgSessionTest.UPDATED_THIRD_USERNAME);
+        updatedUser.setPassword(AbstractPgSessionTest.UPDATED_THIRD_PASSWORD);
     }
 
     @BeforeMethod
@@ -100,7 +100,7 @@ public class PgSessionUpdateTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .args(UUID.fromString(PgSessionTest.THIRD_ID))
+                .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -114,16 +114,16 @@ public class PgSessionUpdateTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .args(UUID.fromString(PgSessionTest.THIRD_ID))
+                .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
         User actualUser = handler.getList().get(0);
 
-        Assert.assertEquals(actualUser.getId(), UUID.fromString(PgSessionTest.THIRD_ID));
-        Assert.assertEquals(actualUser.getName(), PgSessionTest.UPDATED_THIRD_USERNAME);
-        Assert.assertEquals(actualUser.getEmployeeId(), PgSessionTest.UPDATED_THIRD_EMPLOYEE_ID);
-        Assert.assertEquals(actualUser.getPassword(), PgSessionTest.UPDATED_THIRD_PASSWORD);
+        Assert.assertEquals(actualUser.getId(), UUID.fromString(AbstractPgSessionTest.THIRD_ID));
+        Assert.assertEquals(actualUser.getName(), AbstractPgSessionTest.UPDATED_THIRD_USERNAME);
+        Assert.assertEquals(actualUser.getEmployeeId(), AbstractPgSessionTest.UPDATED_THIRD_EMPLOYEE_ID);
+        Assert.assertEquals(actualUser.getPassword(), AbstractPgSessionTest.UPDATED_THIRD_PASSWORD);
     }
 
     @Test(priority = 0)
@@ -145,7 +145,7 @@ public class PgSessionUpdateTest {
 
         UpdateV del = Update.usingVariadicArgs()
                 .file("sql/update_user_variadic.sql")
-                .args(updatedUser.getName(), updatedUser.getPassword(), updatedUser.getEmployeeId(), UUID.fromString(PgSessionTest.THIRD_ID))
+                .args(updatedUser.getName(), updatedUser.getPassword(), updatedUser.getEmployeeId(), UUID.fromString(AbstractPgSessionTest.THIRD_ID))
                 .done();
         pgSession.run(del);
         pgSession.commit();

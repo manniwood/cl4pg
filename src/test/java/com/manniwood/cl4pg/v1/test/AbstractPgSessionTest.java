@@ -35,6 +35,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
 import com.manniwood.cl4pg.v1.PgSessionPool;
 import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
@@ -56,8 +57,8 @@ import com.manniwood.cl4pg.v1.test.exceptions.UserAlreadyExistsException;
  * @author mwood
  *
  */
-public class PgSessionTest {
-    private final static Logger log = LoggerFactory.getLogger(PgSessionTest.class);
+public abstract class AbstractPgSessionTest {
+    private final static Logger log = LoggerFactory.getLogger(AbstractPgSessionTest.class);
 
     public static final String TEST_COPY_FILE = "/tmp/users.copy";
 
@@ -95,13 +96,15 @@ public class PgSessionTest {
     @BeforeClass
     public void init() {
 
-        PgSimpleDataSourceAdapter adapter = PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
+        DataSourceAdapter adapter = configureDataSourceAdapter();
         PgSessionPool pool = new PgSessionPool(adapter);
         pgSession = pool.getSession();
 
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.commit();
     }
+
+    protected abstract DataSourceAdapter configureDataSourceAdapter();
 
     private User createExpectedUser() {
         User expected;

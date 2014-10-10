@@ -75,10 +75,10 @@ public class PgSessionDeleteTest {
         pgSession.commit();
 
         expectedUser = new User();
-        expectedUser.setEmployeeId(PgSessionTest.THIRD_EMPLOYEE_ID);
-        expectedUser.setId(UUID.fromString(PgSessionTest.THIRD_ID));
-        expectedUser.setName(PgSessionTest.THIRD_USERNAME);
-        expectedUser.setPassword(PgSessionTest.THIRD_PASSWORD);
+        expectedUser.setEmployeeId(AbstractPgSessionTest.THIRD_EMPLOYEE_ID);
+        expectedUser.setId(UUID.fromString(AbstractPgSessionTest.THIRD_ID));
+        expectedUser.setName(AbstractPgSessionTest.THIRD_USERNAME);
+        expectedUser.setPassword(AbstractPgSessionTest.THIRD_PASSWORD);
     }
 
     @AfterClass
@@ -100,7 +100,7 @@ public class PgSessionDeleteTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .args(UUID.fromString(PgSessionTest.THIRD_ID))
+                .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -114,7 +114,7 @@ public class PgSessionDeleteTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .args(UUID.fromString(PgSessionTest.THIRD_ID))
+                .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -143,7 +143,7 @@ public class PgSessionDeleteTest {
 
         UpdateV del = Update.usingVariadicArgs()
                 .file("sql/delete_user.sql")
-                .args(UUID.fromString(PgSessionTest.THIRD_ID))
+                .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
                 .done();
         pgSession.run(del);
         pgSession.commit();

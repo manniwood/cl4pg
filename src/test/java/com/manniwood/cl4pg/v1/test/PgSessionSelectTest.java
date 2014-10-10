@@ -63,17 +63,17 @@ public class PgSessionSelectTest {
     private static User createExpectedUser() {
         User expected;
         expected = new User();
-        expected.setEmployeeId(PgSessionTest.TEST_EMPLOYEE_ID);
-        expected.setId(UUID.fromString(PgSessionTest.TEST_ID));
-        expected.setName(PgSessionTest.TEST_USERNAME);
-        expected.setPassword(PgSessionTest.TEST_PASSWORD);
+        expected.setEmployeeId(AbstractPgSessionTest.TEST_EMPLOYEE_ID);
+        expected.setId(UUID.fromString(AbstractPgSessionTest.TEST_ID));
+        expected.setName(AbstractPgSessionTest.TEST_USERNAME);
+        expected.setPassword(AbstractPgSessionTest.TEST_PASSWORD);
         return expected;
     }
 
     private static User createUserWithNulls() {
         User expected;
         expected = new User();
-        expected.setId(UUID.fromString(PgSessionTest.USER_WITH_NULLS_TEST_ID));
+        expected.setId(UUID.fromString(AbstractPgSessionTest.USER_WITH_NULLS_TEST_ID));
         return expected;
     }
 
@@ -111,7 +111,7 @@ public class PgSessionSelectTest {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
-                .args(UUID.fromString(PgSessionTest.TEST_ID))
+                .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -126,7 +126,7 @@ public class PgSessionSelectTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .args(UUID.fromString(PgSessionTest.TEST_ID))
+                .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -140,7 +140,7 @@ public class PgSessionSelectTest {
         GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
-                .args(UUID.fromString(PgSessionTest.TEST_ID))
+                .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -154,7 +154,7 @@ public class PgSessionSelectTest {
         ExplicitConstructorListHandler<ImmutableUser> handler = new ExplicitConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_use_constructor.sql")
-                .args(UUID.fromString(PgSessionTest.TEST_ID))
+                .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -225,7 +225,7 @@ public class PgSessionSelectTest {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         pgSession.run(Select.usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
-                .args(UUID.fromString(PgSessionTest.USER_WITH_NULLS_TEST_ID))
+                .args(UUID.fromString(AbstractPgSessionTest.USER_WITH_NULLS_TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
