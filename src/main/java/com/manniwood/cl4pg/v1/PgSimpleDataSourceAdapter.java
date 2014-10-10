@@ -49,7 +49,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
     public static final String DEFAULT_USERNAME = "postgres";
     public static final String DEFAULT_PASSWORD = "postgres";
     public static final String DEFAULT_APP_NAME = "cl4pg";
-    public static final String DEFAULT_EXCEPTION_CONVERTER_CLASS = "com.manniwood.cl4pg.exceptionconverters.DefaultExceptionConverter";
+    public static final String DEFAULT_EXCEPTION_CONVERTER_CLASS = "com.manniwood.cl4pg.v1.exceptionconverters.DefaultExceptionConverter";
     public static final int DEFAULT_TRANSACTION_ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
     public static final String DEFAULT_CONF_FILE = "cl4pg.properties";
     public static final String HOSTNAME_KEY = "hostname";

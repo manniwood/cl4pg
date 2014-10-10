@@ -1,5 +1,7 @@
 apply plugin: 'java'
 
+sourceCompabibility = 1.7
+
 group = 'com.manniwood'
 version = '1.0.0-SNAPSHOT'
 description = "cl4pg -- The Convenience Library for PostgreSQL"
