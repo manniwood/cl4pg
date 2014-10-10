@@ -23,9 +23,12 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test;
 
+import org.testng.annotations.Test;
+
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
 
+@Test
 public class SimplePgSessionTest extends AbstractPgSessionTest {
 
     @Override

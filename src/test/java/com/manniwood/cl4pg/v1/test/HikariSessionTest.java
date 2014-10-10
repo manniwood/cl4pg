@@ -26,14 +26,14 @@ package com.manniwood.cl4pg.v1.test;
 import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.PgPoolingDataSourceAdapter;
+import com.manniwood.cl4pg.v1.HikariCpDataSourceAdapter;
 
 @Test
-public class PoolingPgSessionTest extends AbstractPgSessionTest {
+public class HikariSessionTest extends AbstractPgSessionTest {
 
     @Override
     protected DataSourceAdapter configureDataSourceAdapter() {
-        return PgPoolingDataSourceAdapter.buildFromDefaultConfFile();
+        return HikariCpDataSourceAdapter.buildFromDefaultConfFile();
     }
 
 }
