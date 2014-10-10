@@ -40,7 +40,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.cl4pg.v1.Cl4pgReflectionException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
 import com.manniwood.cl4pg.v1.sqlparsers.InOutArg;
 import com.manniwood.cl4pg.v1.typeconverters.Converter;
 import com.manniwood.cl4pg.v1.typeconverters.IntConverter;

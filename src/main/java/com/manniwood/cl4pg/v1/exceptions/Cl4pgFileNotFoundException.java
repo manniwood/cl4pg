@@ -21,29 +21,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1;
+package com.manniwood.cl4pg.v1.exceptions;
 
-public class Cl4pgFailedRollbackException extends Cl4pgException {
+public class Cl4pgFileNotFoundException extends Cl4pgException {
 
     private static final long serialVersionUID = 1L;
 
-    public Cl4pgFailedRollbackException() {
+    public Cl4pgFileNotFoundException() {
         super();
     }
 
-    public Cl4pgFailedRollbackException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public Cl4pgFileNotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public Cl4pgFailedRollbackException(String message, Throwable cause) {
+    public Cl4pgFileNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public Cl4pgFailedRollbackException(String message) {
+    public Cl4pgFileNotFoundException(String message) {
         super(message);
     }
 
-    public Cl4pgFailedRollbackException(Throwable cause) {
+    public Cl4pgFileNotFoundException(Throwable cause) {
         super(cause);
     }
 

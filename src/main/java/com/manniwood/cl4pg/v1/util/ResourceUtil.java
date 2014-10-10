@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.manniwood.cl4pg.v1.Cl4pgFileNotFoundException;
-import com.manniwood.cl4pg.v1.Cl4pgIOException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgFileNotFoundException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgIOException;
 
 public class ResourceUtil {
 

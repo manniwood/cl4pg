@@ -21,29 +21,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1;
+package com.manniwood.cl4pg.v1.exceptions;
 
-public class Cl4pgFailedCleanupException extends Cl4pgException {
+public class Cl4pgIOException extends Cl4pgException {
 
     private static final long serialVersionUID = 1L;
 
-    public Cl4pgFailedCleanupException() {
+    public Cl4pgIOException() {
         super();
     }
 
-    public Cl4pgFailedCleanupException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public Cl4pgIOException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public Cl4pgFailedCleanupException(String message, Throwable cause) {
+    public Cl4pgIOException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public Cl4pgFailedCleanupException(String message) {
+    public Cl4pgIOException(String message) {
         super(message);
     }
 
-    public Cl4pgFailedCleanupException(Throwable cause) {
+    public Cl4pgIOException(Throwable cause) {
         super(cause);
     }
 

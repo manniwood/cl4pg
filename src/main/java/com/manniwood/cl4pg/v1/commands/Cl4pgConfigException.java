@@ -23,7 +23,7 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.commands;
 
-import com.manniwood.cl4pg.v1.Cl4pgException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 
 public class Cl4pgConfigException extends Cl4pgException {
 

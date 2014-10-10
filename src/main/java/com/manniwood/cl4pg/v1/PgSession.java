@@ -38,6 +38,11 @@ import com.manniwood.cl4pg.v1.commands.Rollback;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.exceptionconverters.DefaultExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedCleanupException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedRollbackException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgSqlException;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
 public class PgSession {

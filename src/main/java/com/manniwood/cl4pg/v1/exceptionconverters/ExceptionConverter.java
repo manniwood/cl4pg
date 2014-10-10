@@ -23,8 +23,8 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.exceptionconverters;
 
-import com.manniwood.cl4pg.v1.Cl4pgException;
-import com.manniwood.cl4pg.v1.Cl4pgPgSqlException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
 
 public interface ExceptionConverter {
     Cl4pgException convert(Cl4pgPgSqlException e);

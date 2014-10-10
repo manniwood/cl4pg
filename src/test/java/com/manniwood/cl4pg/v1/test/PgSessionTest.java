@@ -35,13 +35,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.manniwood.cl4pg.v1.Cl4pgException;
 import com.manniwood.cl4pg.v1.PgSession;
 import com.manniwood.cl4pg.v1.PgSessionPool;
 import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
 import com.manniwood.cl4pg.v1.commands.DDL;
 import com.manniwood.cl4pg.v1.commands.Insert;
 import com.manniwood.cl4pg.v1.commands.Select;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.cl4pg.v1.test.etc.User;

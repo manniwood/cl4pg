@@ -30,8 +30,8 @@ import java.sql.ResultSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.cl4pg.v1.Cl4pgException;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 

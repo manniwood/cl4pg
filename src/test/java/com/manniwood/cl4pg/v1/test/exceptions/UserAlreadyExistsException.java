@@ -25,7 +25,7 @@ package com.manniwood.cl4pg.v1.test.exceptions;
 
 import org.postgresql.util.ServerErrorMessage;
 
-import com.manniwood.cl4pg.v1.Cl4pgPgSqlException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
 
 public class UserAlreadyExistsException extends Cl4pgPgSqlException {
 

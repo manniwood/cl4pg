@@ -23,9 +23,9 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.exceptionmappers;
 
-import com.manniwood.cl4pg.v1.Cl4pgException;
-import com.manniwood.cl4pg.v1.Cl4pgPgSqlException;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
 import com.manniwood.cl4pg.v1.test.exceptions.UserAlreadyExistsException;
 
 public class TestExceptionConverter implements ExceptionConverter {
