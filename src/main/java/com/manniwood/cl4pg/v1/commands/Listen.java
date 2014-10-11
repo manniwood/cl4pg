@@ -30,6 +30,7 @@ import java.sql.ResultSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.util.SqlCache;
@@ -57,7 +58,8 @@ public class Listen implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore,
-                        SqlCache sqlCache) throws Exception {
+                        SqlCache sqlCache,
+                        DataSourceAdapter dataSourceAdapter) throws Exception {
 
         // Ask postgresql to correctly quote this identifier, to make it
         // safe to use in the next sql statement.

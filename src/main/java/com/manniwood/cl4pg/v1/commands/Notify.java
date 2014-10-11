@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
@@ -87,7 +88,8 @@ public class Notify implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore,
-                        SqlCache sqlCache) throws Exception {
+                        SqlCache sqlCache,
+                        DataSourceAdapter dataSourceAdapter) throws Exception {
         log.debug("Outgoing SQL: {}", sql);
         pstmt = connection.prepareStatement(sql);
         converterStore.setSQLArgument(pstmt, 1, channel, String.class.getName());

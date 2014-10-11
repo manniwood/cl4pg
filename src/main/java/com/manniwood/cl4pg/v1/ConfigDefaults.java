@@ -27,6 +27,8 @@ import java.sql.Connection;
 
 public class ConfigDefaults {
 
+    public static final String PROJ_NAME = "cl4pg";
+
     public static final String DEFAULT_HOSTNAME = "localhost";
     public static final int DEFAULT_PORT = 5432;
     public static final String DEFAULT_DATABASE = "postgres";
@@ -35,7 +37,6 @@ public class ConfigDefaults {
     public static final String DEFAULT_APP_NAME = "cl4pg";
     public static final String DEFAULT_EXCEPTION_CONVERTER_CLASS = "com.manniwood.cl4pg.v1.exceptionconverters.DefaultExceptionConverter";
     public static final int DEFAULT_TRANSACTION_ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
-    public static final String DEFAULT_CONF_FILE = "cl4pg.properties";
     public static final String HOSTNAME_KEY = "hostname";
     public static final String PORT_KEY = "port";
     public static final String DATABASE_KEY = "database";
@@ -44,7 +45,7 @@ public class ConfigDefaults {
     public static final String PASSWORD_KEY = "password";
     public static final String APP_NAME_KEY = "ApplicationName"; // ugly, but
     // matches name
-                                                                 // in Pg Driver
+    // in Pg Driver
     public static final String EXCEPTION_CONVERTER_KEY = "ExceptionConverter";
     public static final String TRANSACTION_ISOLATION_LEVEL_KEY = "TransactionIsolationLevel";
 

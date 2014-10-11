@@ -27,6 +27,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.util.List;
 
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.converters.SetterAndConverterAndColNum;
 import com.manniwood.cl4pg.v1.sqlparsers.InOutArg;
@@ -56,7 +57,8 @@ public class CallStoredProcInOut<A> implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore,
-                        SqlCache sqlCache) throws Exception {
+                        SqlCache sqlCache,
+                        DataSourceAdapter dataSourceAdapter) throws Exception {
         String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
 
         SlashParserListener slashParserListener = new SlashParserListener();

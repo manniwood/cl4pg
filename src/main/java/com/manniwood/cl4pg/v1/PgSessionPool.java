@@ -25,21 +25,17 @@ package com.manniwood.cl4pg.v1;
 
 import java.sql.Connection;
 
-import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
-
 public class PgSessionPool {
 
     private DataSourceAdapter dataSourceAdapter;
-    private ExceptionConverter exceptionConverter;
 
     public PgSessionPool(DataSourceAdapter dataSourceAdapter) {
         this.dataSourceAdapter = dataSourceAdapter;
-        this.exceptionConverter = dataSourceAdapter.getExceptionConverter();
     }
 
     public PgSession getSession() {
         Connection conn = dataSourceAdapter.getConnection();
-        return new PgSession(conn, exceptionConverter);
+        return new PgSession(conn, dataSourceAdapter);
     }
 
 }

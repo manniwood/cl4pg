@@ -31,6 +31,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.postgresql.PGConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +43,11 @@ import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.Str;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.proxy.ConnectionProxy;
 
 public class HikariCpDataSourceAdapter implements DataSourceAdapter {
+
+    public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + HikariCpDataSourceAdapter.class.getSimpleName() + ".properties";
 
     public static final String DEFAULT_DATA_SOURCE_NAME = "pgpool";
     public static final int DEFAULT_INITIAL_CONNECTIONS = 5;
@@ -78,15 +82,22 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         return exceptionConverter;
     }
 
+    @Override
+    public PGConnection unwrapPgConnection(Connection conn) throws SQLException {
+        ConnectionProxy proxy = (ConnectionProxy) conn;
+        return proxy.<PGConnection> unwrap(PGConnection.class);
+    }
+
     public static HikariCpDataSourceAdapter.Builder configure() {
         return new HikariCpDataSourceAdapter.Builder();
     }
 
     public static HikariCpDataSourceAdapter buildFromDefaultConfFile() {
-        return buildFromConfFile(ConfigDefaults.DEFAULT_CONF_FILE);
+        return buildFromConfFile(DEFAULT_CONF_FILE);
     }
 
     public static HikariCpDataSourceAdapter buildFromConfFile(String path) {
+        log.debug("Conf file: " + path);
         Properties props = new Properties();
         InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
         if (inStream == null) {
@@ -287,6 +298,7 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         config.setMinimumIdle(builder.initialConnections);
         config.setMaximumPoolSize(builder.maxConnections);
 
+        // PostgreSQL-specific properties
         Properties props = new Properties();
         props.setProperty(ConfigDefaults.APP_NAME_KEY, builder.appName);
 

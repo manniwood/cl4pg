@@ -31,6 +31,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.postgresql.PGConnection;
 import org.postgresql.ds.PGPoolingDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,11 @@ import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
-import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.Str;
 
 public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
+
+    public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + PgPoolingDataSourceAdapter.class.getSimpleName() + ".properties";
 
     public static final String DEFAULT_DATA_SOURCE_NAME = "pgpool";
     public static final int DEFAULT_INITIAL_CONNECTIONS = 5;
@@ -77,19 +79,24 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
         return exceptionConverter;
     }
 
+    @Override
+    public PGConnection unwrapPgConnection(Connection conn) throws SQLException {
+        return (PGConnection) conn;
+    }
+
     public static PgPoolingDataSourceAdapter.Builder configure() {
         return new PgPoolingDataSourceAdapter.Builder();
     }
 
     public static PgPoolingDataSourceAdapter buildFromDefaultConfFile() {
-        return buildFromConfFile(ConfigDefaults.DEFAULT_CONF_FILE);
+        return buildFromConfFile(DEFAULT_CONF_FILE);
     }
 
     public static PgPoolingDataSourceAdapter buildFromConfFile(String path) {
         Properties props = new Properties();
-        InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
+        InputStream inStream = path.getClass().getClassLoader().getResourceAsStream(path);
         if (inStream == null) {
-            throw new Cl4pgConfFileException("Could not find conf file \"" + path + "\"");
+            throw new Cl4pgConfFileException("Could not find conf file (resource) \"" + path + "\"");
         }
         try {
             props.load(inStream);

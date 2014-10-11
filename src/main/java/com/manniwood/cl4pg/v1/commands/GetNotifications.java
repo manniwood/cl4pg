@@ -31,6 +31,7 @@ import org.postgresql.PGNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
@@ -56,11 +57,13 @@ public class GetNotifications implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore,
-                        SqlCache sqlCache) throws Exception {
+                        SqlCache sqlCache,
+                        DataSourceAdapter dataSourceAdapter) throws Exception {
         log.debug("Outgoing SQL: {}", sql);
         pstmt = connection.prepareStatement(sql);
         pstmt.execute();
-        notifications = ((PGConnection) connection).getNotifications();
+        PGConnection pgConn = dataSourceAdapter.unwrapPgConnection(connection);
+        notifications = pgConn.getNotifications();
     }
 
     @Override

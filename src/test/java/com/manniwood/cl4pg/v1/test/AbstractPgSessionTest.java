@@ -38,7 +38,6 @@ import org.testng.annotations.Test;
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
 import com.manniwood.cl4pg.v1.PgSessionPool;
-import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
 import com.manniwood.cl4pg.v1.commands.DDL;
 import com.manniwood.cl4pg.v1.commands.Insert;
 import com.manniwood.cl4pg.v1.commands.Select;
@@ -159,9 +158,9 @@ public abstract class AbstractPgSessionTest {
         expected.add("baz");
         expected.add("bal");
 
-        PgSimpleDataSourceAdapter adapter = PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
-        PgSessionPool pool = new PgSessionPool(adapter);
-        PgSession pgSession2 = pool.getSession();
+        DataSourceAdapter adapter2 = configureDataSourceAdapter();
+        PgSessionPool pool2 = new PgSessionPool(adapter2);
+        PgSession pgSession2 = pool2.getSession();
 
         pgSession2.pgListen("foo \" bar");
         pgSession2.commit();

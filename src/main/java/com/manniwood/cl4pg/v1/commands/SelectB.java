@@ -28,6 +28,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
 
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.cl4pg.v1.sqlparsers.BasicParserListener;
@@ -58,7 +59,8 @@ public class SelectB<A> implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore,
-                        SqlCache sqlCache) throws Exception {
+                        SqlCache sqlCache,
+                        DataSourceAdapter dataSourceAdapter) throws Exception {
         String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
 
         BasicParserListener basicParserListener = new BasicParserListener();

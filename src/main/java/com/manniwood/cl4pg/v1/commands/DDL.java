@@ -26,6 +26,7 @@ package com.manniwood.cl4pg.v1.commands;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
@@ -49,7 +50,8 @@ public class DDL implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore,
-                        SqlCache sqlCache) throws Exception {
+                        SqlCache sqlCache,
+                        DataSourceAdapter dataSourceAdapter) throws Exception {
         String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
 
         pstmt = connection.prepareStatement(theSql);

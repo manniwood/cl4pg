@@ -36,7 +36,6 @@ import com.manniwood.cl4pg.v1.commands.Listen;
 import com.manniwood.cl4pg.v1.commands.Notify;
 import com.manniwood.cl4pg.v1.commands.Rollback;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
-import com.manniwood.cl4pg.v1.exceptionconverters.DefaultExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedCleanupException;
@@ -52,17 +51,14 @@ public class PgSession {
 
     private Connection conn = null;
 
+    private DataSourceAdapter dataSourceAdapter = null;
     private ExceptionConverter exceptionConverter = null;
     private ConverterStore converterStore = new ConverterStore();
 
-    public PgSession(Connection conn) {
+    public PgSession(Connection conn, DataSourceAdapter dataSourceAdapter) {
         this.conn = conn;
-        this.exceptionConverter = new DefaultExceptionConverter();
-    }
-
-    public PgSession(Connection conn, ExceptionConverter exceptionConverter) {
-        this.conn = conn;
-        this.exceptionConverter = exceptionConverter;
+        this.dataSourceAdapter = dataSourceAdapter;
+        this.exceptionConverter = dataSourceAdapter.getExceptionConverter();
     }
 
     public void close() {
@@ -98,7 +94,7 @@ public class PgSession {
 
     public void run(Command command) {
         try {
-            command.execute(conn, converterStore, sqlCache);
+            command.execute(conn, converterStore, sqlCache, dataSourceAdapter);
         } catch (Exception e) {
             rollback(e, command.getSQL());
             throw createPg4jException(e, command.getSQL());

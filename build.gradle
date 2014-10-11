@@ -4,7 +4,7 @@ sourceCompatibility = 1.7
 
 group = 'com.manniwood'
 version = '1.0.0-SNAPSHOT'
-description = "cl4pg -- The Convenience Library for PostgreSQL"
+description = "cl4pg --- The Convenience Library for PostgreSQL"
 
 repositories {
     mavenCentral()

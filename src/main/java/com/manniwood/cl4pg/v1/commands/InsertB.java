@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.sqlparsers.BasicParserListener;
 import com.manniwood.cl4pg.v1.sqlparsers.SqlParser;
@@ -54,7 +55,8 @@ public class InsertB<A> implements Command {
     @Override
     public void execute(Connection connection,
                         ConverterStore converterStore,
-                        SqlCache sqlCache) throws Exception {
+                        SqlCache sqlCache,
+                        DataSourceAdapter dataSourceAdapter) throws Exception {
         String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
 
         BasicParserListener basicParserListener = new BasicParserListener();

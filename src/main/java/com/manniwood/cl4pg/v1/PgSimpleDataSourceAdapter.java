@@ -31,6 +31,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.postgresql.PGConnection;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,8 @@ import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.Str;
 
 public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
+
+    public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + PgSimpleDataSourceAdapter.class.getSimpleName() + ".properties";
 
     private final static Logger log = LoggerFactory.getLogger(PgSimpleDataSourceAdapter.class);
 
@@ -69,12 +72,17 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         return exceptionConverter;
     }
 
+    @Override
+    public PGConnection unwrapPgConnection(Connection conn) throws SQLException {
+        return (PGConnection) conn;
+    }
+
     public static PgSimpleDataSourceAdapter.Builder configure() {
         return new PgSimpleDataSourceAdapter.Builder();
     }
 
     public static PgSimpleDataSourceAdapter buildFromDefaultConfFile() {
-        return buildFromConfFile(ConfigDefaults.DEFAULT_CONF_FILE);
+        return buildFromConfFile(DEFAULT_CONF_FILE);
     }
 
     public static PgSimpleDataSourceAdapter buildFromConfFile(String path) {
