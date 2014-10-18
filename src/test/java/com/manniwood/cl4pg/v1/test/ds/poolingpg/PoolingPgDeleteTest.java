@@ -27,10 +27,10 @@ import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgPoolingDataSourceAdapter;
-import com.manniwood.cl4pg.v1.test.base.AbstractCopyTest;
+import com.manniwood.cl4pg.v1.test.AbstractDeleteTest;
 
 @Test
-public class PoolingPgCopyTest extends AbstractCopyTest {
+public class PoolingPgDeleteTest extends AbstractDeleteTest {
 
     @Override
     protected DataSourceAdapter configureDataSourceAdapter() {

@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.test;
+package com.manniwood.cl4pg.v1.test.base;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,7 +44,6 @@ import com.manniwood.cl4pg.v1.commands.DDL;
 import com.manniwood.cl4pg.v1.commands.Insert;
 import com.manniwood.cl4pg.v1.commands.Select;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
-import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
 import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
 
 /**
@@ -65,10 +64,6 @@ public abstract class AbstractCopyTest {
 
         Files.deleteIfExists(Paths.get(AbstractPgSessionTest.TEST_COPY_FILE));
 
-        // PgSimpleDataSourceAdapter adapter =
-        // PgSimpleDataSourceAdapter.configure()
-        // .exceptionConverter(new TestExceptionConverter())
-        // .done();
         DataSourceAdapter adapter = configureDataSourceAdapter();
 
         PgSessionPool pool = new PgSessionPool(adapter);

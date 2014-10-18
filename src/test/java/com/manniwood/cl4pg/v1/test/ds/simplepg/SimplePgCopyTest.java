@@ -27,10 +27,10 @@ import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
-import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
+import com.manniwood.cl4pg.v1.test.base.AbstractCopyTest;
 
 @Test
-public class SimplePgCopyTest extends AbstractPgSessionTest {
+public class SimplePgCopyTest extends AbstractCopyTest {
 
     @Override
     protected DataSourceAdapter configureDataSourceAdapter() {
