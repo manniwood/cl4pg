@@ -25,9 +25,12 @@ package com.manniwood.cl4pg.v1;
 
 import java.sql.Connection;
 
+import com.manniwood.cl4pg.v1.util.SqlCache;
+
 public class PgSessionPool {
 
     private DataSourceAdapter dataSourceAdapter;
+    private final SqlCache sqlCache = new SqlCache();
 
     public PgSessionPool(DataSourceAdapter dataSourceAdapter) {
         this.dataSourceAdapter = dataSourceAdapter;
@@ -35,7 +38,7 @@ public class PgSessionPool {
 
     public PgSession getSession() {
         Connection conn = dataSourceAdapter.getConnection();
-        return new PgSession(conn, dataSourceAdapter);
+        return new PgSession(conn, dataSourceAdapter, sqlCache);
     }
 
 }

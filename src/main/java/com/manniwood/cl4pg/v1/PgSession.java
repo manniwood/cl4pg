@@ -46,19 +46,18 @@ import com.manniwood.cl4pg.v1.util.SqlCache;
 
 public class PgSession {
 
-    private final SqlCache sqlCache = new SqlCache(); // XXX: will have to
-                                                      // become shared
-
     private Connection conn = null;
+    private final SqlCache sqlCache;
 
     private DataSourceAdapter dataSourceAdapter = null;
     private ExceptionConverter exceptionConverter = null;
     private ConverterStore converterStore = new ConverterStore();
 
-    public PgSession(Connection conn, DataSourceAdapter dataSourceAdapter) {
+    public PgSession(Connection conn, DataSourceAdapter dataSourceAdapter, SqlCache sqlCache) {
         this.conn = conn;
         this.dataSourceAdapter = dataSourceAdapter;
         this.exceptionConverter = dataSourceAdapter.getExceptionConverter();
+        this.sqlCache = sqlCache;
     }
 
     public void close() {
