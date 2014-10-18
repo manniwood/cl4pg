@@ -78,10 +78,7 @@ public abstract class AbstractSelectTest {
 
     @BeforeClass
     public void init() {
-        // PgSimpleDataSourceAdapter adapter =
-        // PgSimpleDataSourceAdapter.configure()
-        // .exceptionConverter(new TestExceptionConverter())
-        // .done();
+
         DataSourceAdapter adapter = configureDataSourceAdapter();
 
         PgSessionPool pool = new PgSessionPool(adapter);
