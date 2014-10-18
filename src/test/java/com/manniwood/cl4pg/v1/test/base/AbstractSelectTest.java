@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.test;
+package com.manniwood.cl4pg.v1.test.base;
 
 import java.util.UUID;
 
@@ -30,9 +30,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
 import com.manniwood.cl4pg.v1.PgSessionPool;
-import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
 import com.manniwood.cl4pg.v1.commands.DDL;
 import com.manniwood.cl4pg.v1.commands.Insert;
 import com.manniwood.cl4pg.v1.commands.Select;
@@ -40,11 +40,9 @@ import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitSettersListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
-import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
 import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
 import com.manniwood.cl4pg.v1.test.etc.User;
 import com.manniwood.cl4pg.v1.test.etc.Users;
-import com.manniwood.cl4pg.v1.test.exceptionmappers.TestExceptionConverter;
 
 /**
  * Please note that these tests must be run serially, and not all at once.
@@ -55,7 +53,7 @@ import com.manniwood.cl4pg.v1.test.exceptionmappers.TestExceptionConverter;
  * @author mwood
  *
  */
-public class PgSessionSelectTest {
+public abstract class AbstractSelectTest {
 
     private PgSession pgSession;
     private static final User expected = createExpectedUser();
@@ -80,9 +78,11 @@ public class PgSessionSelectTest {
 
     @BeforeClass
     public void init() {
-        PgSimpleDataSourceAdapter adapter = PgSimpleDataSourceAdapter.configure()
-                .exceptionConverter(new TestExceptionConverter())
-                .done();
+        // PgSimpleDataSourceAdapter adapter =
+        // PgSimpleDataSourceAdapter.configure()
+        // .exceptionConverter(new TestExceptionConverter())
+        // .done();
+        DataSourceAdapter adapter = configureDataSourceAdapter();
 
         PgSessionPool pool = new PgSessionPool(adapter);
 
@@ -101,6 +101,8 @@ public class PgSessionSelectTest {
                 .done());
         pgSession.commit();
     }
+
+    protected abstract DataSourceAdapter configureDataSourceAdapter();
 
     @AfterClass
     public void tearDown() {

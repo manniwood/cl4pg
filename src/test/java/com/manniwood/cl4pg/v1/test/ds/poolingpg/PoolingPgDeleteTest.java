@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgPoolingDataSourceAdapter;
-import com.manniwood.cl4pg.v1.test.AbstractDeleteTest;
+import com.manniwood.cl4pg.v1.test.base.AbstractDeleteTest;
 
 @Test
 public class PoolingPgDeleteTest extends AbstractDeleteTest {

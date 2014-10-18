@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.test;
+package com.manniwood.cl4pg.v1.test.base;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,7 +43,6 @@ import com.manniwood.cl4pg.v1.commands.Update;
 import com.manniwood.cl4pg.v1.commands.UpdateB;
 import com.manniwood.cl4pg.v1.commands.UpdateV;
 import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitSettersListHandler;
-import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
 import com.manniwood.cl4pg.v1.test.etc.User;
 
 /**
@@ -63,10 +62,7 @@ public abstract class AbstractDeleteTest {
 
     @BeforeClass
     public void init() {
-        // PgSimpleDataSourceAdapter adapter =
-        // PgSimpleDataSourceAdapter.configure()
-        // .exceptionConverter(new TestExceptionConverter())
-        // .done();
+
         DataSourceAdapter adapter = configureDataSourceAdapter();
 
         PgSessionPool pool = new PgSessionPool(adapter);

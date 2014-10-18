@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.HikariCpDataSourceAdapter;
-import com.manniwood.cl4pg.v1.test.AbstractDeleteTest;
+import com.manniwood.cl4pg.v1.test.base.AbstractDeleteTest;
 
 @Test
 public class HikariDeleteTest extends AbstractDeleteTest {
