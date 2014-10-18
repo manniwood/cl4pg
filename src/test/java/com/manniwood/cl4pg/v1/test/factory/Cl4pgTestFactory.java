@@ -25,6 +25,7 @@ package com.manniwood.cl4pg.v1.test.factory;
 
 import org.testng.annotations.Factory;
 
+import com.manniwood.cl4pg.v1.test.HikariSessionTest;
 import com.manniwood.cl4pg.v1.test.PgSessionCopyTest;
 import com.manniwood.cl4pg.v1.test.PgSessionDeleteTest;
 import com.manniwood.cl4pg.v1.test.PgSessionSelectTest;
@@ -43,6 +44,7 @@ public class Cl4pgTestFactory {
                 new PgSessionStoredProcTest(),
                 new SimplePgSessionTest(),
                 new PoolingPgSessionTest(),
+                new HikariSessionTest(),
                 new PgSessionUpdateTest()
         };
     }

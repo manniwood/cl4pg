@@ -49,11 +49,9 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
 
     public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + HikariCpDataSourceAdapter.class.getSimpleName() + ".properties";
 
-    public static final String DEFAULT_DATA_SOURCE_NAME = "pgpool";
     public static final int DEFAULT_INITIAL_CONNECTIONS = 5;
     public static final int DEFAULT_MAX_CONNECTIONS = 20;
 
-    public static final String DATA_SOURCE_NAME_KEY = "dataSourceName";
     public static final String INITIAL_CONNECTIONS_KEY = "initialConnections";
     public static final String MAX_CONNECTIONS_KEY = "maxConnections";
 
@@ -141,17 +139,12 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
             builder.appName(appName);
         }
 
-        String dataSourceName = props.getProperty(DATA_SOURCE_NAME_KEY);
-        if (!Str.isNullOrEmpty(dataSourceName)) {
-            builder.dataSourceName(dataSourceName);
-        }
-
         String initialConnectionsStr = props.getProperty(INITIAL_CONNECTIONS_KEY);
         if (!Str.isNullOrEmpty(initialConnectionsStr)) {
             builder.initialConnections(Integer.parseInt(initialConnectionsStr));
         }
 
-        String maxConnectionsStr = props.getProperty(DATA_SOURCE_NAME_KEY);
+        String maxConnectionsStr = props.getProperty(MAX_CONNECTIONS_KEY);
         if (!Str.isNullOrEmpty(maxConnectionsStr)) {
             builder.maxConnections(Integer.parseInt(maxConnectionsStr));
         }
@@ -179,7 +172,6 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         private String exceptionConverterStr = ConfigDefaults.DEFAULT_EXCEPTION_CONVERTER_CLASS;
         private ExceptionConverter exceptionConverter = null;
         private int transactionIsolationLevel = ConfigDefaults.DEFAULT_TRANSACTION_ISOLATION_LEVEL;
-        private String dataSourceName = DEFAULT_DATA_SOURCE_NAME;
         private int initialConnections = DEFAULT_INITIAL_CONNECTIONS;
         private int maxConnections = DEFAULT_MAX_CONNECTIONS;
 
@@ -220,11 +212,6 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
 
         public Builder appName(String appName) {
             this.appName = appName;
-            return this;
-        }
-
-        public Builder dataSourceName(String dataSourceName) {
-            this.dataSourceName = dataSourceName;
             return this;
         }
 
@@ -294,7 +281,6 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         config.setJdbcUrl(url);
         config.setUsername(builder.username);
         config.setPassword(builder.password);
-        config.setPoolName(builder.dataSourceName);
         config.setMinimumIdle(builder.initialConnections);
         config.setMaximumPoolSize(builder.maxConnections);
 

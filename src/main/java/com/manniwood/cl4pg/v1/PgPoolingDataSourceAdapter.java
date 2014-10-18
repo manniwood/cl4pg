@@ -46,11 +46,9 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
 
     public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + PgPoolingDataSourceAdapter.class.getSimpleName() + ".properties";
 
-    public static final String DEFAULT_DATA_SOURCE_NAME = "pgpool";
     public static final int DEFAULT_INITIAL_CONNECTIONS = 5;
     public static final int DEFAULT_MAX_CONNECTIONS = 20;
 
-    public static final String DATA_SOURCE_NAME_KEY = "dataSourceName";
     public static final String INITIAL_CONNECTIONS_KEY = "initialConnections";
     public static final String MAX_CONNECTIONS_KEY = "maxConnections";
 
@@ -93,10 +91,12 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
     }
 
     public static PgPoolingDataSourceAdapter buildFromConfFile(String path) {
+        log.debug("Conf file: " + path);
         Properties props = new Properties();
-        InputStream inStream = path.getClass().getClassLoader().getResourceAsStream(path);
+        InputStream inStream = PgPoolingDataSourceAdapter.class.getClassLoader().getResourceAsStream(path);
         if (inStream == null) {
-            throw new Cl4pgConfFileException("Could not find conf file (resource) \"" + path + "\"");
+            throw new Cl4pgConfFileException("Could not find conf file (resource) \"" + path + "\" in classpath \"" + System.getProperty("java.class.path")
+                    + "\"");
         }
         try {
             props.load(inStream);
@@ -136,17 +136,12 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
             builder.appName(appName);
         }
 
-        String dataSourceName = props.getProperty(DATA_SOURCE_NAME_KEY);
-        if (!Str.isNullOrEmpty(dataSourceName)) {
-            builder.dataSourceName(dataSourceName);
-        }
-
         String initialConnectionsStr = props.getProperty(INITIAL_CONNECTIONS_KEY);
         if (!Str.isNullOrEmpty(initialConnectionsStr)) {
             builder.initialConnections(Integer.parseInt(initialConnectionsStr));
         }
 
-        String maxConnectionsStr = props.getProperty(DATA_SOURCE_NAME_KEY);
+        String maxConnectionsStr = props.getProperty(MAX_CONNECTIONS_KEY);
         if (!Str.isNullOrEmpty(maxConnectionsStr)) {
             builder.maxConnections(Integer.parseInt(maxConnectionsStr));
         }
@@ -174,7 +169,6 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
         private String exceptionConverterStr = ConfigDefaults.DEFAULT_EXCEPTION_CONVERTER_CLASS;
         private ExceptionConverter exceptionConverter = null;
         private int transactionIsolationLevel = ConfigDefaults.DEFAULT_TRANSACTION_ISOLATION_LEVEL;
-        private String dataSourceName = DEFAULT_DATA_SOURCE_NAME;
         private int initialConnections = DEFAULT_INITIAL_CONNECTIONS;
         private int maxConnections = DEFAULT_MAX_CONNECTIONS;
 
@@ -215,11 +209,6 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
 
         public Builder appName(String appName) {
             this.appName = appName;
-            return this;
-        }
-
-        public Builder dataSourceName(String dataSourceName) {
-            this.dataSourceName = dataSourceName;
             return this;
         }
 
@@ -292,7 +281,6 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
         ds.setUser(builder.username);
         ds.setPassword(builder.password);
         ds.setApplicationName(builder.appName);
-        ds.setDataSourceName(builder.dataSourceName);
         ds.setInitialConnections(builder.initialConnections);
         ds.setMaxConnections(builder.maxConnections);
         log.info("Application Name: {}", builder.appName);
