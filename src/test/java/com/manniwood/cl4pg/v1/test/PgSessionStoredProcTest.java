@@ -42,6 +42,7 @@ import com.manniwood.cl4pg.v1.commands.Insert;
 import com.manniwood.cl4pg.v1.commands.Select;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
+import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
 import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
 import com.manniwood.cl4pg.v1.test.etc.TwoInts;
 import com.manniwood.cl4pg.v1.test.exceptionmappers.TestExceptionConverter;

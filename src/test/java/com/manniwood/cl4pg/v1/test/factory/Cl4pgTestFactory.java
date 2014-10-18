@@ -25,28 +25,34 @@ package com.manniwood.cl4pg.v1.test.factory;
 
 import org.testng.annotations.Factory;
 
-import com.manniwood.cl4pg.v1.test.HikariSessionTest;
-import com.manniwood.cl4pg.v1.test.PgSessionCopyTest;
 import com.manniwood.cl4pg.v1.test.PgSessionDeleteTest;
 import com.manniwood.cl4pg.v1.test.PgSessionSelectTest;
 import com.manniwood.cl4pg.v1.test.PgSessionStoredProcTest;
 import com.manniwood.cl4pg.v1.test.PgSessionUpdateTest;
-import com.manniwood.cl4pg.v1.test.PoolingPgSessionTest;
-import com.manniwood.cl4pg.v1.test.SimplePgSessionTest;
+import com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariCopyTest;
+import com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariSessionTest;
+import com.manniwood.cl4pg.v1.test.ds.poolingpg.PoolingPgCopyTest;
+import com.manniwood.cl4pg.v1.test.ds.poolingpg.PoolingPgSessionTest;
+import com.manniwood.cl4pg.v1.test.ds.simplepg.SimplePgCopyTest;
+import com.manniwood.cl4pg.v1.test.ds.simplepg.SimplePgSessionTest;
 
 public class Cl4pgTestFactory {
     @Factory
     public Object[] allTests() {
         return new Object[] {
-                new PgSessionCopyTest(),
-                new PgSessionDeleteTest(),
-                new PgSessionSelectTest(),
-                new PgSessionStoredProcTest(),
                 new SimplePgSessionTest(),
                 new PoolingPgSessionTest(),
                 new HikariSessionTest(),
-                new PgSessionUpdateTest()
+
+                new SimplePgCopyTest(),
+                new PoolingPgCopyTest(),
+                new HikariCopyTest(),
+
+                new PgSessionUpdateTest(),
+                new PgSessionDeleteTest(),
+                new PgSessionSelectTest(),
+                new PgSessionStoredProcTest(),
+
         };
     }
-
 }

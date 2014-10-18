@@ -1,5 +1,3 @@
-0) Get pooling data source working
-0.1) Get HikariHP data source working
 
 1) Write easy wrapper
 
@@ -17,5 +15,8 @@ reflection calls into compiled code faster (instead of waiting
 for the default number of invocations).
 10) sql to be executed on startup of connection
 12) Converters registerable and addable by end-users
+13) handle insert/returning
+14) handle update/returning
+15) make all commands implement Closeable interface
 
-call project PgNoRM (for PostgreSQL No ORM)
+13) call project PgNoRM (for PostgreSQL No ORM)

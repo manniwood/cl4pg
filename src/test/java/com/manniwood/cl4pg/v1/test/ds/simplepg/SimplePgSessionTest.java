@@ -21,19 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.test;
+package com.manniwood.cl4pg.v1.test.ds.simplepg;
 
 import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.PgPoolingDataSourceAdapter;
+import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
+import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
 
 @Test
-public class PoolingPgSessionTest extends AbstractPgSessionTest {
+public class SimplePgSessionTest extends AbstractPgSessionTest {
 
     @Override
     protected DataSourceAdapter configureDataSourceAdapter() {
-        return PgPoolingDataSourceAdapter.buildFromDefaultConfFile();
+        return PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
     }
 
 }

@@ -59,7 +59,8 @@ public class CopyFileIn implements Command {
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
         String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
-        CopyManager copyManager = ((PGConnection) connection).getCopyAPI();
+        PGConnection pgConn = dataSourceAdapter.unwrapPgConnection(connection);
+        CopyManager copyManager = (pgConn).getCopyAPI();
         fileReader = new FileReader(copyFile);
         copyManager.copyIn(theSql, fileReader);
     }

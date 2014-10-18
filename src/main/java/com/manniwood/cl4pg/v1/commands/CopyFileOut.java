@@ -59,7 +59,8 @@ public class CopyFileOut implements Command {
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
         String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
-        CopyManager copyManager = ((PGConnection) connection).getCopyAPI();
+        PGConnection pgConn = dataSourceAdapter.unwrapPgConnection(connection);
+        CopyManager copyManager = (pgConn).getCopyAPI();
         fileWriter = new FileWriter(copyFile);
         copyManager.copyOut(theSql, fileWriter);
     }

@@ -41,6 +41,7 @@ import com.manniwood.cl4pg.v1.commands.Update;
 import com.manniwood.cl4pg.v1.commands.UpdateB;
 import com.manniwood.cl4pg.v1.commands.UpdateV;
 import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitSettersListHandler;
+import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
 import com.manniwood.cl4pg.v1.test.etc.User;
 import com.manniwood.cl4pg.v1.test.exceptionmappers.TestExceptionConverter;
 

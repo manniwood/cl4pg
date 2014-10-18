@@ -40,6 +40,7 @@ import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitSettersListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
+import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
 import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
 import com.manniwood.cl4pg.v1.test.etc.User;
 import com.manniwood.cl4pg.v1.test.etc.Users;
