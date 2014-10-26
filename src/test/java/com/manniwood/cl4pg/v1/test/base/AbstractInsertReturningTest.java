@@ -23,11 +23,8 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.base;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import org.postgresql.PGNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -40,9 +37,7 @@ import com.manniwood.cl4pg.v1.PgSession;
 import com.manniwood.cl4pg.v1.PgSessionPool;
 import com.manniwood.cl4pg.v1.commands.DDL;
 import com.manniwood.cl4pg.v1.commands.Insert;
-import com.manniwood.cl4pg.v1.commands.Select;
-import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
+import com.manniwood.cl4pg.v1.commands.InsertReturning;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.cl4pg.v1.test.etc.User;
 import com.manniwood.cl4pg.v1.test.exceptions.UserAlreadyExistsException;
@@ -56,8 +51,8 @@ import com.manniwood.cl4pg.v1.test.exceptions.UserAlreadyExistsException;
  * @author mwood
  *
  */
-public abstract class AbstractPgSessionTest {
-    private final static Logger log = LoggerFactory.getLogger(AbstractPgSessionTest.class);
+public abstract class AbstractInsertReturningTest {
+    private final static Logger log = LoggerFactory.getLogger(AbstractInsertReturningTest.class);
 
     public static final String TEST_COPY_FILE = "/tmp/users.copy";
 
@@ -99,7 +94,7 @@ public abstract class AbstractPgSessionTest {
         PgSessionPool pool = new PgSessionPool(adapter);
         pgSession = pool.getSession();
 
-        pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
+        pgSession.run(DDL.config().file("sql/create_temp_constrained_users_table.sql").done());
         pgSession.commit();
     }
 
@@ -127,76 +122,21 @@ public abstract class AbstractPgSessionTest {
     @Test(priority = 1)
     public void testInsertAndSelectOneUsingBeans() {
 
-        User expected = createExpectedUser();
-        pgSession.run(Insert.<User> usingBeanArg()
-                .file("sql/insert_user.sql")
-                .arg(expected)
-                .done());
-        pgSession.commit();
-
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
-        pgSession.run(Select.<User> usingBeanArg()
-                .file("sql/select_user_guess_setters_bean_param.sql")
+        User expected = createExpectedUser();
+        pgSession.run(InsertReturning.<User> usingBeanArg()
+                .file("sql/insert_user_returning.sql")
                 .arg(expected)
                 .resultSetHandler(handler)
                 .done());
-        pgSession.rollback();
+        pgSession.commit();
         User actual = handler.getList().get(0);
 
         Assert.assertEquals(actual, expected, "users must match");
     }
 
-    @Test(priority = 2)
-    public void testListenNotify() {
-        // According to Pg docs, "Except for dropping later instances of
-        // duplicate notifications,
-        // NOTIFY guarantees that notifications from the same transaction get
-        // delivered in the order they were sent."
-        // So, an ordered list should be a good thing to test against.
-        List<String> expected = new ArrayList<>();
-        expected.add("bar");
-        expected.add("baz");
-        expected.add("bal");
-
-        DataSourceAdapter adapter2 = configureDataSourceAdapter();
-        PgSessionPool pool2 = new PgSessionPool(adapter2);
-        PgSession pgSession2 = pool2.getSession();
-
-        pgSession2.pgListen("foo \" bar");
-        pgSession2.commit();
-
-        for (String s : expected) {
-            pgSession.pgNotify("foo \" bar", s);
-        }
-        pgSession.commit();
-
-        // Ensure you can do other queries on the listening session and not lose
-        // the notifications just because you have run a query and committed,
-        // but not yet retrieved the notifications.
-        GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
-        pgSession.run(Select.usingVariadicArgs()
-                .file("sql/select_user_guess_setters.sql")
-                .args(UUID.fromString(TEST_ID))
-                .resultSetHandler(handler)
-                .done());
-        pgSession2.commit();
-
-        PGNotification[] notifications = pgSession2.getNotifications();
-        pgSession2.commit();
-
-        List<String> actual = new ArrayList<>();
-        for (PGNotification notification : notifications) {
-            log.info("notification name {}, parameter: {}, pid: {}", notification.getName(), notification.getParameter(), notification.getPID());
-            actual.add(notification.getParameter());
-        }
-        Assert.assertEquals(actual, expected, "Notifications must all be recieved, in the same order");
-        pgSession2.close();
-    }
-
     @Test(priority = 3)
     public void testExceptions() {
-        pgSession.run(DDL.config().sql("drop table users").done());
-        pgSession.run(DDL.config().file("sql/create_temp_constrained_users_table.sql").done());
         pgSession.commit();
 
         User expected = createExpectedUser();
@@ -220,34 +160,6 @@ public abstract class AbstractPgSessionTest {
         pgSession.run(DDL.config().sql("drop table users").done());
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.commit();
-    }
-
-    @Test(priority = 4)
-    public void testRollback() {
-        Cl4pgException expectedException = null;
-        try {
-            pgSession.run(DDL.config().sql("select flurby").done());
-        } catch (Cl4pgException e) {
-            expectedException = e;
-        }
-        Assert.assertNotNull(expectedException);
-        log.info("test correctly caught following exception", expectedException);
-
-        /*
-         * Because of successful rollback, this next select should work, and we
-         * should NOT get this following exception: ERROR: 25P02: current
-         * transaction is aborted, commands ignored until end of transaction
-         * block
-         */
-        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.usingVariadicArgs()
-                .sql("select 1")
-                .resultSetHandler(handler)
-                .done());
-        Integer count = handler.getList().get(0);
-        Assert.assertEquals(count.intValue(),
-                            1,
-                            "Statement needs to return 1");
     }
 
 }

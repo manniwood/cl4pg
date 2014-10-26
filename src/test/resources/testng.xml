@@ -8,6 +8,7 @@
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariSessionTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariStoredProcTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariUpdateTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariInsertReturningTest" />
             
             <class name="com.manniwood.cl4pg.v1.test.ds.poolingpg.PoolingPgCopyTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.poolingpg.PoolingPgDeleteTest" />
@@ -15,6 +16,7 @@
             <class name="com.manniwood.cl4pg.v1.test.ds.poolingpg.PoolingPgSessionTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.poolingpg.PoolingPgStoredProcTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.poolingpg.PoolingPgUpdateTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.poolingpg.PoolingPgInsertReturningTest" />
             
             <class name="com.manniwood.cl4pg.v1.test.ds.simplepg.SimplePgCopyTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.simplepg.SimplePgDeleteTest" />
@@ -22,6 +24,7 @@
             <class name="com.manniwood.cl4pg.v1.test.ds.simplepg.SimplePgSessionTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.simplepg.SimplePgStoredProcTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.simplepg.SimplePgUpdateTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.simplepg.SimplePgInsertReturningTest" />
         </classes>
     </test>
 </suite>
