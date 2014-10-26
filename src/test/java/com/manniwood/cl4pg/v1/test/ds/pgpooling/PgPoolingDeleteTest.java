@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.test.ds.poolingpg;
+package com.manniwood.cl4pg.v1.test.ds.pgpooling;
 
 import org.testng.annotations.Test;
 
@@ -30,7 +30,7 @@ import com.manniwood.cl4pg.v1.PgPoolingDataSourceAdapter;
 import com.manniwood.cl4pg.v1.test.base.AbstractDeleteTest;
 
 @Test
-public class PoolingPgDeleteTest extends AbstractDeleteTest {
+public class PgPoolingDeleteTest extends AbstractDeleteTest {
 
     @Override
     protected DataSourceAdapter configureDataSourceAdapter() {

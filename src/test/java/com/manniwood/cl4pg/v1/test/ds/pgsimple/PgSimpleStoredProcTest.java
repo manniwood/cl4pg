@@ -21,16 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.test.ds.simplepg;
+package com.manniwood.cl4pg.v1.test.ds.pgsimple;
 
 import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
-import com.manniwood.cl4pg.v1.test.base.AbstractDeleteTest;
+import com.manniwood.cl4pg.v1.test.base.AbstractStoredProcTest;
 
 @Test
-public class SimplePgDeleteTest extends AbstractDeleteTest {
+public class PgSimpleStoredProcTest extends AbstractStoredProcTest {
 
     @Override
     protected DataSourceAdapter configureDataSourceAdapter() {
