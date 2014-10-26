@@ -57,6 +57,7 @@ import com.manniwood.cl4pg.v1.test.etc.User;
 public abstract class AbstractDeleteTest {
 
     private PgSession pgSession;
+    private PgSessionPool pool;
 
     private User expectedUser;
 
@@ -65,7 +66,7 @@ public abstract class AbstractDeleteTest {
 
         DataSourceAdapter adapter = configureDataSourceAdapter();
 
-        PgSessionPool pool = new PgSessionPool(adapter);
+        pool = new PgSessionPool(adapter);
 
         pgSession = pool.getSession();
 
@@ -84,6 +85,7 @@ public abstract class AbstractDeleteTest {
     @AfterClass
     public void tearDown() {
         pgSession.close();
+        pool.close();
     }
 
     @BeforeMethod

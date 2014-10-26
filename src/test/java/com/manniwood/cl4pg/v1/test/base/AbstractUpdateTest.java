@@ -26,6 +26,7 @@ package com.manniwood.cl4pg.v1.test.base;
 import java.util.UUID;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -55,6 +56,7 @@ import com.manniwood.cl4pg.v1.test.etc.User;
 public abstract class AbstractUpdateTest {
 
     private PgSession pgSession;
+    private PgSessionPool pool;
 
     private User expectedUser;
     private User updatedUser;
@@ -64,7 +66,7 @@ public abstract class AbstractUpdateTest {
 
         DataSourceAdapter adapter = configureDataSourceAdapter();
 
-        PgSessionPool pool = new PgSessionPool(adapter);
+        pool = new PgSessionPool(adapter);
 
         pgSession = pool.getSession();
 
@@ -85,6 +87,12 @@ public abstract class AbstractUpdateTest {
     }
 
     protected abstract DataSourceAdapter configureDataSourceAdapter();
+
+    @AfterClass
+    public void tearDown() {
+        pgSession.close();
+        pool.close();
+    }
 
     @BeforeMethod
     public void resetTable() {

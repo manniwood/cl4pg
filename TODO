@@ -1,4 +1,6 @@
 
+0) Add sql debug printout to all commands
+
 1) Write easy wrapper
 
 2) Write better comments in files
@@ -15,8 +17,10 @@ reflection calls into compiled code faster (instead of waiting
 for the default number of invocations).
 10) sql to be executed on startup of connection
 12) Converters registerable and addable by end-users
-13) handle insert/returning
 14) handle update/returning
+14) handle delete/returning
 15) make all commands implement Closeable interface
+
+14) Batch inserts
 
 13) call project PgNoRM (for PostgreSQL No ORM)

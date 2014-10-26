@@ -57,13 +57,14 @@ import com.manniwood.cl4pg.v1.test.etc.TwoInts;
 public abstract class AbstractStoredProcTest {
 
     private PgSession pgSession;
+    private PgSessionPool pool;
 
     @BeforeClass
     public void init() {
 
         DataSourceAdapter adapter = configureDataSourceAdapter();
 
-        PgSessionPool pool = new PgSessionPool(adapter);
+        pool = new PgSessionPool(adapter);
 
         pgSession = pool.getSession();
 
@@ -110,6 +111,7 @@ public abstract class AbstractStoredProcTest {
         pgSession.run(DDL.config().file("sql/drop_get_user_by_id_func.sql").done());
         pgSession.commit();
         pgSession.close();
+        pool.close();
     }
 
     @Test(priority = 0)

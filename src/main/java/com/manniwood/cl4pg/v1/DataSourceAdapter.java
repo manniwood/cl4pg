@@ -24,9 +24,11 @@ THE SOFTWARE.
 package com.manniwood.cl4pg.v1;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.postgresql.PGConnection;
+import org.postgresql.PGStatement;
 
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 
@@ -37,4 +39,7 @@ public interface DataSourceAdapter {
 
     PGConnection unwrapPgConnection(Connection conn) throws SQLException;
 
+    PGStatement unwrapPgPreparedStatement(PreparedStatement pstmt) throws SQLException;
+
+    void close();
 }

@@ -28,10 +28,12 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
 import org.postgresql.PGConnection;
+import org.postgresql.PGStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +46,7 @@ import com.manniwood.cl4pg.v1.util.Str;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.proxy.ConnectionProxy;
+import com.zaxxer.hikari.proxy.PreparedStatementProxy;
 
 public class HikariCpDataSourceAdapter implements DataSourceAdapter {
 
@@ -84,6 +87,12 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
     public PGConnection unwrapPgConnection(Connection conn) throws SQLException {
         ConnectionProxy proxy = (ConnectionProxy) conn;
         return proxy.<PGConnection> unwrap(PGConnection.class);
+    }
+
+    @Override
+    public PGStatement unwrapPgPreparedStatement(PreparedStatement pstmt) throws SQLException {
+        PreparedStatementProxy proxy = (PreparedStatementProxy) pstmt;
+        return proxy.<PGStatement> unwrap(PGStatement.class);
     }
 
     public static HikariCpDataSourceAdapter.Builder configure() {
@@ -293,4 +302,10 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         exceptionConverter = builder.exceptionConverter;
         ds = new HikariDataSource(config);
     }
+
+    @Override
+    public void close() {
+        ds.close();
+    }
+
 }

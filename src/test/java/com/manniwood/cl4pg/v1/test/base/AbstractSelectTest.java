@@ -56,6 +56,7 @@ import com.manniwood.cl4pg.v1.test.etc.Users;
 public abstract class AbstractSelectTest {
 
     private PgSession pgSession;
+    private PgSessionPool pool;
     private static final User expected = createExpectedUser();
     private static final User userWithNulls = createUserWithNulls();
 
@@ -81,7 +82,7 @@ public abstract class AbstractSelectTest {
 
         DataSourceAdapter adapter = configureDataSourceAdapter();
 
-        PgSessionPool pool = new PgSessionPool(adapter);
+        pool = new PgSessionPool(adapter);
 
         pgSession = pool.getSession();
 
@@ -104,6 +105,7 @@ public abstract class AbstractSelectTest {
     @AfterClass
     public void tearDown() {
         pgSession.close();
+        pool.close();
     }
 
     @Test(priority = 0)

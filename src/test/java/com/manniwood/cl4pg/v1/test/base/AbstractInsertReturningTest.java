@@ -28,6 +28,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -86,12 +87,13 @@ public abstract class AbstractInsertReturningTest {
     public static final int EMPLOYEE_ID_3 = 3;
 
     private PgSession pgSession;
+    private PgSessionPool pool;
 
     @BeforeClass
     public void init() {
 
         DataSourceAdapter adapter = configureDataSourceAdapter();
-        PgSessionPool pool = new PgSessionPool(adapter);
+        pool = new PgSessionPool(adapter);
         pgSession = pool.getSession();
 
         pgSession.run(DDL.config().file("sql/create_temp_constrained_users_table.sql").done());
@@ -99,6 +101,12 @@ public abstract class AbstractInsertReturningTest {
     }
 
     protected abstract DataSourceAdapter configureDataSourceAdapter();
+
+    @AfterClass
+    public void tearDown() {
+        pgSession.close();
+        pool.close();
+    }
 
     private User createExpectedUser() {
         User expected;

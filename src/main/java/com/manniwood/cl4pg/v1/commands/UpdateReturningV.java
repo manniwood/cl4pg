@@ -25,27 +25,31 @@ package com.manniwood.cl4pg.v1.commands;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.List;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.cl4pg.v1.sqlparsers.BasicParserListener;
 import com.manniwood.cl4pg.v1.sqlparsers.SqlParser;
 import com.manniwood.cl4pg.v1.util.Cllctn;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
-public class UpdateV implements Command {
+public class UpdateReturningV implements Command {
 
     private final String sql;
     private final String filename;
+    private final ResultSetHandler resultSetHandler;
     private final Object[] args;
     private PreparedStatement pstmt;
     private int numberOfRowsAffected;
 
-    private UpdateV(Builder builder) {
+    private UpdateReturningV(Builder builder) {
         this.sql = builder.sql;
         this.filename = builder.filename;
+        this.resultSetHandler = builder.resultSetHandler;
         this.args = builder.args;
     }
 
@@ -74,7 +78,16 @@ public class UpdateV implements Command {
             }
         }
 
-        numberOfRowsAffected = pstmt.executeUpdate();
+        boolean hasResult = pstmt.execute();
+        if (hasResult) {
+            ResultSet rs = pstmt.getResultSet();
+            resultSetHandler.init(converterStore, rs);
+            while (rs.next()) {
+                resultSetHandler.processRow(rs);
+            }
+        }
+
+        numberOfRowsAffected = pstmt.getUpdateCount();
     }
 
     @Override
@@ -95,6 +108,7 @@ public class UpdateV implements Command {
     public static class Builder {
         private String sql;
         private String filename;
+        private ResultSetHandler resultSetHandler;
         private Object[] args;
 
         public Builder() {
@@ -111,16 +125,24 @@ public class UpdateV implements Command {
             return this;
         }
 
+        public Builder resultSetHandler(ResultSetHandler resultSetHandler) {
+            this.resultSetHandler = resultSetHandler;
+            return this;
+        }
+
         public Builder args(Object... args) {
             this.args = args;
             return this;
         }
 
-        public UpdateV done() {
+        public UpdateReturningV done() {
             if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
                 throw new Cl4pgConfigException("SQL string or file must be specified.");
             }
-            return new UpdateV(this);
+            if (resultSetHandler == null) {
+                throw new Cl4pgConfigException("A result set handler must be specified.");
+            }
+            return new UpdateReturningV(this);
         }
     }
 

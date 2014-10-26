@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2014 Manni Wood
+Copyright (t) 2014 Manni Wood
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,28 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1;
+package com.manniwood.cl4pg.v1.commands;
 
-import java.sql.Connection;
+public class UpdateReturning {
 
-import com.manniwood.cl4pg.v1.util.SqlCache;
-
-public class PgSessionPool {
-
-    private DataSourceAdapter dataSourceAdapter;
-    private final SqlCache sqlCache = new SqlCache();
-
-    public PgSessionPool(DataSourceAdapter dataSourceAdapter) {
-        this.dataSourceAdapter = dataSourceAdapter;
+    public static UpdateReturningV.Builder usingVariadicArgs() {
+        return new UpdateReturningV.Builder();
     }
 
-    public PgSession getSession() {
-        Connection conn = dataSourceAdapter.getConnection();
-        return new PgSession(conn, dataSourceAdapter, sqlCache);
+    public static <A> UpdateReturningB.Builder<A> usingBeanArg() {
+        return new UpdateReturningB.Builder<A>();
     }
-
-    public void close() {
-        dataSourceAdapter.close();
-    }
-
 }

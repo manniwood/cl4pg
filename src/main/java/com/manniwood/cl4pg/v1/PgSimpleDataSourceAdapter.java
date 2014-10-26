@@ -28,10 +28,12 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
 import org.postgresql.PGConnection;
+import org.postgresql.PGStatement;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +77,11 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
     @Override
     public PGConnection unwrapPgConnection(Connection conn) throws SQLException {
         return (PGConnection) conn;
+    }
+
+    @Override
+    public PGStatement unwrapPgPreparedStatement(PreparedStatement pstmt) throws SQLException {
+        return (PGStatement) pstmt;
     }
 
     public static PgSimpleDataSourceAdapter.Builder configure() {
@@ -255,6 +262,11 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;
+    }
+
+    @Override
+    public void close() {
+        // no-op
     }
 
 }

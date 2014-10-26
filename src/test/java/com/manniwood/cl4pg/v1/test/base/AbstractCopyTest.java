@@ -58,6 +58,7 @@ import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
 public abstract class AbstractCopyTest {
 
     private PgSession pgSession;
+    private PgSessionPool pool;
 
     @BeforeClass
     public void init() throws IOException {
@@ -66,7 +67,7 @@ public abstract class AbstractCopyTest {
 
         DataSourceAdapter adapter = configureDataSourceAdapter();
 
-        PgSessionPool pool = new PgSessionPool(adapter);
+        pool = new PgSessionPool(adapter);
 
         pgSession = pool.getSession();
 
@@ -102,6 +103,7 @@ public abstract class AbstractCopyTest {
     @AfterClass
     public void tearDown() {
         pgSession.close();
+        pool.close();
     }
 
     @Test(priority = 0)
