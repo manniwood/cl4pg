@@ -99,7 +99,7 @@ public class PgSession {
             throw createPg4jException(e, command.getSQL());
         } finally {
             try {
-                command.cleanUp();
+                command.close();
             } catch (Exception e) {
                 throw new Cl4pgFailedCleanupException("Could not clean up after running the following SQL command; resources may have been left open! SQL command is:\n"
                                                               + command.getSQL(),

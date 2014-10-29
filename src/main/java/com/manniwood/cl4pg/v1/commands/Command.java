@@ -29,7 +29,7 @@ import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
-public interface Command {
+public interface Command extends AutoCloseable {
     /**
      * Get the SQL statement used by this command.
      *
@@ -47,10 +47,4 @@ public interface Command {
                  SqlCache sqlCache,
                  DataSourceAdapter dataSourceAdapter) throws Exception;
 
-    /**
-     * Clean up / close all resources used to execute this command. For
-     * instance, close prepared statements, or close open files/streams used in
-     * copy commands.
-     */
-    void cleanUp() throws Exception;
 }

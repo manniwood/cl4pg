@@ -1,26 +1,34 @@
 
-0) Add sql debug printout to all commands
+-------- v1.0.x
 
-1) Write easy wrapper
+- handle delete/returning
 
-2) Write better comments in files
+- More type converters
 
-8) selectReport that returns map of string:colname string:value
+- Write easy wrapper
+
+- Write documentation
+
+-------- v1.1.x
+
+
+- Write better comments in files
+
+- selectReport that returns map of string:colname string:value
 for use in quick reporting displays where all values
 would end up being cast to string anyway.
-8) selectMap that returns map of String:colname Object:value
+
+- selectMap that returns map of String:colname Object:value
 for when a user just needs a quick way of getting the objects
 out of a query, and doesn't mind doing the casting himself.
-4) More type converters
-7) find and document that JVM setting that makes java turn
+
+- find and document that JVM setting that makes java turn
 reflection calls into compiled code faster (instead of waiting
 for the default number of invocations).
-10) sql to be executed on startup of connection
-12) Converters registerable and addable by end-users
-14) handle update/returning
-14) handle delete/returning
-15) make all commands implement Closeable interface
 
-14) Batch inserts
+- sql to be executed on startup of connection
 
-13) call project PgNoRM (for PostgreSQL No ORM)
+- Converters registerable and addable by end-users
+
+- Batch inserts
+

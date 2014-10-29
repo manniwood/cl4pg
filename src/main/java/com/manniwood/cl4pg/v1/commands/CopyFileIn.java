@@ -67,7 +67,7 @@ public class CopyFileIn implements Command {
     }
 
     @Override
-    public void cleanUp() throws Exception {
+    public void close() throws Exception {
         if (fileReader != null) {
             fileReader.close();
         }

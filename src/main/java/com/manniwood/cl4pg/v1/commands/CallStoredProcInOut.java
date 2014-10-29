@@ -90,7 +90,7 @@ public class CallStoredProcInOut<A> implements Command {
     }
 
     @Override
-    public void cleanUp() throws Exception {
+    public void close() throws Exception {
         if (cstmt != null) {
             cstmt.close();
         }

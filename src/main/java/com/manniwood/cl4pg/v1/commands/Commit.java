@@ -52,7 +52,7 @@ public class Commit implements Command {
     }
 
     @Override
-    public void cleanUp() throws Exception {
+    public void close() throws Exception {
         // nothing to clean up
     }
 

@@ -67,7 +67,7 @@ public class CopyFileOut implements Command {
     }
 
     @Override
-    public void cleanUp() throws Exception {
+    public void close() throws Exception {
         if (fileWriter != null) {
             fileWriter.close();
         }

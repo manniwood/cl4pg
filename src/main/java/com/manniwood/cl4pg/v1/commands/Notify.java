@@ -99,7 +99,7 @@ public class Notify implements Command {
     }
 
     @Override
-    public void cleanUp() throws Exception {
+    public void close() throws Exception {
         if (pstmt != null) {
             pstmt.close();
         }
