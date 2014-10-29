@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -45,6 +46,7 @@ import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.Str;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.proxy.CallableStatementProxy;
 import com.zaxxer.hikari.proxy.ConnectionProxy;
 import com.zaxxer.hikari.proxy.PreparedStatementProxy;
 
@@ -92,6 +94,12 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
     @Override
     public PGStatement unwrapPgPreparedStatement(PreparedStatement pstmt) throws SQLException {
         PreparedStatementProxy proxy = (PreparedStatementProxy) pstmt;
+        return proxy.<PGStatement> unwrap(PGStatement.class);
+    }
+
+    @Override
+    public PGStatement unwrapPgCallableStatement(CallableStatement cstmt) throws SQLException {
+        CallableStatementProxy proxy = (CallableStatementProxy) cstmt;
         return proxy.<PGStatement> unwrap(PGStatement.class);
     }
 

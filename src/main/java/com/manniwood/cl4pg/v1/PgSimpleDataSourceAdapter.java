@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -82,6 +83,11 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
     @Override
     public PGStatement unwrapPgPreparedStatement(PreparedStatement pstmt) throws SQLException {
         return (PGStatement) pstmt;
+    }
+
+    @Override
+    public PGStatement unwrapPgCallableStatement(CallableStatement cstmt) throws SQLException {
+        return (PGStatement) cstmt;
     }
 
     public static PgSimpleDataSourceAdapter.Builder configure() {

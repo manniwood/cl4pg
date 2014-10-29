@@ -26,12 +26,18 @@ package com.manniwood.cl4pg.v1.commands;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
 public class DDL implements Command {
+
+    private final static Logger log = LoggerFactory.getLogger(DDL.class);
 
     private final String sql;
     private final String filename;
@@ -55,6 +61,7 @@ public class DDL implements Command {
         String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
 
         pstmt = connection.prepareStatement(theSql);
+        log.debug("Final SQL:\n{}", dataSourceAdapter.unwrapPgPreparedStatement(pstmt));
         pstmt.execute();
     }
 

@@ -32,6 +32,7 @@ import org.postgresql.copy.CopyManager;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 

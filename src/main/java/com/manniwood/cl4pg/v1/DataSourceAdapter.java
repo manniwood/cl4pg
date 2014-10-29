@@ -23,6 +23,7 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -40,6 +41,8 @@ public interface DataSourceAdapter {
     PGConnection unwrapPgConnection(Connection conn) throws SQLException;
 
     PGStatement unwrapPgPreparedStatement(PreparedStatement pstmt) throws SQLException;
+
+    PGStatement unwrapPgCallableStatement(CallableStatement cstmt) throws SQLException;
 
     void close();
 }

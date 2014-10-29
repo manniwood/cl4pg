@@ -27,9 +27,13 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.converters.SetterAndConverterAndColNum;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.sqlparsers.InOutArg;
 import com.manniwood.cl4pg.v1.sqlparsers.SlashParserListener;
 import com.manniwood.cl4pg.v1.sqlparsers.SqlParser;
@@ -37,6 +41,8 @@ import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
 public class CallStoredProcInOut<A> implements Command {
+
+    private final static Logger log = LoggerFactory.getLogger(CallStoredProcInOut.class);
 
     private final String sql;
     private final String filename;
@@ -72,6 +78,7 @@ public class CallStoredProcInOut<A> implements Command {
             converterStore.setSQLArguments(cstmt, arg, gettersAndSetters);
         }
 
+        log.debug("Final SQL:\n{}", dataSourceAdapter.unwrapPgCallableStatement(cstmt));
         cstmt.execute();
 
         // There is no result set handler here; we just set the

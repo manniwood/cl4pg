@@ -65,6 +65,7 @@ public class Listen implements Command {
         // safe to use in the next sql statement.
         PreparedStatement pstmt1 = connection.prepareStatement("select quote_ident(?)");
         pstmt1.setString(1, channel);
+        log.debug("SQL to quote channel name:\n{}", dataSourceAdapter.unwrapPgPreparedStatement(pstmt1));
         ResultSet rs = pstmt1.executeQuery();
         if (rs.next()) {
             channel = rs.getString(1);
@@ -73,7 +74,7 @@ public class Listen implements Command {
         }
 
         sql = "listen " + channel;
-        log.debug("Outgoing sql: {}", sql);
+        log.debug("Final SQL: {}", sql);
 
         pstmt = connection.prepareStatement(sql);
         pstmt.execute();

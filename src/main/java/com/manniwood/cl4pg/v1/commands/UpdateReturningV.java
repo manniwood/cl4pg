@@ -28,8 +28,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.cl4pg.v1.sqlparsers.BasicParserListener;
 import com.manniwood.cl4pg.v1.sqlparsers.SqlParser;
@@ -38,6 +42,8 @@ import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
 public class UpdateReturningV implements Command {
+
+    private final static Logger log = LoggerFactory.getLogger(UpdateReturningV.class);
 
     private final String sql;
     private final String filename;
@@ -78,6 +84,7 @@ public class UpdateReturningV implements Command {
             }
         }
 
+        log.debug("Final SQL:\n{}", dataSourceAdapter.unwrapPgPreparedStatement(pstmt));
         boolean hasResult = pstmt.execute();
         if (hasResult) {
             ResultSet rs = pstmt.getResultSet();

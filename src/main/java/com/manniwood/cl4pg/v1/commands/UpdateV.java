@@ -27,8 +27,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.sqlparsers.BasicParserListener;
 import com.manniwood.cl4pg.v1.sqlparsers.SqlParser;
 import com.manniwood.cl4pg.v1.util.Cllctn;
@@ -36,6 +40,8 @@ import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
 public class UpdateV implements Command {
+
+    private final static Logger log = LoggerFactory.getLogger(UpdateV.class);
 
     private final String sql;
     private final String filename;
@@ -74,6 +80,7 @@ public class UpdateV implements Command {
             }
         }
 
+        log.debug("Final SQL:\n{}", dataSourceAdapter.unwrapPgPreparedStatement(pstmt));
         numberOfRowsAffected = pstmt.executeUpdate();
     }
 

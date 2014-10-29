@@ -59,8 +59,8 @@ public class GetNotifications implements Command {
                         ConverterStore converterStore,
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
-        log.debug("Outgoing SQL: {}", sql);
         pstmt = connection.prepareStatement(sql);
+        log.debug("Final SQL:\n{}", dataSourceAdapter.unwrapPgPreparedStatement(pstmt));
         pstmt.execute();
         PGConnection pgConn = dataSourceAdapter.unwrapPgConnection(connection);
         notifications = pgConn.getNotifications();

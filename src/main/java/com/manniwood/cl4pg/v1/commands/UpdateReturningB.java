@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.cl4pg.v1.sqlparsers.BasicParserListener;
 import com.manniwood.cl4pg.v1.sqlparsers.SqlParser;

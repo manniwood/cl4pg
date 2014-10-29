@@ -29,8 +29,13 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgSyntaxException;
 import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.cl4pg.v1.sqlparsers.SpecialFirstArgParserListener;
 import com.manniwood.cl4pg.v1.sqlparsers.SqlParser;
@@ -39,6 +44,8 @@ import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
 public class CallStoredProcRefCursorB<A> implements Command {
+
+    private final static Logger log = LoggerFactory.getLogger(CallStoredProcRefCursorB.class);
 
     private final String sql;
     private final String filename;
@@ -92,6 +99,7 @@ public class CallStoredProcRefCursorB<A> implements Command {
             converterStore.setSQLArguments(cstmt, arg, getters, 2);
         }
 
+        log.debug("Final SQL:\n{}", dataSourceAdapter.unwrapPgCallableStatement(cstmt));
         cstmt.execute();
         ResultSet rs = (ResultSet) cstmt.getObject(1);
         resultSetHandler.init(converterStore, rs);
