@@ -39,7 +39,7 @@ public class DDL implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(DDL.class);
 
-    private final String sql;
+    private String sql;
     private final String filename;
     private PreparedStatement pstmt;
 
@@ -58,9 +58,11 @@ public class DDL implements Command {
                         ConverterStore converterStore,
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
-        String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
+        if (Str.isNullOrEmpty(sql)) {
+            sql = sqlCache.slurpFileFromClasspath(filename);
+        }
 
-        pstmt = connection.prepareStatement(theSql);
+        pstmt = connection.prepareStatement(sql);
         log.debug("Final SQL:\n{}", dataSourceAdapter.unwrapPgPreparedStatement(pstmt));
         pstmt.execute();
     }

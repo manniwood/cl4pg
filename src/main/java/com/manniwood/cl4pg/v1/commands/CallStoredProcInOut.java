@@ -44,7 +44,7 @@ public class CallStoredProcInOut<A> implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(CallStoredProcInOut.class);
 
-    private final String sql;
+    private String sql;
     private final String filename;
     private final A arg;
     private CallableStatement cstmt;
@@ -65,11 +65,13 @@ public class CallStoredProcInOut<A> implements Command {
                         ConverterStore converterStore,
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
-        String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
+        if (Str.isNullOrEmpty(sql)) {
+            sql = sqlCache.slurpFileFromClasspath(filename);
+        }
 
         SlashParserListener slashParserListener = new SlashParserListener();
         SqlParser sqlParser = new SqlParser(slashParserListener);
-        String transformedSql = sqlParser.transform(theSql);
+        String transformedSql = sqlParser.transform(sql);
 
         CallableStatement cstmt = connection.prepareCall(transformedSql);
         List<InOutArg> gettersAndSetters = slashParserListener.getArgs();

@@ -44,7 +44,7 @@ public class InsertReturningB<A> implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(InsertReturningB.class);
 
-    private final String sql;
+    private String sql;
     private final String filename;
     private final ResultSetHandler resultSetHandler;
     private final A arg;
@@ -67,11 +67,13 @@ public class InsertReturningB<A> implements Command {
                         ConverterStore converterStore,
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
-        String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
+        if (Str.isNullOrEmpty(sql)) {
+            sql = sqlCache.slurpFileFromClasspath(filename);
+        }
 
         BasicParserListener basicParserListener = new BasicParserListener();
         SqlParser sqlParser = new SqlParser(basicParserListener);
-        String transformedSql = sqlParser.transform(theSql);
+        String transformedSql = sqlParser.transform(sql);
 
         PreparedStatement pstmt = connection.prepareStatement(transformedSql);
         List<String> getters = basicParserListener.getArgs();
