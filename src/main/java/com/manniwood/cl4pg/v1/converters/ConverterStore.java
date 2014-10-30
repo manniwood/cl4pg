@@ -23,6 +23,8 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.converters;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,19 +37,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.manniwood.cl4pg.v1.ConfigDefaults;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
 import com.manniwood.cl4pg.v1.sqlparsers.InOutArg;
 import com.manniwood.cl4pg.v1.typeconverters.Converter;
-import com.manniwood.cl4pg.v1.typeconverters.IntConverter;
-import com.manniwood.cl4pg.v1.typeconverters.LongConverter;
-import com.manniwood.cl4pg.v1.typeconverters.StringConverter;
-import com.manniwood.cl4pg.v1.typeconverters.UUIDConverter;
 import com.manniwood.cl4pg.v1.util.ColumnLabelConverter;
+import com.manniwood.cl4pg.v1.util.ResourceUtil;
 
 public class ConverterStore {
 
@@ -56,13 +57,26 @@ public class ConverterStore {
     private Map<Class<?>, Converter<?>> converters;
 
     public ConverterStore() {
+        String path = ConfigDefaults.PROJ_NAME + "/BuiltinTypeConverters.properties";
+        Properties props = new Properties();
+        InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
+        if (inStream == null) {
+            throw new Cl4pgConfFileException("Could not find conf file \"" + path + "\"");
+        }
+        try {
+            props.load(inStream);
+        } catch (IOException e) {
+            throw new Cl4pgConfFileException("Could not read conf file \"" + path + "\"", e);
+        }
+
         converters = new HashMap<>();
-        converters.put(int.class, new IntConverter());
-        converters.put(Integer.class, new IntConverter());
-        converters.put(long.class, new LongConverter());
-        converters.put(Long.class, new LongConverter());
-        converters.put(String.class, new StringConverter());
-        converters.put(UUID.class, new UUIDConverter());
+
+        for (String className : props.stringPropertyNames()) {
+            Class<?> clazz = className2ClassOrThrow(className);
+            Class<?> converterClass = className2ClassOrThrow(props.getProperty(className));
+            Converter<?> converter = (Converter<?>) instantiateOrThrow(converterClass);
+            converters.put(clazz, converter);
+        }
     }
 
     public static Map<Class<?>, Class<?>> wrappersToPrimitives = new HashMap<>();
@@ -419,6 +433,24 @@ public class ConverterStore {
             return c;
         }
         return Class.forName(className);
+    }
+
+    public static Class<?> className2ClassOrThrow(String className) {
+        Class<?> c = null;
+        try {
+            c = className2Class(className);
+        } catch (ClassNotFoundException e) {
+            throw new Cl4pgReflectionException(e);
+        }
+        return c;
+    }
+
+    private Object instantiateOrThrow(Class<?> converterClass) {
+        try {
+            return converterClass.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new Cl4pgReflectionException(e);
+        }
     }
 
     private <T> Method findMethod(Class<T> returnType,
