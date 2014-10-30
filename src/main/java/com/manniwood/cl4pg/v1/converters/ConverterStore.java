@@ -49,16 +49,49 @@ import com.manniwood.cl4pg.v1.sqlparsers.InOutArg;
 import com.manniwood.cl4pg.v1.typeconverters.Converter;
 import com.manniwood.cl4pg.v1.util.ColumnLabelConverter;
 import com.manniwood.cl4pg.v1.util.ResourceUtil;
+import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * This class needs to be thread safe!
+ *
+ * @author mwood
+ *
+ */
 public class ConverterStore {
 
     private final static Logger log = LoggerFactory.getLogger(ConverterStore.class);
 
-    private Map<Class<?>, Converter<?>> converters;
+    private final Map<Class<?>, Converter<?>> converters;
 
-    public ConverterStore() {
-        String path = ConfigDefaults.PROJ_NAME + "/BuiltinTypeConverters.properties";
-        Properties props = new Properties();
+    public ConverterStore(String typeConverterConfFiles) {
+        // The builtin type converters conf file is either the only
+        // type converters file in the list, or the first converters file
+        // in the list.
+        String allConfFiles;
+        if (Str.isNullOrEmpty(typeConverterConfFiles)) {
+            allConfFiles = ConfigDefaults.BUILTIN_TYPE_CONVERTERS_CONF_FILE;
+        } else {
+            allConfFiles = ConfigDefaults.BUILTIN_TYPE_CONVERTERS_CONF_FILE + "," + typeConverterConfFiles;
+        }
+        String[] fileNames = allConfFiles.split(",");
+
+        converters = new HashMap<>();
+
+        for (String fileName : fileNames) {
+            Properties props = loadPropsFromPath(fileName);
+
+            for (String className : props.stringPropertyNames()) {
+                Class<?> clazz = className2ClassOrThrow(className);
+                Class<?> converterClass = className2ClassOrThrow(props.getProperty(className));
+                Converter<?> converter = (Converter<?>) instantiateOrThrow(converterClass);
+                converters.put(clazz, converter);
+            }
+        }
+    }
+
+    private Properties loadPropsFromPath(String path) {
+        Properties props;
+        props = new Properties();
         InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
         if (inStream == null) {
             throw new Cl4pgConfFileException("Could not find conf file \"" + path + "\"");
@@ -68,15 +101,7 @@ public class ConverterStore {
         } catch (IOException e) {
             throw new Cl4pgConfFileException("Could not read conf file \"" + path + "\"", e);
         }
-
-        converters = new HashMap<>();
-
-        for (String className : props.stringPropertyNames()) {
-            Class<?> clazz = className2ClassOrThrow(className);
-            Class<?> converterClass = className2ClassOrThrow(props.getProperty(className));
-            Converter<?> converter = (Converter<?>) instantiateOrThrow(converterClass);
-            converters.put(clazz, converter);
-        }
+        return props;
     }
 
     public static Map<Class<?>, Class<?>> wrappersToPrimitives = new HashMap<>();

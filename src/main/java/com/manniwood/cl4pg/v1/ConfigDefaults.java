@@ -28,6 +28,7 @@ import java.sql.Connection;
 public class ConfigDefaults {
 
     public static final String PROJ_NAME = "cl4pg";
+    public static final String BUILTIN_TYPE_CONVERTERS_CONF_FILE = PROJ_NAME + "/BuiltinTypeConverters.properties";
 
     public static final String DEFAULT_HOSTNAME = "localhost";
     public static final int DEFAULT_PORT = 5432;
@@ -40,14 +41,13 @@ public class ConfigDefaults {
     public static final String HOSTNAME_KEY = "hostname";
     public static final String PORT_KEY = "port";
     public static final String DATABASE_KEY = "database";
-    public static final String USERNAME_KEY = "user"; // ugly, but matches name
-    // in Pg Driver
+    public static final String USERNAME_KEY = "user";
     public static final String PASSWORD_KEY = "password";
-    public static final String APP_NAME_KEY = "ApplicationName"; // ugly, but
-    // matches name
-    // in Pg Driver
+    // ugly, but matches name in Pg Driver
+    public static final String APP_NAME_KEY = "ApplicationName";
     public static final String EXCEPTION_CONVERTER_KEY = "ExceptionConverter";
     public static final String TRANSACTION_ISOLATION_LEVEL_KEY = "TransactionIsolationLevel";
+    public static final String TYPE_CONVERTER_CONF_FILES_KEY = "TypeConverterConfFiles";
 
     private ConfigDefaults() {
         // Utility class

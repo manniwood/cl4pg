@@ -39,6 +39,7 @@ import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
@@ -52,10 +53,11 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
 
     private final static Logger log = LoggerFactory.getLogger(PgSimpleDataSourceAdapter.class);
 
-    private ExceptionConverter exceptionConverter;
+    private final ExceptionConverter exceptionConverter;
+    private final ConverterStore converterStore;
 
-    private PGSimpleDataSource ds;
-    private int transactionIsolationLevel;
+    private final PGSimpleDataSource ds;
+    private final int transactionIsolationLevel;
 
     @Override
     public Connection getConnection() {
@@ -152,6 +154,11 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             builder.transactionIsolationLevel(Integer.parseInt(transactionIsolationLevelStr));
         }
 
+        String typeConverterConfFilesStr = props.getProperty(ConfigDefaults.TYPE_CONVERTER_CONF_FILES_KEY);
+        if (!Str.isNullOrEmpty(typeConverterConfFilesStr)) {
+            builder.typeConverterConfFiles(typeConverterConfFilesStr);
+        }
+
         return builder.done();
     }
 
@@ -165,6 +172,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         private String exceptionConverterStr = ConfigDefaults.DEFAULT_EXCEPTION_CONVERTER_CLASS;
         private ExceptionConverter exceptionConverter = null;
         private int transactionIsolationLevel = ConfigDefaults.DEFAULT_TRANSACTION_ISOLATION_LEVEL;
+        private String typeConverterConfFiles = null;
 
         public Builder() {
             // null constructor
@@ -233,6 +241,11 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
+        public Builder typeConverterConfFiles(String typeConverterConfFiles) {
+            this.typeConverterConfFiles = typeConverterConfFiles;
+            return this;
+        }
+
         public PgSimpleDataSourceAdapter done() {
             if (this.exceptionConverter == null) {
                 if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
@@ -252,6 +265,10 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
     }
 
     private PgSimpleDataSourceAdapter() {
+        exceptionConverter = null;
+        converterStore = null;
+        ds = null;
+        transactionIsolationLevel = -1;
     }
 
     private PgSimpleDataSourceAdapter(Builder builder) {
@@ -268,11 +285,17 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;
+        converterStore = new ConverterStore(builder.typeConverterConfFiles);
     }
 
     @Override
     public void close() {
         // no-op
+    }
+
+    @Override
+    public ConverterStore getConverterStore() {
+        return converterStore;
     }
 
 }

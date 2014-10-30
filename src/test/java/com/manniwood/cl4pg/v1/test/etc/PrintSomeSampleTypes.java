@@ -21,11 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.converters;
+package com.manniwood.cl4pg.v1.test.etc;
 
 import java.util.UUID;
 
-public class Hello {
+public class PrintSomeSampleTypes {
 
     public static void main(String[] args) {
         System.out.println(int.class);
@@ -38,7 +38,7 @@ public class Hello {
         System.out.println(UUID.class);
     }
 
-    public Hello() {
+    public PrintSomeSampleTypes() {
         // TODO Auto-generated constructor stub
     }
 

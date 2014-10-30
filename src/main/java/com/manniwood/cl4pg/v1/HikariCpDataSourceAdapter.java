@@ -38,6 +38,7 @@ import org.postgresql.PGStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
@@ -60,12 +61,13 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
     public static final String INITIAL_CONNECTIONS_KEY = "initialConnections";
     public static final String MAX_CONNECTIONS_KEY = "maxConnections";
 
-    private final static Logger log = LoggerFactory.getLogger(HikariCpDataSourceAdapter.class);
+    private static final Logger log = LoggerFactory.getLogger(HikariCpDataSourceAdapter.class);
 
-    private ExceptionConverter exceptionConverter;
+    private final ExceptionConverter exceptionConverter;
+    private final ConverterStore converterStore;
 
-    private HikariDataSource ds;
-    private int transactionIsolationLevel;
+    private final HikariDataSource ds;
+    private final int transactionIsolationLevel;
 
     @Override
     public Connection getConnection() {
@@ -176,6 +178,11 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
             builder.transactionIsolationLevel(Integer.parseInt(transactionIsolationLevelStr));
         }
 
+        String typeConverterConfFilesStr = props.getProperty(ConfigDefaults.TYPE_CONVERTER_CONF_FILES_KEY);
+        if (!Str.isNullOrEmpty(typeConverterConfFilesStr)) {
+            builder.typeConverterConfFiles(typeConverterConfFilesStr);
+        }
+
         return builder.done();
     }
 
@@ -191,6 +198,7 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         private int transactionIsolationLevel = ConfigDefaults.DEFAULT_TRANSACTION_ISOLATION_LEVEL;
         private int initialConnections = DEFAULT_INITIAL_CONNECTIONS;
         private int maxConnections = DEFAULT_MAX_CONNECTIONS;
+        private String typeConverterConfFiles = null;
 
         public Builder() {
             // null constructor
@@ -269,6 +277,11 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
+        public Builder typeConverterConfFiles(String typeConverterConfFiles) {
+            this.typeConverterConfFiles = typeConverterConfFiles;
+            return this;
+        }
+
         public HikariCpDataSourceAdapter done() {
             if (this.exceptionConverter == null) {
                 if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
@@ -288,6 +301,10 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
     }
 
     private HikariCpDataSourceAdapter() {
+        exceptionConverter = null;
+        converterStore = null;
+        ds = null;
+        transactionIsolationLevel = -1;
     }
 
     private HikariCpDataSourceAdapter(Builder builder) {
@@ -308,12 +325,18 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;
+        converterStore = new ConverterStore(builder.typeConverterConfFiles);
         ds = new HikariDataSource(config);
     }
 
     @Override
     public void close() {
         ds.close();
+    }
+
+    @Override
+    public ConverterStore getConverterStore() {
+        return converterStore;
     }
 
 }

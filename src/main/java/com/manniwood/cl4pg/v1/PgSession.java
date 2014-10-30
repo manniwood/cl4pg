@@ -46,17 +46,17 @@ import com.manniwood.cl4pg.v1.util.SqlCache;
 
 public class PgSession {
 
-    private Connection conn = null;
+    private final Connection conn;
     private final SqlCache sqlCache;
-
-    private DataSourceAdapter dataSourceAdapter = null;
-    private ExceptionConverter exceptionConverter = null;
-    private ConverterStore converterStore = new ConverterStore();
+    private final DataSourceAdapter dataSourceAdapter;
+    private final ExceptionConverter exceptionConverter;
+    private final ConverterStore converterStore;
 
     public PgSession(Connection conn, DataSourceAdapter dataSourceAdapter, SqlCache sqlCache) {
         this.conn = conn;
         this.dataSourceAdapter = dataSourceAdapter;
         this.exceptionConverter = dataSourceAdapter.getExceptionConverter();
+        this.converterStore = dataSourceAdapter.getConverterStore();
         this.sqlCache = sqlCache;
     }
 

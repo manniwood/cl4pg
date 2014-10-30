@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import org.postgresql.PGConnection;
 import org.postgresql.PGStatement;
 
+import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 
 public interface DataSourceAdapter {
@@ -45,4 +46,6 @@ public interface DataSourceAdapter {
     PGStatement unwrapPgCallableStatement(CallableStatement cstmt) throws SQLException;
 
     void close();
+
+    ConverterStore getConverterStore();
 }
