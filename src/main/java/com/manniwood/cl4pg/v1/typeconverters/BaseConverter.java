@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.cl4pg.v1.typeconverters;
 
 import java.sql.CallableStatement;
@@ -29,16 +29,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public abstract class BaseConverter<T> implements Converter<T> {
-    // XXX: handle setting null here?
     @Override
-    public abstract void setItem(PreparedStatement pstmt, int i, T t) throws SQLException;
+    public abstract void setItem(PreparedStatement pstmt,
+                                 int i,
+                                 T t) throws SQLException;
 
     @Override
-    public abstract T getItem(ResultSet rs, int i) throws SQLException;
+    public abstract T getItem(ResultSet rs,
+                              int i) throws SQLException;
 
     @Override
-    public abstract void registerOutParameter(CallableStatement cstmt, int i) throws SQLException;
+    public abstract void registerOutParameter(CallableStatement cstmt,
+                                              int i) throws SQLException;
 
     @Override
-    public abstract T getItem(CallableStatement cstmt, int i) throws SQLException;
+    public abstract T getItem(CallableStatement cstmt,
+                              int i) throws SQLException;
 }

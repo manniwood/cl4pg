@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.cl4pg.v1.typeconverters;
 
 import java.sql.CallableStatement;
@@ -29,27 +29,35 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class LongConverter extends BaseConverter<Long>{
+public class LongConverter extends BaseConverter<Long> {
 
     @Override
-    public void setItem(PreparedStatement pstmt, int i, Long t) throws SQLException {
-        // XXX: will not deal with null long value
-        long myInt = t.longValue();
-        pstmt.setLong(i, myInt);
+    public void setItem(PreparedStatement pstmt,
+                        int i,
+                        Long t) throws SQLException {
+        if (t == null) {
+            pstmt.setNull(i, Types.BIGINT);
+        } else {
+            long myInt = t.longValue();
+            pstmt.setLong(i, myInt);
+        }
     }
 
     @Override
-    public Long getItem(ResultSet rs, int i) throws SQLException {
+    public Long getItem(ResultSet rs,
+                        int i) throws SQLException {
         return rs.getLong(i);
     }
 
     @Override
-    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
+    public void registerOutParameter(CallableStatement cstmt,
+                                     int i) throws SQLException {
         cstmt.registerOutParameter(i, Types.BIGINT);
     }
 
     @Override
-    public Long getItem(CallableStatement cstmt, int i) throws SQLException {
+    public Long getItem(CallableStatement cstmt,
+                        int i) throws SQLException {
         return cstmt.getLong(i);
     }
 

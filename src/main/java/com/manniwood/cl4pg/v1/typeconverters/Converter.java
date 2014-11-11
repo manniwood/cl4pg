@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.cl4pg.v1.typeconverters;
 
 import java.sql.CallableStatement;
@@ -29,8 +29,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface Converter<T> {
-    void setItem(PreparedStatement pstmt, int i, T t) throws SQLException;
-    T getItem(ResultSet rs, int i) throws SQLException;
-    void registerOutParameter(CallableStatement cstmt, int i) throws SQLException;
-    T getItem(CallableStatement cstmt, int i) throws SQLException;
+    void setItem(PreparedStatement pstmt,
+                 int i,
+                 T t) throws SQLException;
+
+    T getItem(ResultSet rs,
+              int i) throws SQLException;
+
+    void registerOutParameter(CallableStatement cstmt,
+                              int i) throws SQLException;
+
+    T getItem(CallableStatement cstmt,
+              int i) throws SQLException;
 }

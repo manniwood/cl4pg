@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.cl4pg.v1.typeconverters;
 
 import java.sql.CallableStatement;
@@ -29,27 +29,35 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class IntConverter extends BaseConverter<Integer>{
+public class IntegerConverter extends BaseConverter<Integer> {
 
     @Override
-    public void setItem(PreparedStatement pstmt, int i, Integer t) throws SQLException {
-        // XXX: will not deal with null int value
-        int myInt = t.intValue();
-        pstmt.setInt(i, myInt);
+    public void setItem(PreparedStatement pstmt,
+                        int i,
+                        Integer t) throws SQLException {
+        if (t == null) {
+            pstmt.setNull(i, Types.INTEGER);
+        } else {
+            int myInt = t.intValue();
+            pstmt.setInt(i, myInt);
+        }
     }
 
     @Override
-    public Integer getItem(ResultSet rs, int i) throws SQLException {
+    public Integer getItem(ResultSet rs,
+                           int i) throws SQLException {
         return rs.getInt(i);
     }
 
     @Override
-    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
+    public void registerOutParameter(CallableStatement cstmt,
+                                     int i) throws SQLException {
         cstmt.registerOutParameter(i, Types.INTEGER);
     }
 
     @Override
-    public Integer getItem(CallableStatement cstmt, int i) throws SQLException {
+    public Integer getItem(CallableStatement cstmt,
+                           int i) throws SQLException {
         return cstmt.getInt(i);
     }
 }

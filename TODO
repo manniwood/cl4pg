@@ -1,6 +1,8 @@
 
 -------- v1.0.x
 
+- Make HikariCP not a direct dependency
+
 - More type converters
 
 - Write easy wrapper
