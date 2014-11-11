@@ -52,8 +52,6 @@ import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 public class CharTest {
     private final static Logger log = LoggerFactory.getLogger(CharTest.class);
 
-    public static final String TEST_COPY_FILE = "/tmp/users.copy";
-
     private PgSession pgSession;
     private PgSessionPool pool;
 

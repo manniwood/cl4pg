@@ -49,8 +49,8 @@ import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
  * @author mwood
  *
  */
-public class VarcharTest {
-    private final static Logger log = LoggerFactory.getLogger(VarcharTest.class);
+public class IntegerTest {
+    private final static Logger log = LoggerFactory.getLogger(IntegerTest.class);
 
     private PgSession pgSession;
     private PgSessionPool pool;
@@ -62,7 +62,7 @@ public class VarcharTest {
         pool = new PgSessionPool(adapter);
         pgSession = pool.getSession();
 
-        pgSession.run(DDL.config().sql("create temporary table test(col varchar(3))").done());
+        pgSession.run(DDL.config().sql("create temporary table test(col int)").done());
         pgSession.commit();
     }
 
@@ -84,21 +84,21 @@ public class VarcharTest {
     @Test(priority = 1)
     public void testValue() {
 
-        String expected = "foo";
+        Integer expected = 3;
 
         pgSession.run(Insert.usingVariadicArgs()
-                .sql("insert into test (col) values (#{java.lang.String})")
+                .sql("insert into test (col) values (#{java.lang.Integer})")
                 .args(expected)
                 .done());
         pgSession.commit();
 
-        GuessScalarListHandler<String> handler = new GuessScalarListHandler<String>();
+        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
         pgSession.run(Select.usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
-        String actual = handler.getList().get(0);
+        Integer actual = handler.getList().get(0);
 
         Assert.assertEquals(actual, expected, "scalars must match");
     }
@@ -106,21 +106,21 @@ public class VarcharTest {
     @Test(priority = 2)
     public void testNull() {
 
-        String expected = null;
+        Integer expected = null;
 
         pgSession.run(Insert.usingVariadicArgs()
-                .sql("insert into test (col) values (#{java.lang.String})")
+                .sql("insert into test (col) values (#{java.lang.Integer})")
                 .args(expected)
                 .done());
         pgSession.commit();
 
-        GuessScalarListHandler<String> handler = new GuessScalarListHandler<String>();
+        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
         pgSession.run(Select.usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
-        String actual = handler.getList().get(0);
+        Integer actual = handler.getList().get(0);
 
         Assert.assertEquals(actual, expected, "scalars must match");
     }
@@ -128,21 +128,43 @@ public class VarcharTest {
     @Test(priority = 3)
     public void testSpecialValue1() {
 
-        String expected = "";
+        Integer expected = Integer.MAX_VALUE;
 
         pgSession.run(Insert.usingVariadicArgs()
-                .sql("insert into test (col) values (#{java.lang.String})")
+                .sql("insert into test (col) values (#{java.lang.Integer})")
                 .args(expected)
                 .done());
         pgSession.commit();
 
-        GuessScalarListHandler<String> handler = new GuessScalarListHandler<String>();
+        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
         pgSession.run(Select.usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
-        String actual = handler.getList().get(0);
+        Integer actual = handler.getList().get(0);
+
+        Assert.assertEquals(actual, expected, "scalars must match");
+    }
+
+    @Test(priority = 4)
+    public void testSpecialValu21() {
+
+        Integer expected = Integer.MIN_VALUE;
+
+        pgSession.run(Insert.usingVariadicArgs()
+                .sql("insert into test (col) values (#{java.lang.Integer})")
+                .args(expected)
+                .done());
+        pgSession.commit();
+
+        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
+        pgSession.run(Select.usingVariadicArgs()
+                .sql("select col from test limit 1")
+                .resultSetHandler(handler)
+                .done());
+        pgSession.rollback();
+        Integer actual = handler.getList().get(0);
 
         Assert.assertEquals(actual, expected, "scalars must match");
     }

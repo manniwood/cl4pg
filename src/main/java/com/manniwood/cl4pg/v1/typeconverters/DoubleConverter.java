@@ -1,3 +1,4 @@
+
 /*
 The MIT License (MIT)
 
@@ -29,43 +30,35 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class IntegerConverter extends BaseConverter<Integer> {
+public class DoubleConverter extends BaseConverter<Double> {
 
     @Override
     public void setItem(PreparedStatement pstmt,
                         int i,
-                        Integer t) throws SQLException {
+                        Double t) throws SQLException {
         if (t == null) {
-            pstmt.setNull(i, Types.INTEGER);
+            pstmt.setNull(i, Types.DOUBLE);
         } else {
-            int myInt = t.intValue();
-            pstmt.setInt(i, myInt);
+            int myDouble = t.intValue();
+            pstmt.setDouble(i, myDouble);
         }
     }
 
     @Override
-    public Integer getItem(ResultSet rs,
+    public Double getItem(ResultSet rs,
                            int i) throws SQLException {
-        Integer var = rs.getInt(i);
-        if (rs.wasNull()) {
-            return null;
-        }
-        return rs.getInt(i);
+        return rs.getDouble(i);
     }
 
     @Override
     public void registerOutParameter(CallableStatement cstmt,
                                      int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.INTEGER);
+        cstmt.registerOutParameter(i, Types.DOUBLE);
     }
 
     @Override
-    public Integer getItem(CallableStatement cstmt,
+    public Double getItem(CallableStatement cstmt,
                            int i) throws SQLException {
-        Integer var = cstmt.getInt(i);
-        if (cstmt.wasNull()) {
-            return null;
-        }
-        return cstmt.getInt(i);
+        return cstmt.getDouble(i);
     }
 }
