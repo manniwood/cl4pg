@@ -46,7 +46,11 @@ public class LongConverter extends BaseConverter<Long> {
     @Override
     public Long getItem(ResultSet rs,
                         int i) throws SQLException {
-        return rs.getLong(i);
+        Long var = rs.getLong(i);
+        if (rs.wasNull()) {
+            return null;
+        }
+        return var;
     }
 
     @Override
@@ -58,7 +62,11 @@ public class LongConverter extends BaseConverter<Long> {
     @Override
     public Long getItem(CallableStatement cstmt,
                         int i) throws SQLException {
-        return cstmt.getLong(i);
+        Long var = cstmt.getLong(i);
+        if (cstmt.wasNull()) {
+            return null;
+        }
+        return var;
     }
 
 }

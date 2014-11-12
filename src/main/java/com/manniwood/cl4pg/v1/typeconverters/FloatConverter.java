@@ -46,7 +46,11 @@ public class FloatConverter extends BaseConverter<Float> {
     @Override
     public Float getItem(ResultSet rs,
                          int i) throws SQLException {
-        return rs.getFloat(i);
+        Float var = rs.getFloat(i);
+        if (rs.wasNull()) {
+            return null;
+        }
+        return var;
     }
 
     @Override
@@ -58,6 +62,10 @@ public class FloatConverter extends BaseConverter<Float> {
     @Override
     public Float getItem(CallableStatement cstmt,
                          int i) throws SQLException {
-        return cstmt.getFloat(i);
+        Float var = cstmt.getFloat(i);
+        if (cstmt.wasNull()) {
+            return null;
+        }
+        return var;
     }
 }

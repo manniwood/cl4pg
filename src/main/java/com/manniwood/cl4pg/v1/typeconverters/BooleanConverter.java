@@ -46,7 +46,11 @@ public class BooleanConverter extends BaseConverter<Boolean> {
     @Override
     public Boolean getItem(ResultSet rs,
                            int i) throws SQLException {
-        return rs.getBoolean(i);
+        Boolean var = rs.getBoolean(i);
+        if (rs.wasNull()) {
+            return null;
+        }
+        return var;
     }
 
     @Override
@@ -58,6 +62,10 @@ public class BooleanConverter extends BaseConverter<Boolean> {
     @Override
     public Boolean getItem(CallableStatement cstmt,
                            int i) throws SQLException {
-        return cstmt.getBoolean(i);
+        Boolean var = cstmt.getBoolean(i);
+        if (cstmt.wasNull()) {
+            return null;
+        }
+        return var;
     }
 }

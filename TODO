@@ -1,6 +1,9 @@
 
 -------- v1.0.x
 
+- START HERE: ensure all variants of mappers for string and int
+- types are covered in tests.
+
 - XXX: ensure all type converters correctly return null;
   -- ensure all tests test for null
 

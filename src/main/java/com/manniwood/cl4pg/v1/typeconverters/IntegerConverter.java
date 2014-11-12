@@ -50,7 +50,7 @@ public class IntegerConverter extends BaseConverter<Integer> {
         if (rs.wasNull()) {
             return null;
         }
-        return rs.getInt(i);
+        return var;
     }
 
     @Override
@@ -66,6 +66,6 @@ public class IntegerConverter extends BaseConverter<Integer> {
         if (cstmt.wasNull()) {
             return null;
         }
-        return cstmt.getInt(i);
+        return var;
     }
 }
