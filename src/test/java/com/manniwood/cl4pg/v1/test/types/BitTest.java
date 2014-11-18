@@ -23,8 +23,6 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.types;
 
-import java.math.BigDecimal;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -51,8 +49,8 @@ import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
  * @author mwood
  *
  */
-public class BigDecimalTest {
-    private final static Logger log = LoggerFactory.getLogger(BigDecimalTest.class);
+public class BitTest {
+    private final static Logger log = LoggerFactory.getLogger(BitTest.class);
 
     private PgSession pgSession;
     private PgSessionPool pool;
@@ -64,7 +62,7 @@ public class BigDecimalTest {
         pool = new PgSessionPool(adapter);
         pgSession = pool.getSession();
 
-        pgSession.run(DDL.config().sql("create temporary table test(col numeric)").done());
+        pgSession.run(DDL.config().sql("create temporary table test(col bit)").done());
         pgSession.commit();
     }
 
@@ -84,93 +82,67 @@ public class BigDecimalTest {
     }
 
     @Test(priority = 1)
-    public void testValue() {
+    public void testTrue() {
 
-        BigDecimal expected = BigDecimal.valueOf(3L);
+        Boolean expected = true;
 
         pgSession.run(Insert.usingVariadicArgs()
-                .sql("insert into test (col) values (#{java.math.BigDecimal})")
+                .sql("insert into test (col) values (#{java.lang.Boolean})")
                 .args(expected)
                 .done());
         pgSession.commit();
 
-        GuessScalarListHandler<BigDecimal> handler = new GuessScalarListHandler<BigDecimal>();
+        GuessScalarListHandler<Boolean> handler = new GuessScalarListHandler<Boolean>();
         pgSession.run(Select.usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
-        BigDecimal actual = handler.getList().get(0);
+        Boolean actual = handler.getList().get(0);
 
         Assert.assertEquals(actual, expected, "scalars must match");
     }
 
     @Test(priority = 2)
-    public void testNull() {
+    public void testFalse() {
 
-        BigDecimal expected = null;
+        Boolean expected = false;
 
         pgSession.run(Insert.usingVariadicArgs()
-                .sql("insert into test (col) values (#{java.math.BigDecimal})")
+                .sql("insert into test (col) values (#{java.lang.Boolean})")
                 .args(expected)
                 .done());
         pgSession.commit();
 
-        GuessScalarListHandler<BigDecimal> handler = new GuessScalarListHandler<BigDecimal>();
+        GuessScalarListHandler<Boolean> handler = new GuessScalarListHandler<Boolean>();
         pgSession.run(Select.usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
-        BigDecimal actual = handler.getList().get(0);
+        Boolean actual = handler.getList().get(0);
 
         Assert.assertEquals(actual, expected, "scalars must match");
     }
 
     @Test(priority = 3)
-    public void testSpecialValue1() {
+    public void testNull() {
 
-        BigDecimal max1 = BigDecimal.valueOf(Long.MAX_VALUE);
-        BigDecimal max2 = BigDecimal.valueOf(Long.MAX_VALUE);
-        BigDecimal expected = max1.add(max2);
+        Boolean expected = null;
 
         pgSession.run(Insert.usingVariadicArgs()
-                .sql("insert into test (col) values (#{java.math.BigDecimal})")
+                .sql("insert into test (col) values (#{java.lang.Boolean})")
                 .args(expected)
                 .done());
         pgSession.commit();
 
-        GuessScalarListHandler<BigDecimal> handler = new GuessScalarListHandler<BigDecimal>();
+        GuessScalarListHandler<Boolean> handler = new GuessScalarListHandler<Boolean>();
         pgSession.run(Select.usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
-        BigDecimal actual = handler.getList().get(0);
-
-        Assert.assertEquals(actual, expected, "scalars must match");
-    }
-
-    @Test(priority = 4)
-    public void testSpecialValu21() {
-
-        BigDecimal min1 = BigDecimal.valueOf(Long.MIN_VALUE);
-        BigDecimal min2 = BigDecimal.valueOf(Long.MIN_VALUE);
-        BigDecimal expected = min1.subtract(min2);
-
-        pgSession.run(Insert.usingVariadicArgs()
-                .sql("insert into test (col) values (#{java.math.BigDecimal})")
-                .args(expected)
-                .done());
-        pgSession.commit();
-
-        GuessScalarListHandler<BigDecimal> handler = new GuessScalarListHandler<BigDecimal>();
-        pgSession.run(Select.usingVariadicArgs()
-                .sql("select col from test limit 1")
-                .resultSetHandler(handler)
-                .done());
-        pgSession.rollback();
-        BigDecimal actual = handler.getList().get(0);
+        Boolean actual = handler.getList().get(0);
 
         Assert.assertEquals(actual, expected, "scalars must match");
     }

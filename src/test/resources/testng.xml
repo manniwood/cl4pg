@@ -30,15 +30,19 @@
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleUpdateReturningTest" />
             
             <!--  type tests -->
-            <class name="com.manniwood.cl4pg.v1.test.types.BigDecimalTest" />
             <class name="com.manniwood.cl4pg.v1.test.types.BooleanTest" />
             <class name="com.manniwood.cl4pg.v1.test.types.ByteArrayTest" />
             <class name="com.manniwood.cl4pg.v1.test.types.CharTest" />
             <class name="com.manniwood.cl4pg.v1.test.types.DateTest" />
             <!-- unreliable <class name="com.manniwood.cl4pg.v1.test.types.DoubleTest" /> -->
+            <!-- unreliable <class name="com.manniwood.cl4pg.v1.test.types.DoublePrecisionTest" /> -->
             <class name="com.manniwood.cl4pg.v1.test.types.FloatTest" />
             <class name="com.manniwood.cl4pg.v1.test.types.IntegerSmallIntTest" />
             <class name="com.manniwood.cl4pg.v1.test.types.IntegerTest" />
+            <!-- unreliable <class name="com.manniwood.cl4pg.v1.test.types.MoneyTest" /> -->
+            <class name="com.manniwood.cl4pg.v1.test.types.NameTest" />
+            <class name="com.manniwood.cl4pg.v1.test.types.NumericTest" />
+            <class name="com.manniwood.cl4pg.v1.test.types.OidTest" />
             <class name="com.manniwood.cl4pg.v1.test.types.TextTest" />
             <class name="com.manniwood.cl4pg.v1.test.types.VarcharTest" />
             

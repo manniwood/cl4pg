@@ -4,6 +4,10 @@
 - START HERE: ensure all variants of mappers for string and int
 - types are covered in tests.
 
+smallserial
+serial
+bigserial
+
 - XXX: ensure all type converters correctly return null;
   -- ensure all tests test for null
 
