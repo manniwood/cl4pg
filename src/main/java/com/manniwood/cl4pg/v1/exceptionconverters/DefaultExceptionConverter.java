@@ -26,6 +26,13 @@ package com.manniwood.cl4pg.v1.exceptionconverters;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
 
+/**
+ * The DefaultExceptionConverter actually performs no
+ * conversion on Cl4pgPgSqlExceptions: it just returns
+ * the original exception unaltered.
+ * @author mwood
+ *
+ */
 public class DefaultExceptionConverter implements ExceptionConverter {
 
     @Override

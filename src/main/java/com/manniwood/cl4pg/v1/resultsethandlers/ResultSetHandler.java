@@ -28,6 +28,14 @@ import java.sql.SQLException;
 
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 
+/**
+ * Handles ResultSets. init() is called once,
+ * after an implementation of ResultSetHandler is
+ * instantiated; then, processRow() is called once
+ * per row in the ResultSet.
+ * @author mwood
+ *
+ */
 public interface ResultSetHandler {
     void init(ConverterStore converterStore,
               ResultSet rs) throws SQLException;

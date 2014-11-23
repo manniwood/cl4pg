@@ -24,10 +24,9 @@ THE SOFTWARE.
 package com.manniwood.cl4pg.v1.util;
 
 /**
- * Instead of relying on Guava or Commons for one or two utility classes, let's
- * write our own simple utilities and only create a dependency on Guava or
- * Commons after the dependence seems justifiable.
- * 
+ * Implements Guava-like or Commons-like utilities without
+ * having to introduce a dependency on Guava or Commons.
+ *
  * @author mwood
  *
  */

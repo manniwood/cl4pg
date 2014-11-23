@@ -26,6 +26,17 @@ package com.manniwood.cl4pg.v1.exceptionconverters;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
 
+/**
+ * An ExceptionConverter can be used to convert a plain incoming
+ * Cl4pgPgSqlException to a sub-class of Cl4pgPgSqlException that
+ * you have written. This allows you to write code that catches a
+ * more narrow sub-class of Cl4pgPgSqlException (such as a unique
+ * key violation while trying to insert an already-taken username),
+ * yet still allow other forms of Cl4pgPgSqlException (database is
+ * unreachable) to pass by.
+ * @author mwood
+ *
+ */
 public interface ExceptionConverter {
     Cl4pgException convert(Cl4pgPgSqlException e);
 }

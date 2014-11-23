@@ -25,21 +25,21 @@ package com.manniwood.cl4pg.v1.converters;
 
 import java.lang.reflect.Method;
 
-import com.manniwood.cl4pg.v1.typeconverters.Converter;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
 
 public class SetterAndConverter {
 
-    private final Converter<?> converter;
+    private final TypeConverter<?> typeConverter;
     private final Method setter;
 
-    public SetterAndConverter(Converter<?> converter, Method setter) {
+    public SetterAndConverter(TypeConverter<?> converter, Method setter) {
         super();
-        this.converter = converter;
+        this.typeConverter = converter;
         this.setter = setter;
     }
 
-    public Converter<?> getConverter() {
-        return converter;
+    public TypeConverter<?> getConverter() {
+        return typeConverter;
     }
 
     public Method getSetter() {

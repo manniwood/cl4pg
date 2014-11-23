@@ -28,7 +28,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public interface Converter<T> {
+/**
+ * Gets and sets Java types from PreparedStatements
+ * and CallableStatements. Note that because this
+ * interface is parameterized, there are no java
+ * primitive type converters. The advantage of this
+ * is that the java box types support null, which maps
+ * nicely to SQL null values. The disadvantage is
+ * the overhead of boxing and unboxing from primitives.
+ * If more control of getting and setting Java types
+ * is required, consider implementing a ResultSetHandler.
+ * @author mwood
+ *
+ * @param <T>
+ */
+public interface TypeConverter<T> {
     void setItem(PreparedStatement pstmt,
                  int i,
                  T t) throws SQLException;

@@ -23,6 +23,21 @@ THE SOFTWARE.
 */
 package com.manniwood.cl4pg.v1.exceptions;
 
+/**
+ * All Cl4pg Exceptions are either this extension or
+ * extensions of this Exception. Because Cl4pgException
+ * extends RuntimeException, all Cl4pg Exceptions are unchecked
+ * exceptions. This is good for Exceptions that actually are
+ * difficult to handle such as a database running out of space,
+ * or a SQL query being malformed; but it is not so good for
+ * exceptions that would be programatically easy to handle, such
+ * as a primary key exception (for instance, trying to enter a
+ * username that has already been chosen). However, for
+ * easily-handled exceptions, consider implementing an
+ * ExceptionConverter.
+ * @author mwood
+ *
+ */
 public class Cl4pgException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

@@ -29,7 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class FloatConverter extends BaseConverter<Float> {
+public class FloatConverter implements TypeConverter<Float> {
 
     @Override
     public void setItem(PreparedStatement pstmt,

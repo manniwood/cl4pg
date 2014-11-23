@@ -26,26 +26,26 @@ package com.manniwood.cl4pg.v1.converters;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
-import com.manniwood.cl4pg.v1.typeconverters.Converter;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
 
 public class ConstructorAndConverters {
 
     private final Constructor<?> constructor;
-    private final List<Converter<?>> converters;
+    private final List<TypeConverter<?>> typeConverters;
 
     public ConstructorAndConverters(Constructor<?> constructor,
-            List<Converter<?>> converters) {
+            List<TypeConverter<?>> converters) {
         super();
         this.constructor = constructor;
-        this.converters = converters;
+        this.typeConverters = converters;
     }
 
     public Constructor<?> getConstructor() {
         return constructor;
     }
 
-    public List<Converter<?>> getConverters() {
-        return converters;
+    public List<TypeConverter<?>> getConverters() {
+        return typeConverters;
     }
 
 }

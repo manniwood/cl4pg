@@ -29,12 +29,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
-import com.manniwood.cl4pg.v1.typeconverters.Converter;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
 
+/**
+ * XXX: this is wrong because it is copy/pasted; correct it!
+ * Guesses the names of setter methods on a Java bean
+ * of type R, based on the column names in the result set,
+ * and returns a list of beans of type R, one for each
+ * row from the result set.
+ *
+ * So, a result set with columns
+ * "first_name" and "last_name" will, for each row, instantiate
+ * a bean of type R using R's null constructor, and then call
+ * setFirstName() and setLastName() on that bean, using the
+ * values from the ResultSet.
+ *
+ * @author mwood
+ *
+ * @param <R>
+ */
 public class GuessScalarListHandler<R> implements ResultSetHandler {
 
     private List<R>      list;
-    private Converter<?> converter;
+    private TypeConverter<?> typeConverter;
 
     public GuessScalarListHandler() {
         list = new ArrayList<R>();
@@ -43,13 +60,13 @@ public class GuessScalarListHandler<R> implements ResultSetHandler {
     @Override
     public void init(ConverterStore converterStore,
                      ResultSet rs) throws SQLException {
-        converter = converterStore.guessConverter(rs);
+        typeConverter = converterStore.guessConverter(rs);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void processRow(ResultSet rs) throws SQLException {
-        list.add((R) converter.getItem(rs, 1));
+        list.add((R) typeConverter.getItem(rs, 1));
     }
 
     public List<R> getList() {

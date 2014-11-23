@@ -29,7 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class LongConverter extends BaseConverter<Long> {
+public class LongConverter implements TypeConverter<Long> {
 
     @Override
     public void setItem(PreparedStatement pstmt,

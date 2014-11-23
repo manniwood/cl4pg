@@ -29,7 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class StringConverter extends BaseConverter<String>{
+public class StringConverter implements TypeConverter<String>{
 
     @Override
     public void setItem(PreparedStatement pstmt, int i, String t) throws SQLException {

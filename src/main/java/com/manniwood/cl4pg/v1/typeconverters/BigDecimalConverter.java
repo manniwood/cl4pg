@@ -30,7 +30,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class BigDecimalConverter extends BaseConverter<BigDecimal> {
+public class BigDecimalConverter implements TypeConverter<BigDecimal> {
 
     @Override
     public void setItem(PreparedStatement pstmt,

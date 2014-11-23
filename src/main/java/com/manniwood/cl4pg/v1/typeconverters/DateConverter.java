@@ -30,7 +30,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class DateConverter extends BaseConverter<Date> {
+public class DateConverter implements TypeConverter<Date> {
 
     @Override
     public void setItem(PreparedStatement pstmt,

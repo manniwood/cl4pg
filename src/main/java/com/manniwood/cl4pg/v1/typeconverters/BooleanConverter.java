@@ -29,7 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class BooleanConverter extends BaseConverter<Boolean> {
+public class BooleanConverter implements TypeConverter<Boolean> {
 
     @Override
     public void setItem(PreparedStatement pstmt,

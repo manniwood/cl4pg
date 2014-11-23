@@ -31,6 +31,22 @@ import java.util.List;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.converters.SetterAndConverter;
 
+/**
+ * Guesses the names of setter methods on a Java bean
+ * of type R, based on the column names in the result set,
+ * and returns a list of beans of type R, one for each
+ * row from the result set.
+ *
+ * So, a result set with columns
+ * "first_name" and "last_name" will, for each row, instantiate
+ * a bean of type R using R's null constructor, and then call
+ * setFirstName() and setLastName() on that bean, using the
+ * values from the ResultSet.
+ *
+ * @author mwood
+ *
+ * @param <R>
+ */
 public class GuessSettersListHandler<R> implements ResultSetHandler {
 
     private List<R>                  list;

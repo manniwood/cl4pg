@@ -30,7 +30,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Types;
 
-public class TimeConverter extends BaseConverter<Time> {
+public class TimeConverter implements TypeConverter<Time> {
 
     @Override
     public void setItem(PreparedStatement pstmt,

@@ -29,7 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class ByteArrayConverter extends BaseConverter<byte[]> {
+public class ByteArrayConverter implements TypeConverter<byte[]> {
 
     @Override
     public void setItem(PreparedStatement pstmt,

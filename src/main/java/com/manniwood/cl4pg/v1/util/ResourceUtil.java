@@ -33,6 +33,12 @@ import com.manniwood.cl4pg.v1.exceptions.Cl4pgIOException;
 
 public class ResourceUtil {
 
+    /**
+     * Returns, as a String, the contents of a file on the classpath.
+     * This class's class loader is used to find the requested file.
+     * @param path
+     * @return
+     */
     public static String slurpFileFromClasspath(String path) {
         StringBuilder sb = new StringBuilder();
         InputStream is = ResourceUtil.class.getClassLoader().getResourceAsStream(path);

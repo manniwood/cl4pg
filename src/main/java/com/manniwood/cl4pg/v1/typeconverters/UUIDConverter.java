@@ -30,7 +30,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
 
-public class UUIDConverter extends BaseConverter<UUID>{
+public class UUIDConverter implements TypeConverter<UUID>{
 
     @Override
     public void setItem(PreparedStatement pstmt, int i, UUID t) throws SQLException {

@@ -30,9 +30,13 @@ public class ColumnLabelConverter {
     }
 
     /**
-     * Convert a column label, such as updated_on to a Java bean set method,
-     * such as setUpdatedOn.
-     * 
+     * Convert a column label, such as "updated_on" to a Java bean set method,
+     * such as "setUpdatedOn". When we are reading rows back from a database,
+     * we have access to the column names, and those column names usually follow
+     * the snake-case convention. Java setters generally follow the camel-case
+     * convention, so it is trivial to convert column names in result sets
+     * to bean setter methods in Java.
+     *
      * @param label
      * @return
      */

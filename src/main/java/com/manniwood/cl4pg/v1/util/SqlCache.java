@@ -26,6 +26,12 @@ package com.manniwood.cl4pg.v1.util;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Caches SQL files in RAM so that subsequent requests for
+ * a SQL file from the classpath will check RAM first. Thread-safe.
+ * @author mwood
+ *
+ */
 public class SqlCache {
 
     ConcurrentMap<String, String> cache = new ConcurrentHashMap<>();

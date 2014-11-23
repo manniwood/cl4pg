@@ -35,7 +35,7 @@ import java.sql.Types;
  * @author mwood
  *
  */
-public class DoubleConverter extends BaseConverter<Double> {
+public class DoubleConverter implements TypeConverter<Double> {
 
     @Override
     public void setItem(PreparedStatement pstmt,

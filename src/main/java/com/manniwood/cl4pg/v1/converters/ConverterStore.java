@@ -46,7 +46,7 @@ import com.manniwood.cl4pg.v1.ConfigDefaults;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
 import com.manniwood.cl4pg.v1.sqlparsers.InOutArg;
-import com.manniwood.cl4pg.v1.typeconverters.Converter;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
 import com.manniwood.cl4pg.v1.util.ColumnLabelConverter;
 import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.Str;
@@ -61,11 +61,11 @@ public class ConverterStore {
 
     private final static Logger log = LoggerFactory.getLogger(ConverterStore.class);
 
-    private final Map<Class<?>, Converter<?>> converters;
+    private final Map<Class<?>, TypeConverter<?>> typeConverters;
 
     public ConverterStore(String typeConverterConfFiles) {
-        // The builtin type converters conf file is either the only
-        // type converters file in the list, or the first converters file
+        // The builtin type typeConverters conf file is either the only
+        // type typeConverters file in the list, or the first typeConverters file
         // in the list.
         String allConfFiles;
         if (Str.isNullOrEmpty(typeConverterConfFiles)) {
@@ -75,7 +75,7 @@ public class ConverterStore {
         }
         String[] fileNames = allConfFiles.split(",");
 
-        converters = new HashMap<>();
+        typeConverters = new HashMap<>();
 
         for (String fileName : fileNames) {
             Properties props = loadPropsFromPath(fileName);
@@ -83,8 +83,8 @@ public class ConverterStore {
             for (String className : props.stringPropertyNames()) {
                 Class<?> clazz = className2ClassOrThrow(className);
                 Class<?> converterClass = className2ClassOrThrow(props.getProperty(className));
-                Converter<?> converter = (Converter<?>) instantiateOrThrow(converterClass);
-                converters.put(clazz, converter);
+                TypeConverter<?> converter = (TypeConverter<?>) instantiateOrThrow(converterClass);
+                typeConverters.put(clazz, converter);
             }
         }
     }
@@ -161,7 +161,7 @@ public class ConverterStore {
                 Method m = tclass.getMethod(getter);
                 Object o = m.invoke(p);
                 Class<?> returnClass = m.getReturnType();
-                Converter<P> converter = (Converter<P>) converters.get(returnClass);
+                TypeConverter<P> converter = (TypeConverter<P>) typeConverters.get(returnClass);
                 converter.setItem(pstmt, i, (P) o);
                 i++;
             }
@@ -184,7 +184,7 @@ public class ConverterStore {
                     Method m = tclass.getMethod(getter);
                     Object o = m.invoke(p);
                     Class<?> returnClass = m.getReturnType();
-                    Converter<P> converter = (Converter<P>) converters.get(returnClass);
+                    TypeConverter<P> converter = (TypeConverter<P>) typeConverters.get(returnClass);
                     converter.setItem(cstmt, i, (P) o);
                 }
                 String setter = arg.getSetter();
@@ -197,7 +197,7 @@ public class ConverterStore {
                     }
                     Class<?>[] paramTypes = setMethod.getParameterTypes();
                     Class<?> setterClass = paramTypes[0];
-                    Converter<P> converter = (Converter<P>) converters.get(setterClass);
+                    TypeConverter<P> converter = (TypeConverter<P>) typeConverters.get(setterClass);
                     log.debug("setter converter {} for offset {}", converter, i);
                     converter.registerOutParameter(cstmt, i);
                 }
@@ -218,8 +218,8 @@ public class ConverterStore {
         } catch (ClassNotFoundException e) {
             throw new Cl4pgReflectionException(e);
         }
-        Converter converter = converters.get(parameterType);
-        converter.setItem(pstmt, i, parameterType.cast(param));
+        TypeConverter typeConverter = typeConverters.get(parameterType);
+        typeConverter.setItem(pstmt, i, parameterType.cast(param));
     }
 
     public <T> List<SetterAndConverter> guessSetters(ResultSet rs,
@@ -234,7 +234,7 @@ public class ConverterStore {
                 Class<?> parameterType = Class.forName(className);
                 String setterName = ColumnLabelConverter.convert(label);
                 Method setter = findMethod(returnType, parameterType, setterName);
-                Converter<?> converter = converters.get(parameterType);
+                TypeConverter<?> converter = typeConverters.get(parameterType);
                 settersAndConverters.add(new SetterAndConverter(converter, setter));
             }
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
@@ -254,7 +254,7 @@ public class ConverterStore {
                 String setterName = md.getColumnLabel(i);
                 Class<?> parameterType = Class.forName(className);
                 Method setter = findMethod(returnType, parameterType, setterName);
-                Converter<?> converter = converters.get(parameterType);
+                TypeConverter<?> converter = typeConverters.get(parameterType);
                 settersAndConverters.add(new SetterAndConverter(converter, setter));
             }
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
@@ -284,7 +284,7 @@ public class ConverterStore {
                 String className = md.getColumnClassName(setCol);
                 Class<?> parameterType = Class.forName(className);
                 Method setter = findMethod(returnType, parameterType, setterName);
-                Converter<?> converter = converters.get(parameterType);
+                TypeConverter<?> converter = typeConverters.get(parameterType);
                 settersAndConverters.add(new SetterAndConverterAndColNum(converter, setter, absCol, setCol));
                 // only increment for non-null setters
                 setCol++;
@@ -295,9 +295,9 @@ public class ConverterStore {
         return settersAndConverters;
     }
 
-    public <T> Converter<?> guessConverter(ResultSet rs,
+    public <T> TypeConverter<?> guessConverter(ResultSet rs,
                                            Class<T> returnType) throws SQLException {
-        Converter<?> converter = null;
+        TypeConverter<?> converter = null;
         Class<?> parameterType = null;
         try {
             ResultSetMetaData md = rs.getMetaData();
@@ -307,18 +307,18 @@ public class ConverterStore {
             }
             String className = md.getColumnClassName(1);
             parameterType = Class.forName(className);
-            converter = converters.get(parameterType);
+            converter = typeConverters.get(parameterType);
         } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
             throw new Cl4pgReflectionException(e);
         }
         if (converter == null) {
-            throw new IllegalArgumentException("Converter not found for column return type " + parameterType);
+            throw new IllegalArgumentException("TypeConverter not found for column return type " + parameterType);
         }
         return converter;
     }
 
-    public <T> Converter<?> guessConverter(ResultSet rs) throws SQLException {
-        Converter<?> converter = null;
+    public <T> TypeConverter<?> guessConverter(ResultSet rs) throws SQLException {
+        TypeConverter<?> converter = null;
         Class<?> parameterType = null;
         try {
             ResultSetMetaData md = rs.getMetaData();
@@ -328,19 +328,19 @@ public class ConverterStore {
             }
             String className = md.getColumnClassName(1);
             parameterType = Class.forName(className);
-            converter = converters.get(parameterType);
+            converter = typeConverters.get(parameterType);
         } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
             throw new Cl4pgReflectionException(e);
         }
         if (converter == null) {
-            throw new IllegalArgumentException("Converter not found for column return type " + parameterType);
+            throw new IllegalArgumentException("TypeConverter not found for column return type " + parameterType);
         }
         return converter;
     }
 
-    public <T> Converter<?> specifyConverter(ResultSet rs,
+    public <T> TypeConverter<?> specifyConverter(ResultSet rs,
                                              Class<T> returnType) throws SQLException {
-        Converter<?> converter = null;
+        TypeConverter<?> converter = null;
         try {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
@@ -349,7 +349,7 @@ public class ConverterStore {
             }
             String className = md.getColumnLabel(1);
             Class<?> parameterType = className2Class(className);
-            converter = converters.get(parameterType);
+            converter = typeConverters.get(parameterType);
         } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
             throw new Cl4pgReflectionException(e);
         }
@@ -390,7 +390,7 @@ public class ConverterStore {
     public <T> ConstructorAndConverters guessConstructor(ResultSet rs,
                                                          Class<T> returnType) throws SQLException {
         Constructor<?> constructor = null;
-        List<Converter<?>> convs = new ArrayList<>();
+        List<TypeConverter<?>> convs = new ArrayList<>();
         try {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
@@ -399,7 +399,7 @@ public class ConverterStore {
                 String className = md.getColumnClassName(i);
                 Class<?> parameterType = Class.forName(className);
                 parameterTypes[i - 1] = parameterType;
-                Converter<?> converter = converters.get(parameterType);
+                TypeConverter<?> converter = typeConverters.get(parameterType);
                 convs.add(converter);
             }
             constructor = returnType.getDeclaredConstructor(parameterTypes);
@@ -412,7 +412,7 @@ public class ConverterStore {
     public <T> ConstructorAndConverters specifyConstructorArgs(ResultSet rs,
                                                                Class<T> returnType) throws SQLException {
         Constructor<?> constructor = null;
-        List<Converter<?>> convs = new ArrayList<>();
+        List<TypeConverter<?>> convs = new ArrayList<>();
         try {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
@@ -421,7 +421,7 @@ public class ConverterStore {
                 String className = md.getColumnLabel(i);
                 Class<?> parameterType = className2Class(className);
                 parameterTypes[i - 1] = parameterType;
-                Converter<?> converter = converters.get(parameterType);
+                TypeConverter<?> converter = typeConverters.get(parameterType);
                 convs.add(converter);
             }
             constructor = returnType.getDeclaredConstructor(parameterTypes);
@@ -439,7 +439,7 @@ public class ConverterStore {
         try {
             Object[] params = new Object[cac.getConverters().size()];
             int col = 1; // JDBC cols start at 1
-            for (Converter<?> converter : cac.getConverters()) {
+            for (TypeConverter<?> converter : cac.getConverters()) {
                 params[col - 1] = converter.getItem(rs, col);
                 log.debug("param {} == {}", col - 1, params[col - 1]);
                 col++;
@@ -504,8 +504,8 @@ public class ConverterStore {
         return m;
     }
 
-    public Map<Class<?>, Converter<?>> getConverters() {
-        return converters;
+    public Map<Class<?>, TypeConverter<?>> getConverters() {
+        return typeConverters;
     }
 
 }

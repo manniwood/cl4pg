@@ -25,29 +25,29 @@ package com.manniwood.cl4pg.v1.converters;
 
 import java.lang.reflect.Method;
 
-import com.manniwood.cl4pg.v1.typeconverters.Converter;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
 
 public class SetterAndConverterAndColNum {
 
-    private final Converter<?> converter;
+    private final TypeConverter<?> typeConverter;
     private final Method setter;
     private final int colNum;
     private final int setCol;
 
     public SetterAndConverterAndColNum(
-            Converter<?> converter,
+            TypeConverter<?> converter,
             Method setter,
             int colNum,
             int setCol) {
         super();
-        this.converter = converter;
+        this.typeConverter = converter;
         this.setter = setter;
         this.colNum = colNum;
         this.setCol = setCol;
     }
 
-    public Converter<?> getConverter() {
-        return converter;
+    public TypeConverter<?> getConverter() {
+        return typeConverter;
     }
 
     public Method getSetter() {
