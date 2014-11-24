@@ -52,7 +52,9 @@ import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.Str;
 
 /**
- * This class needs to be thread safe!
+ * A store of TypeConverters, as well as mappings to and from String names
+ * of those converters, as well as utility classes for mapping ResultSet
+ * rows to beans. This class needs to be thread safe!
  *
  * @author mwood
  *
@@ -89,6 +91,11 @@ public class ConverterStore {
         }
     }
 
+    /**
+     * Loads the ConverterStore's properties from a properties file in the classpath.
+     * @param path
+     * @return
+     */
     private Properties loadPropsFromPath(String path) {
         Properties props;
         props = new Properties();
@@ -104,6 +111,9 @@ public class ConverterStore {
         return props;
     }
 
+    /**
+     * Maps primitive Java object wrappers to their primitive types.
+     */
     public static Map<Class<?>, Class<?>> wrappersToPrimitives = new HashMap<>();
 
     static {
@@ -117,6 +127,9 @@ public class ConverterStore {
         wrappersToPrimitives.put(Character.class, char.class);
     }
 
+    /**
+     * Maps Java primitive types to their wrapper classes.
+     */
     public static Map<Class<?>, Class<?>> primitivesToWrappers = new HashMap<>();
 
     static {
@@ -130,6 +143,9 @@ public class ConverterStore {
         primitivesToWrappers.put(char.class, Character.class);
     }
 
+    /**
+     * Maps String names of Java primitives to their primitive types.
+     */
     public static Map<String, Class<?>> primitiveNamesToClasses = new HashMap<>();
 
     static {
@@ -143,12 +159,33 @@ public class ConverterStore {
         primitiveNamesToClasses.put("char", char.class);
     }
 
+    /**
+     * Calls setSQLArguments with the default startCol of 1.
+     * @param pstmt
+     * @param p
+     * @param getters
+     * @throws SQLException
+     */
     public <P> void setSQLArguments(PreparedStatement pstmt,
                                     P p,
                                     List<String> getters) throws SQLException {
         setSQLArguments(pstmt, p, getters, 1);
     }
 
+    /**
+     * In a PreparedStatement, such as "select foo from foos where foo = ?",
+     * sets all question mark arguments using the appropriate PreparedStatement
+     * methods, such as setInt(), setString(), setObject(), etc.
+     * The source data for these setter arguments comes from the
+     * bean p, whose getters are called in the order listed in the getters argument.
+     * PreparedStatement question mark arguments are set starting at offset 1, but
+     * startCol allows you to start at any other offset, if required.
+     * @param pstmt
+     * @param p
+     * @param getters
+     * @param startCol
+     * @throws SQLException
+     */
     @SuppressWarnings("unchecked")
     public <P> void setSQLArguments(PreparedStatement pstmt,
                                     P p,
@@ -170,6 +207,13 @@ public class ConverterStore {
         }
     }
 
+    /**
+     * In a CallableStatement,
+     * @param cstmt
+     * @param p
+     * @param args
+     * @throws SQLException
+     */
     @SuppressWarnings("unchecked")
     public <P> void setSQLArguments(CallableStatement cstmt,
                                     P p,

@@ -28,6 +28,13 @@ import java.util.List;
 
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
 
+/**
+ * Holds a bean constructor and all of the TypeConverters, in order,
+ * that map to the arguments for that constructor. Used to cache info
+ * about beans we want to construct from result set rows.
+ * @author mwood
+ *
+ */
 public class ConstructorAndConverters {
 
     private final Constructor<?> constructor;
