@@ -26,6 +26,34 @@ package com.manniwood.cl4pg.v1.sqlparsers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Parses Cl4pg SQL templates and returns question-mark-using SQL strings for
+ * use in PreparedStatements.
+ * <p>
+ * For instance, the Cl4pg SQL template
+ *
+ * <pre>
+ * <code>
+ * select foo from bars where foo_bar = #{java.lang.String}
+ * </code>
+ * </pre>
+ *
+ * will be converted to
+ *
+ * <pre>
+ * <code>
+ * select foo from bars where foo_bar = ?
+ * </code>
+ * </pre>
+ *
+ * which is the format that JDBC actually uses.
+ * <p>
+ * This SqlParser is also handed a ParserListener, which listens for every
+ * occurrence of <code>#{blah}</code> in the C4pg SQL template.
+ *
+ * @author mwood
+ *
+ */
 public class SqlParser {
 
     private final static Logger log = LoggerFactory
@@ -37,6 +65,15 @@ public class SqlParser {
         this.parserListener = parserListener;
     }
 
+    /**
+     * Transforms a Cl4pg SQL template into a JDBC string, replacing
+     * <code>#{blah}</code> with <code>?</code>, and calling the
+     * ParserListener's arg() method each time a <code>#{blah}</code> is
+     * encountered.
+     * 
+     * @param sql
+     * @return
+     */
     public String transform(String sql) {
         log.debug("incoming sql:\n{}", sql);
         char[] chrs = sql.toCharArray();
@@ -60,10 +97,10 @@ public class SqlParser {
         return transformedSql;
     }
 
-    public int extractArg(StringBuilder sqlSb,
-                          char[] chrs,
-                          int chrsLen,
-                          int i) {
+    private int extractArg(StringBuilder sqlSb,
+                           char[] chrs,
+                           int chrsLen,
+                           int i) {
         StringBuilder arg = new StringBuilder();
         while (i < chrsLen && chrs[i] != '}') {
             i++;

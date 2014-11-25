@@ -23,6 +23,20 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.sqlparsers;
 
+/**
+ * Can be passed to a SqlParser, which will call arg() every time a
+ * <code>#{blah}</code> is encountered.
+ *
+ * @author mwood
+ *
+ */
 public interface ParserListener {
+    /**
+     * Is called by a SqlParser every time a <code>#{blah}</code> is
+     * encountered.
+     * 
+     * @param arg
+     * @return
+     */
     String arg(String arg);
 }

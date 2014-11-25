@@ -26,16 +26,42 @@ package com.manniwood.cl4pg.v1.sqlparsers;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Listens for each <code>#{blah}</code> in a Cl4pg SQL template and adds it to
+ * a List. For instance, the template
+ *
+ * <pre>
+ * <code>
+ * select foo from bars where baz = #{java.lang.String} and zod = #{java.util.UUID}
+ * </code>
+ * </pre>
+ *
+ * will create the List of Strings "java.lang.String", "java.util.UUID", which
+ * can be fetched using getArgs().
+ *
+ * @author mwood
+ *
+ */
 public class BasicParserListener implements ParserListener {
 
     private final List<String> args = new ArrayList<>();
 
+    /**
+     * Adds a <code>#{foo}</code> Cl4pg SQL template argument to the List of
+     * args as the String "foo".
+     */
     @Override
     public String arg(String arg) {
         args.add(arg);
         return "?";
     }
 
+    /**
+     * Returns the List of String args, in the order they were encoountered in
+     * the Cl4pg SQL template.
+     * 
+     * @return
+     */
     public List<String> getArgs() {
         return args;
     }

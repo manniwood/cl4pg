@@ -26,6 +26,24 @@ package com.manniwood.cl4pg.v1.sqlparsers;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Listens for each <code>#{blah}</code> in a Cl4pg SQL template, storing the
+ * first-encountered #{blah} specially, and adding the remaining
+ * <code>#{blah}</code>s to a List. For instance, the template
+ *
+ * <pre>
+ * <code>
+ * { #{java.lang.Integer} = call add_and_return( #{getFirst}, #{getSecond} ) }</code>
+ * </pre>
+ *
+ * will reserve "java.lang.Integer" as the special first arg, which can be
+ * fetched using getFirstArg(), and create the List of Strings "getFirst",
+ * "getSecond", which can be fetched using getArgs().
+ *
+ * 
+ * @author mwood
+ *
+ */
 public class SpecialFirstArgParserListener implements ParserListener {
 
     private int argNumber = 0;

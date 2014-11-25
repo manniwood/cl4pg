@@ -26,6 +26,22 @@ package com.manniwood.cl4pg.v1.sqlparsers;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Listens for each <code>#{getFoo/setFoo}</code> in a Cl4pg SQL template, and
+ * stores it in a List of InOutArgs. For instance, the template
+ *
+ * <pre>
+ * <code>
+ * { call add_to_first( #{getFirst/setFirst}, #{getSecond} ) }
+ * </code>
+ * </pre>
+ *
+ * will create the List of InOutArgs ( "getFirst", "setFirst" ), ( "getSecond )
+ * which can be fetched using getArgs().
+ * 
+ * @author mwood
+ *
+ */
 public class SlashParserListener implements ParserListener {
 
     private final List<InOutArg> args = new ArrayList<>();
