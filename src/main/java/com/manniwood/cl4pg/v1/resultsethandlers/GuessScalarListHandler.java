@@ -32,17 +32,14 @@ import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
 
 /**
- * XXX: this is wrong because it is copy/pasted; correct it!
- * Guesses the names of setter methods on a Java bean
- * of type R, based on the column names in the result set,
- * and returns a list of beans of type R, one for each
- * row from the result set.
+ * Guesses the type of scalar, based on single column's type metadata of a
+ * one-columned result set, and returns a list of scalars of that type (for
+ * instance, java.lang.String or java.util.UUID), one for each row from the
+ * result set.
  *
- * So, a result set with columns
- * "first_name" and "last_name" will, for each row, instantiate
- * a bean of type R using R's null constructor, and then call
- * setFirstName() and setLastName() on that bean, using the
- * values from the ResultSet.
+ * So, a result set that returns a single column whose
+ * ResultSetMetaData.getColumnClassName(1) returns "java.lang.String", will
+ * return a list of Strings, one for each row in the ResultSet.
  *
  * @author mwood
  *
@@ -50,7 +47,7 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
  */
 public class GuessScalarListHandler<R> implements ResultSetHandler {
 
-    private List<R>      list;
+    private List<R> list;
     private TypeConverter<?> typeConverter;
 
     public GuessScalarListHandler() {

@@ -31,6 +31,13 @@ import java.util.List;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.converters.SetterAndConverter;
 
+/**
+ * XXX Needs javadoc
+ * 
+ * @author mwood
+ *
+ * @param <R>
+ */
 public class ExplicitSettersListHandler<R> implements ResultSetHandler {
 
     private List<R> list;

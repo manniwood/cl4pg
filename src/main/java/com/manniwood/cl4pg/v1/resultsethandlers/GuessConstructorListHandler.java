@@ -31,6 +31,22 @@ import java.util.List;
 import com.manniwood.cl4pg.v1.converters.ConstructorAndConverters;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 
+/**
+ * Guesses the types of constructor arguments for a Java bean of type R, based
+ * on the column metadata the result set, and returns a list of beans of type R,
+ * one for each row from the result set.
+ *
+ * So, a two-columned result set with columns whose
+ * ResultSetMetaData.getColumnClassName(1) method returns "java.lang.String",
+ * and whose ResultSetMetaData.getColumnClassName(2) returns "java.util.UUID",
+ * will result in a bean of type R being instantiated using a constructor that
+ * takes those two arguments, in that order. A bean will be constructed in that
+ * way for each row in the ResultSet.
+ *
+ * @author mwood
+ *
+ * @param <R>
+ */
 public class GuessConstructorListHandler<R> implements ResultSetHandler {
 
     private List<R> list;

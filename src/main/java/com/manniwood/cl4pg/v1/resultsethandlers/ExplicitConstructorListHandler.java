@@ -31,6 +31,13 @@ import java.util.List;
 import com.manniwood.cl4pg.v1.converters.ConstructorAndConverters;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 
+/**
+ * XXX Needs javadoc
+ * 
+ * @author mwood
+ *
+ * @param <R>
+ */
 public class ExplicitConstructorListHandler<R> implements ResultSetHandler {
 
     private List<R> list;
