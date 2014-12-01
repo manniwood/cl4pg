@@ -52,9 +52,9 @@ import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.Str;
 
 /**
- * A store of TypeConverters, as well as mappings to and from String names
- * of those converters, as well as utility classes for mapping ResultSet
- * rows to beans. This class needs to be thread safe!
+ * A store of TypeConverters, as well as mappings to and from String names of
+ * those converters, as well as utility classes for mapping ResultSet rows to
+ * beans. This class needs to be thread safe!
  *
  * @author mwood
  *
@@ -67,7 +67,8 @@ public class ConverterStore {
 
     public ConverterStore(String typeConverterConfFiles) {
         // The builtin type typeConverters conf file is either the only
-        // type typeConverters file in the list, or the first typeConverters file
+        // type typeConverters file in the list, or the first typeConverters
+        // file
         // in the list.
         String allConfFiles;
         if (Str.isNullOrEmpty(typeConverterConfFiles)) {
@@ -92,7 +93,9 @@ public class ConverterStore {
     }
 
     /**
-     * Loads the ConverterStore's properties from a properties file in the classpath.
+     * Loads the ConverterStore's properties from a properties file in the
+     * classpath.
+     *
      * @param path
      * @return
      */
@@ -161,6 +164,7 @@ public class ConverterStore {
 
     /**
      * Calls setSQLArguments with the default startCol of 1.
+     *
      * @param pstmt
      * @param p
      * @param getters
@@ -175,11 +179,12 @@ public class ConverterStore {
     /**
      * In a PreparedStatement, such as "select foo from foos where foo = ?",
      * sets all question mark arguments using the appropriate PreparedStatement
-     * methods, such as setInt(), setString(), setObject(), etc.
-     * The source data for these setter arguments comes from the
-     * bean p, whose getters are called in the order listed in the getters argument.
-     * PreparedStatement question mark arguments are set starting at offset 1, but
-     * startCol allows you to start at any other offset, if required.
+     * methods, such as setInt(), setString(), setObject(), etc. The source data
+     * for these setter arguments comes from the bean p, whose getters are
+     * called in the order listed in the getters argument. PreparedStatement
+     * question mark arguments are set starting at offset 1, but startCol allows
+     * you to start at any other offset, if required.
+     *
      * @param pstmt
      * @param p
      * @param getters
@@ -208,7 +213,14 @@ public class ConverterStore {
     }
 
     /**
-     * In a CallableStatement,
+     * In a CallableStatement, sets all question mark arguments using the
+     * appropriate CallableStatement methods, such as setInt(), setString(),
+     * registerOutParameter(), etc. The source data for the CallableStatement
+     * set arguments comes from the bean p, whose getters are called in the
+     * order listed in the args argument. Additionally, the bean p's setters
+     * will later get called based on any argument in args listed as an OUT
+     * parameter.
+     *
      * @param cstmt
      * @param p
      * @param args
@@ -251,6 +263,18 @@ public class ConverterStore {
         }
     }
 
+    /**
+     * Sets the parameter (param) on prepared statement (pstmt) at offset i,
+     * using className to determine which TypeConverter should be used to
+     * actually set the parameter (e.g., so that PreparedStatement's setInt() or
+     * setString() or setObject() method will get used).
+     *
+     * @param pstmt
+     * @param i
+     * @param param
+     * @param className
+     * @throws SQLException
+     */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setSQLArgument(PreparedStatement pstmt,
                                int i,
@@ -266,6 +290,17 @@ public class ConverterStore {
         typeConverter.setItem(pstmt, i, parameterType.cast(param));
     }
 
+    /**
+     * Uses metadata from a ResultSet (rs) to guess what the setters on a bean
+     * of type Class (returnType) will be. So for a ResultSet whose columns are
+     * named user_name and employee_id, this method will guess the bean's
+     * corresponding setter methods to be named setUserName and setEmployeeId.
+     *
+     * @param rs
+     * @param returnType
+     * @return
+     * @throws SQLException
+     */
     public <T> List<SetterAndConverter> guessSetters(ResultSet rs,
                                                      Class<T> returnType) throws SQLException {
         List<SetterAndConverter> settersAndConverters = new ArrayList<>();
@@ -287,6 +322,14 @@ public class ConverterStore {
         return settersAndConverters;
     }
 
+    /**
+     * XXX needs JavaDoc
+     * 
+     * @param rs
+     * @param returnType
+     * @return
+     * @throws SQLException
+     */
     public <T> List<SetterAndConverter> specifySetters(ResultSet rs,
                                                        Class<T> returnType) throws SQLException {
         List<SetterAndConverter> settersAndConverters = new ArrayList<>();
@@ -340,7 +383,7 @@ public class ConverterStore {
     }
 
     public <T> TypeConverter<?> guessConverter(ResultSet rs,
-                                           Class<T> returnType) throws SQLException {
+                                               Class<T> returnType) throws SQLException {
         TypeConverter<?> converter = null;
         Class<?> parameterType = null;
         try {
@@ -383,7 +426,7 @@ public class ConverterStore {
     }
 
     public <T> TypeConverter<?> specifyConverter(ResultSet rs,
-                                             Class<T> returnType) throws SQLException {
+                                                 Class<T> returnType) throws SQLException {
         TypeConverter<?> converter = null;
         try {
             ResultSetMetaData md = rs.getMetaData();

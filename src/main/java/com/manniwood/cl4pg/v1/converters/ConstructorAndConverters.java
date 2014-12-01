@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.cl4pg.v1.converters;
 
 import java.lang.reflect.Constructor;
@@ -29,9 +29,10 @@ import java.util.List;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
 
 /**
- * Holds a bean constructor and all of the TypeConverters, in order,
- * that map to the arguments for that constructor. Used to cache info
- * about beans we want to construct from result set rows.
+ * Holds a bean constructor and all of the TypeConverters, in order, for the
+ * constructor arguments of that bean. Used to cache info about beans we want to
+ * construct from result set rows.
+ *
  * @author mwood
  *
  */

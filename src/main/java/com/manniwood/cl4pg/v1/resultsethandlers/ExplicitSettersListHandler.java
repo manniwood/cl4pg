@@ -32,8 +32,36 @@ import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.converters.SetterAndConverter;
 
 /**
- * XXX Needs javadoc
- * 
+ * Reads the names of setters for a Java bean of type R, based on the explicit
+ * column aliases in the result set, and returns a list of beans of type R, one
+ * for each row from the result set.
+ *
+ * <p>
+ * Let's assume Cl4pg is iterating through a result set from this piece of SQL:
+ *
+ * <pre>
+ * <code>
+ * select id          as "setId",
+ *        name        as "setName",
+ *        password    as "setPassword",
+ *        employee_id as "setEmployeeId"
+ *   from users
+ *  where id = 1
+ * </code>
+ * </pre>
+ *
+ * <p>
+ * For each row in the result set:
+ *
+ * <p>
+ * A bean of type R will be constructed using its null constructor (so it had
+ * better have one!).
+ *
+ * <p>
+ * The value of the result row's "setId" column will be used as the argument to
+ * myR.setId(), the "setName" column will be used as the argument to
+ * myR.setName(), etc, etc.
+ *
  * @author mwood
  *
  * @param <R>

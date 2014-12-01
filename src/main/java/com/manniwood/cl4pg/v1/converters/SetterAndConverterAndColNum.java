@@ -20,13 +20,22 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package com.manniwood.cl4pg.v1.converters;
 
 import java.lang.reflect.Method;
 
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
 
+/**
+ * Holds a setter method for a bean, a typeConverter that will convert a
+ * result-set's column into the Java type required by the setter method forr the
+ * bean, and the SQL column number (starting from 1, not 0) that this converter
+ * and setter correspond to.
+ *
+ * @author mwood
+ *
+ */
 public class SetterAndConverterAndColNum {
 
     private final TypeConverter<?> typeConverter;
