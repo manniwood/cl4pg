@@ -117,7 +117,7 @@ public class ConverterStore {
     /**
      * Maps primitive Java object wrappers to their primitive types.
      */
-    public static Map<Class<?>, Class<?>> wrappersToPrimitives = new HashMap<>();
+    private static Map<Class<?>, Class<?>> wrappersToPrimitives = new HashMap<>();
 
     static {
         wrappersToPrimitives.put(Byte.class, byte.class);
@@ -133,7 +133,7 @@ public class ConverterStore {
     /**
      * Maps Java primitive types to their wrapper classes.
      */
-    public static Map<Class<?>, Class<?>> primitivesToWrappers = new HashMap<>();
+    private static Map<Class<?>, Class<?>> primitivesToWrappers = new HashMap<>();
 
     static {
         primitivesToWrappers.put(byte.class, Byte.class);
@@ -149,7 +149,7 @@ public class ConverterStore {
     /**
      * Maps String names of Java primitives to their primitive types.
      */
-    public static Map<String, Class<?>> primitiveNamesToClasses = new HashMap<>();
+    private static Map<String, Class<?>> primitiveNamesToClasses = new HashMap<>();
 
     static {
         primitiveNamesToClasses.put("byte", byte.class);
@@ -295,6 +295,10 @@ public class ConverterStore {
      * of type Class (returnType) will be. So for a ResultSet whose columns are
      * named user_name and employee_id, this method will guess the bean's
      * corresponding setter methods to be named setUserName and setEmployeeId.
+     * Furthermore, the class name from each column
+     * (ResultSetMetaData.getColumnClassName()) will be used to determine the
+     * TypeConverter that should be used to translate the SQL type for each
+     * column to the type required by each corresponding bean setter method.
      *
      * @param rs
      * @param returnType
@@ -312,7 +316,7 @@ public class ConverterStore {
                 String label = md.getColumnLabel(i);
                 Class<?> parameterType = Class.forName(className);
                 String setterName = ColumnLabelConverter.convert(label);
-                Method setter = findMethod(returnType, parameterType, setterName);
+                Method setter = findSetterMethod(returnType, parameterType, setterName);
                 TypeConverter<?> converter = typeConverters.get(parameterType);
                 settersAndConverters.add(new SetterAndConverter(converter, setter));
             }
@@ -323,8 +327,15 @@ public class ConverterStore {
     }
 
     /**
-     * XXX needs JavaDoc
-     * 
+     * Uses column labels from a ResultSet (rs) as names of the setters on a
+     * bean of type Class (returnType). So for a ResultSet whose column labels
+     * are "setUserName" and "setEmployeeId", this method will use the bean's
+     * corresponding setter methods to be named setUserName and setEmployeeId.
+     * Furthermore, the class name from each column
+     * (ResultSetMetaData.getColumnClassName()) will be used to determine the
+     * TypeConverter that should be used to translate the SQL type for each
+     * column to the type required by each corresponding bean setter method.
+     *
      * @param rs
      * @param returnType
      * @return
@@ -340,7 +351,7 @@ public class ConverterStore {
                 String className = md.getColumnClassName(i);
                 String setterName = md.getColumnLabel(i);
                 Class<?> parameterType = Class.forName(className);
-                Method setter = findMethod(returnType, parameterType, setterName);
+                Method setter = findSetterMethod(returnType, parameterType, setterName);
                 TypeConverter<?> converter = typeConverters.get(parameterType);
                 settersAndConverters.add(new SetterAndConverter(converter, setter));
             }
@@ -350,6 +361,30 @@ public class ConverterStore {
         return settersAndConverters;
     }
 
+    /**
+     * Uses argument args to determine the names of setters on a bean of type
+     * Class (returnType).
+     *
+     * <p>
+     * Also, because this method deals with CallableStatements, it also
+     * determines the column number of each setter argument (corresponding to an
+     * OUT argument in the CallableStatement) as well as each setter argument's
+     * absolute column number. For instance, for a stored procedure with one IN
+     * param and two OUT params, we will want to find the corresponding setter
+     * methods for the two OUT params, and the correct columns to get the
+     * corresponding data from.
+     *
+     * <p>
+     * Furthermore, the class name from each column
+     * (ResultSetMetaData.getColumnClassName()) will be used to determine the
+     * TypeConverter that should be used to translate the SQL type for each
+     * column to the type required by each corresponding bean setter method.
+     *
+     * @param rs
+     * @param returnType
+     * @return
+     * @throws SQLException
+     */
     public <T> List<SetterAndConverterAndColNum> specifySetters(CallableStatement cstmt,
                                                                 Class<T> returnType,
                                                                 List<InOutArg> args) throws SQLException {
@@ -361,16 +396,16 @@ public class ConverterStore {
             for (InOutArg arg : args) {
                 absCol++;
                 String setterName = arg.getSetter();
-                if (setterName == null || setterName.isEmpty()) {
-                    // setterName is null, so do not increment i.
+                if (Str.isNullOrEmpty(setterName)) {
+                    // setterName is null or empty, so do not increment i.
                     // There are *only* as many return columns as there
-                    // are out params, *not* as many return columns
-                    // as there are params
+                    // are OUT params, *not* as many return columns
+                    // as there are all types (IN/OUT/INOUT) of params.
                     continue;
                 }
                 String className = md.getColumnClassName(setCol);
                 Class<?> parameterType = Class.forName(className);
-                Method setter = findMethod(returnType, parameterType, setterName);
+                Method setter = findSetterMethod(returnType, parameterType, setterName);
                 TypeConverter<?> converter = typeConverters.get(parameterType);
                 settersAndConverters.add(new SetterAndConverterAndColNum(converter, setter, absCol, setCol));
                 // only increment for non-null setters
@@ -382,28 +417,16 @@ public class ConverterStore {
         return settersAndConverters;
     }
 
-    public <T> TypeConverter<?> guessConverter(ResultSet rs,
-                                               Class<T> returnType) throws SQLException {
-        TypeConverter<?> converter = null;
-        Class<?> parameterType = null;
-        try {
-            ResultSetMetaData md = rs.getMetaData();
-            int numCols = md.getColumnCount();
-            if (numCols > 1) {
-                throw new IllegalArgumentException("Only one column is allowed to be in the result set.");
-            }
-            String className = md.getColumnClassName(1);
-            parameterType = Class.forName(className);
-            converter = typeConverters.get(parameterType);
-        } catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
-            throw new Cl4pgReflectionException(e);
-        }
-        if (converter == null) {
-            throw new IllegalArgumentException("TypeConverter not found for column return type " + parameterType);
-        }
-        return converter;
-    }
-
+    /**
+     * Uses the class name (ResultSetMetaData.getColumnClassName()) from the
+     * only column of a single-column result set to determine the TypeConverter
+     * that should be used to translate the SQL type into a Java type.
+     *
+     * @param rs
+     * @param returnType
+     * @return
+     * @throws SQLException
+     */
     public <T> TypeConverter<?> guessConverter(ResultSet rs) throws SQLException {
         TypeConverter<?> converter = null;
         Class<?> parameterType = null;
@@ -425,6 +448,15 @@ public class ConverterStore {
         return converter;
     }
 
+    /**
+     * Uses returnType to determine the TypeConverter that should be used to
+     * translate the SQL type of a single-column result set into a Java type.
+     *
+     * @param rs
+     * @param returnType
+     * @return
+     * @throws SQLException
+     */
     public <T> TypeConverter<?> specifyConverter(ResultSet rs,
                                                  Class<T> returnType) throws SQLException {
         TypeConverter<?> converter = null;
@@ -443,6 +475,19 @@ public class ConverterStore {
         return converter;
     }
 
+    /**
+     * Uses the next row in ResultSet rs to build a bean of type returnType
+     * using the setter methods and their corresponding TypeConverters listed in
+     * settersAndConverters. First, the bean's null constructor is called, and
+     * then the setter method corresponding to each column in the result set
+     * gets called, to populate the bean.
+     *
+     * @param rs
+     * @param returnType
+     * @param settersAndConverters
+     * @return
+     * @throws SQLException
+     */
     public <T> T buildBeanUsingSetters(ResultSet rs,
                                        Class<T> returnType,
                                        List<SetterAndConverter> settersAndConverters) throws SQLException {
@@ -460,6 +505,16 @@ public class ConverterStore {
         return t;
     }
 
+    /**
+     * Uses CallableStatement cstmt and a list of setters and converters
+     * (settersAndConverters) to populate bean t.
+     *
+     * @param rs
+     * @param returnType
+     * @param settersAndConverters
+     * @return
+     * @throws SQLException
+     */
     public <T> T populateBeanUsingSetters(CallableStatement cstmt,
                                           T t,
                                           List<SetterAndConverterAndColNum> settersAndConverters) throws SQLException {
@@ -474,6 +529,25 @@ public class ConverterStore {
         return t;
     }
 
+    /**
+     * Uses metadata from a ResultSet (rs) to guess the constructor arguments on
+     * a bean of type Class (returnType). So for a bean of type User, and a
+     * ResultSet whose columns are user_name (java.lang.String) and employee_id
+     * (java.lang.Integer), this method will guess the bean's corresponding
+     * constructor to be User(String, Integer).
+     *
+     * <p>
+     * Furthermore, the class name from each column
+     * (ResultSetMetaData.getColumnClassName()) will be used to determine the
+     * TypeConverter that should be used to translate the SQL type for each
+     * column to the type required by each corresponding argument of the bean's
+     * constructor.
+     *
+     * @param rs
+     * @param returnType
+     * @return
+     * @throws SQLException
+     */
     public <T> ConstructorAndConverters guessConstructor(ResultSet rs,
                                                          Class<T> returnType) throws SQLException {
         Constructor<?> constructor = null;
@@ -496,6 +570,25 @@ public class ConverterStore {
         return new ConstructorAndConverters(constructor, convs);
     }
 
+    /**
+     * Uses column labels from a ResultSet (rs) as argument types on a
+     * constructor for a bean of type Class (returnType). So for a bean of type
+     * User, and a ResultSet whose column labels are "java.lang.String" and
+     * "java.lang.Integer", this method will use the bean's corresponding
+     * constructor User(String, Integer).
+     *
+     * <p>
+     * Furthermore, the class name from each column
+     * (ResultSetMetaData.getColumnClassName()) will be used to determine the
+     * TypeConverter that should be used to translate the SQL type for each
+     * column to the type required by each corresponding argument of the bean's
+     * constructor.
+     *
+     * @param rs
+     * @param returnType
+     * @return
+     * @throws SQLException
+     */
     public <T> ConstructorAndConverters specifyConstructorArgs(ResultSet rs,
                                                                Class<T> returnType) throws SQLException {
         Constructor<?> constructor = null;
@@ -518,6 +611,17 @@ public class ConverterStore {
         return new ConstructorAndConverters(constructor, convs);
     }
 
+    /**
+     * Uses the next row in ResultSet rs to build a bean of type returnType
+     * using the constructor and the constructor arguments' corresponding
+     * TypeConverters listed in cac.
+     *
+     * @param rs
+     * @param returnType
+     * @param cac
+     * @return
+     * @throws SQLException
+     */
     @SuppressWarnings("unchecked")
     public <T> T buildBeanUsingConstructor(ResultSet rs,
                                            Class<T> returnType,
@@ -539,6 +643,13 @@ public class ConverterStore {
         return t;
     }
 
+    /**
+     * Converts the string name of a class into a class object.
+     *
+     * @param className
+     * @return
+     * @throws ClassNotFoundException
+     */
     public static Class<?> className2Class(String className) throws ClassNotFoundException {
         Class<?> c = primitiveNamesToClasses.get(className);
         if (c != null) {
@@ -547,6 +658,13 @@ public class ConverterStore {
         return Class.forName(className);
     }
 
+    /**
+     * Converts the string name of a class into a class object, or, on failure,
+     * throws a Cl4pgReflectionException.
+     *
+     * @param className
+     * @return
+     */
     public static Class<?> className2ClassOrThrow(String className) {
         Class<?> c = null;
         try {
@@ -557,6 +675,13 @@ public class ConverterStore {
         return c;
     }
 
+    /**
+     * Instantiates a new instance of converterClass, or throws
+     * Cl4pgReflectionException.
+     *
+     * @param converterClass
+     * @return
+     */
     private Object instantiateOrThrow(Class<?> converterClass) {
         try {
             return converterClass.newInstance();
@@ -565,16 +690,29 @@ public class ConverterStore {
         }
     }
 
-    private <T> Method findMethod(Class<T> returnType,
-                                  Class<?> parameterType,
-                                  String setterName) throws NoSuchMethodException {
+    /**
+     * Finds a setter method for bean with the name setterName and the argument
+     * parameterType. In the case of wrapper types like java.lang.Integer for
+     * the parameterType, will also try to find the method for the corresponding
+     * primitive type (such as int in this example) if a setter for the wrapper
+     * type was not found.
+     *
+     * @param bean
+     * @param parameterType
+     * @param setterName
+     * @return
+     * @throws NoSuchMethodException
+     */
+    private <T> Method findSetterMethod(Class<T> bean,
+                                        Class<?> parameterType,
+                                        String setterName) throws NoSuchMethodException {
         Method m;
         try {
             // Usually, this will succeed, but sometimes we are looking
             // for method setFoo(Integer) and really the method
             // is setFoo(int), so it's possible to throw NoSuchMethodException
             // here.
-            m = returnType.getMethod(setterName, parameterType);
+            m = bean.getMethod(setterName, parameterType);
         } catch (NoSuchMethodException e) {
             // Just in case we got here looking for setFoo(Integer),
             // when really we need setFoo(int), try find setFoo(int)
@@ -586,7 +724,7 @@ public class ConverterStore {
             }
             // This can also throw NoSuchMethodException
             // if the primitive method really isn't there.
-            m = returnType.getMethod(setterName, primitiveType);
+            m = bean.getMethod(setterName, primitiveType);
         }
         return m;
     }
