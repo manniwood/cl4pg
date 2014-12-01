@@ -29,6 +29,15 @@ import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
+/**
+ * Execute a single SQL command. Extends AutoCloseable so that any resources
+ * associated with this command (such as open prepared statements or open files
+ * for a copy command) can be correctly closed regardless of a commit or
+ * rollback.
+ * 
+ * @author mwood
+ *
+ */
 public interface Command extends AutoCloseable {
     /**
      * Get the SQL statement used by this command.
