@@ -25,8 +25,6 @@ package com.manniwood.cl4pg.v1.test.types;
 
 import java.math.BigDecimal;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,8 +50,6 @@ import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
  *
  */
 public class DoublePrecisionTest {
-    private final static Logger log = LoggerFactory.getLogger(DoublePrecisionTest.class);
-
     private PgSession pgSession;
     private PgSessionPool pool;
 

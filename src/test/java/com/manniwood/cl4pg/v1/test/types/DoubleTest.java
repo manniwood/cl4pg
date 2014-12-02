@@ -23,8 +23,6 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.types;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,8 +48,6 @@ import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
  *
  */
 public class DoubleTest {
-    private final static Logger log = LoggerFactory.getLogger(DoubleTest.class);
-
     private PgSession pgSession;
     private PgSessionPool pool;
 
