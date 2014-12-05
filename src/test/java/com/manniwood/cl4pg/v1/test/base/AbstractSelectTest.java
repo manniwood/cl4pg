@@ -23,6 +23,7 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.base;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.testng.Assert;
@@ -33,12 +34,9 @@ import org.testng.annotations.Test;
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
 import com.manniwood.cl4pg.v1.PgSessionPool;
-import com.manniwood.cl4pg.v1.commands.DDL;
-import com.manniwood.cl4pg.v1.commands.Insert;
 import com.manniwood.cl4pg.v1.commands.Select;
 import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitSettersListHandler;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
 import com.manniwood.cl4pg.v1.test.etc.User;
@@ -86,17 +84,11 @@ public abstract class AbstractSelectTest {
 
         pgSession = pool.getSession();
 
-        pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
+        pgSession.ddlF("sql/create_temp_users_table.sql");
         pgSession.commit();
 
-        pgSession.run(Insert.usingVariadicArgs()
-                .file("sql/insert_user_variadic.sql")
-                .args(expected.getId(), expected.getName(), expected.getPassword(), expected.getEmployeeId())
-                .done());
-        pgSession.run(Insert.<User> usingBeanArg()
-                .file("sql/insert_user.sql")
-                .arg(userWithNulls)
-                .done());
+        pgSession.insertF("sql/insert_user_variadic.sql", expected.getId(), expected.getName(), expected.getPassword(), expected.getEmployeeId());
+        pgSession.insertF(userWithNulls, "sql/insert_user.sql");
         pgSession.commit();
     }
 
@@ -139,14 +131,11 @@ public abstract class AbstractSelectTest {
 
     @Test(priority = 2)
     public void testGuessConstructorListHandler() {
-        GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(Select.usingVariadicArgs()
-                .file("sql/select_user_guess_setters.sql")
-                .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
-                .resultSetHandler(handler)
-                .done());
+        List<ImmutableUser> users = pgSession.selectF("sql/select_user_guess_setters.sql",
+                                                      ImmutableUser.class,
+                                                      UUID.fromString(AbstractPgSessionTest.TEST_ID));
         pgSession.rollback();
-        ImmutableUser actualImmutable = handler.getList().get(0);
+        ImmutableUser actualImmutable = users.get(0);
 
         Assert.assertTrue(Users.equals(actualImmutable, expected), "users must match");
     }
@@ -196,14 +185,11 @@ public abstract class AbstractSelectTest {
 
     @Test(priority = 6)
     public void testGuessConstructorListHandlerBeanArg() {
-        GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(Select.<User> usingBeanArg()
-                .file("sql/select_user_guess_setters_bean_param.sql")
-                .arg(expected)
-                .resultSetHandler(handler)
-                .done());
+        List<ImmutableUser> users = pgSession.selectF(expected,
+                                                      "sql/select_user_guess_setters_bean_param.sql",
+                                                      ImmutableUser.class);
         pgSession.rollback();
-        ImmutableUser actualImmutable = handler.getList().get(0);
+        ImmutableUser actualImmutable = users.get(0);
 
         Assert.assertTrue(Users.equals(actualImmutable, expected), "users must match");
     }

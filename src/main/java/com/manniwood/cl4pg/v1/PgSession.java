@@ -25,6 +25,7 @@ package com.manniwood.cl4pg.v1;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.postgresql.PGNotification;
 import org.postgresql.util.PSQLException;
@@ -33,6 +34,7 @@ import com.manniwood.cl4pg.v1.commands.Command;
 import com.manniwood.cl4pg.v1.commands.Commit;
 import com.manniwood.cl4pg.v1.commands.DDL;
 import com.manniwood.cl4pg.v1.commands.GetNotifications;
+import com.manniwood.cl4pg.v1.commands.Insert;
 import com.manniwood.cl4pg.v1.commands.Listen;
 import com.manniwood.cl4pg.v1.commands.Notify;
 import com.manniwood.cl4pg.v1.commands.Rollback;
@@ -43,6 +45,7 @@ import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedCleanupException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedRollbackException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgSqlException;
+import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
@@ -131,8 +134,92 @@ public class PgSession {
      *
      * @param sql
      */
-    public void ddlFile(String file) {
+    public void ddlF(String file) {
         run(DDL.config().file(file).done());
+    }
+
+    /**
+     * Convenience method that calls an Insert Command using a bean argument and
+     * a file in the classpath.
+     */
+    public <A> void insert(A a,
+                           String sql) {
+        run(Insert.<A> usingBeanArg()
+                .sql(sql)
+                .arg(a)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls an Insert Command using a bean argument and
+     * a file in the classpath.
+     */
+    public <A> void insertF(A a,
+                            String file) {
+        run(Insert.<A> usingBeanArg()
+                .file(file)
+                .arg(a)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls an Insert Command using variadic args and a
+     * file in the classpath.
+     */
+    public void insert(String sql,
+                       Object... args) {
+        run(Insert.usingVariadicArgs()
+                .sql(sql)
+                .args(args)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls an Insert Command using variadic args and a
+     * file in the classpath.
+     */
+    public void insertF(String file,
+                        Object... args) {
+        run(Insert.usingVariadicArgs()
+                .file(file)
+                .args(args)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args and a
+     * file in the classpath, which uses the names of the returned columns to
+     * guess the constructor for the returned beans.
+     */
+    public <R> List<R> selectF(String file,
+                               Class<R> clazz,
+                               Object... args) {
+
+        GuessConstructorListHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        run(Select.usingVariadicArgs()
+                .file(file)
+                .args(args)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args and a
+     * file in the classpath, which uses the names of the returned columns to
+     * guess the constructor for the returned beans.
+     */
+    public <R, A> List<R> selectF(A a,
+                                  String file,
+                                  Class<R> clazz) {
+
+        GuessConstructorListHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        run(Select.<A> usingBeanArg()
+                .file(file)
+                .arg(a)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
     }
 
     /**
@@ -142,8 +229,8 @@ public class PgSession {
      * @param sql
      * @return
      */
-    public <T> T selectOneWithNoArgs(String sql) {
-        GuessScalarListHandler<T> handler = new GuessScalarListHandler<T>();
+    public <R> R selectOneZ(String sql) {
+        GuessScalarListHandler<R> handler = new GuessScalarListHandler<R>();
         run(Select.usingVariadicArgs()
                 .sql(sql)
                 .resultSetHandler(handler)

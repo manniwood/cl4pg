@@ -40,7 +40,6 @@ import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
 import com.manniwood.cl4pg.v1.PgSessionPool;
 import com.manniwood.cl4pg.v1.commands.DDL;
-import com.manniwood.cl4pg.v1.commands.Insert;
 import com.manniwood.cl4pg.v1.commands.Select;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
@@ -100,7 +99,7 @@ public abstract class AbstractPgSessionTest {
         pool = new PgSessionPool(adapter);
         pgSession = pool.getSession();
 
-        pgSession.ddlFile("sql/create_temp_users_table.sql");
+        pgSession.ddlF("sql/create_temp_users_table.sql");
         pgSession.commit();
     }
 
@@ -135,10 +134,7 @@ public abstract class AbstractPgSessionTest {
     public void testInsertAndSelectOneUsingBeans() {
 
         User expected = createExpectedUser();
-        pgSession.run(Insert.<User> usingBeanArg()
-                .file("sql/insert_user.sql")
-                .arg(expected)
-                .done());
+        pgSession.insertF(expected, "sql/insert_user.sql");
         pgSession.commit();
 
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
@@ -202,21 +198,15 @@ public abstract class AbstractPgSessionTest {
 
     @Test(priority = 3)
     public void testExceptions() {
-        pgSession.run(DDL.config().sql("drop table users").done());
-        pgSession.run(DDL.config().file("sql/create_temp_constrained_users_table.sql").done());
+        pgSession.ddl("drop table users");
+        pgSession.ddlF("sql/create_temp_constrained_users_table.sql");
         pgSession.commit();
 
         User expected = createExpectedUser();
-        pgSession.run(Insert.<User> usingBeanArg()
-                .file("sql/insert_user.sql")
-                .arg(expected)
-                .done());
+        pgSession.insertF(expected, "sql/insert_user.sql");
         pgSession.commit();
         try {
-            pgSession.run(Insert.<User> usingBeanArg()
-                    .file("sql/insert_user.sql")
-                    .arg(expected)
-                    .done());
+            pgSession.insertF(expected, "sql/insert_user.sql");
             pgSession.commit();
         } catch (UserAlreadyExistsException e) {
             log.info("Cannot insert user twice!");
@@ -224,8 +214,8 @@ public abstract class AbstractPgSessionTest {
         }
 
         // put the original tmp users table back
-        pgSession.run(DDL.config().sql("drop table users").done());
-        pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
+        pgSession.ddl("drop table users");
+        pgSession.ddlF("sql/create_temp_users_table.sql");
         pgSession.commit();
     }
 
@@ -246,7 +236,7 @@ public abstract class AbstractPgSessionTest {
          * transaction is aborted, commands ignored until end of transaction
          * block
          */
-        Integer count = pgSession.selectOneWithNoArgs("select 1");
+        Integer count = pgSession.selectOneZ("select 1");
         Assert.assertEquals(count.intValue(),
                             1,
                             "Statement needs to return 1");
