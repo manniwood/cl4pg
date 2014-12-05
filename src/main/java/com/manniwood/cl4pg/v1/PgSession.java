@@ -35,12 +35,14 @@ import com.manniwood.cl4pg.v1.commands.GetNotifications;
 import com.manniwood.cl4pg.v1.commands.Listen;
 import com.manniwood.cl4pg.v1.commands.Notify;
 import com.manniwood.cl4pg.v1.commands.Rollback;
+import com.manniwood.cl4pg.v1.commands.Select;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedCleanupException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedRollbackException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgSqlException;
+import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
@@ -112,6 +114,22 @@ public class PgSession {
      */
     public void pgListen(String channel) {
         run(new Listen(channel));
+    }
+
+    /**
+     * Convenience method to call a Select that takes no args and returns a one
+     * colum, one row result, such as "select * from foo".
+     * 
+     * @param sql
+     * @return
+     */
+    public <T> T selectOneWithNoArgs(String sql) {
+        GuessScalarListHandler<T> handler = new GuessScalarListHandler<T>();
+        run(Select.usingVariadicArgs()
+                .sql(sql)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList().get(0);
     }
 
     /**

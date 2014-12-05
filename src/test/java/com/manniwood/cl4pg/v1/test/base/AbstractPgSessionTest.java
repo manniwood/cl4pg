@@ -43,7 +43,6 @@ import com.manniwood.cl4pg.v1.commands.DDL;
 import com.manniwood.cl4pg.v1.commands.Insert;
 import com.manniwood.cl4pg.v1.commands.Select;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.cl4pg.v1.test.etc.User;
 import com.manniwood.cl4pg.v1.test.exceptions.UserAlreadyExistsException;
@@ -247,12 +246,7 @@ public abstract class AbstractPgSessionTest {
          * transaction is aborted, commands ignored until end of transaction
          * block
          */
-        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.usingVariadicArgs()
-                .sql("select 1")
-                .resultSetHandler(handler)
-                .done());
-        Integer count = handler.getList().get(0);
+        Integer count = pgSession.selectOneWithNoArgs("select 1");
         Assert.assertEquals(count.intValue(),
                             1,
                             "Statement needs to return 1");
