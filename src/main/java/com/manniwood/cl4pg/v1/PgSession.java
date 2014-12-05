@@ -44,56 +44,41 @@ import com.manniwood.cl4pg.v1.exceptions.Cl4pgSqlException;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
+/**
+ * The main way of interacting with PostgreSQL; instances of this class are used
+ * to run all Commands.
+ *
+ * @author mwood
+ *
+ */
 public class PgSession {
 
     private final Connection conn;
     private final SqlCache sqlCache;
     private final DataSourceAdapter dataSourceAdapter;
     private final ExceptionConverter exceptionConverter;
-    private final TypeConverterStore converterStore;
+    private final TypeConverterStore typeConverterStore;
 
     public PgSession(Connection conn, DataSourceAdapter dataSourceAdapter, SqlCache sqlCache) {
         this.conn = conn;
         this.dataSourceAdapter = dataSourceAdapter;
         this.exceptionConverter = dataSourceAdapter.getExceptionConverter();
-        this.converterStore = dataSourceAdapter.getConverterStore();
+        this.typeConverterStore = dataSourceAdapter.getTypeConverterStore();
         this.sqlCache = sqlCache;
     }
 
-    public void close() {
-        try {
-            conn.close();
-        } catch (SQLException e) {
-            throw new Cl4pgFailedRollbackException("Could not close databse connection. Possible leaked resource!", e);
-        }
-    }
-
-    public void pgNotify(String channel,
-                         String payload) {
-        run(Notify.config().channel(channel).payload(payload).done());
-    }
-
-    public void pgListen(String channel) {
-        run(new Listen(channel));
-    }
-
-    public PGNotification[] getNotifications() {
-        GetNotifications getNotifications = new GetNotifications();
-        run(getNotifications);
-        return getNotifications.getNotifications();
-    }
-
-    public void commit() {
-        run(new Commit(conn));
-    }
-
-    public void rollback() {
-        run(new Rollback(conn));
-    }
-
+    /**
+     * Runs a Command, automatically rolling back and throwing a Cl4pgException
+     * (or one of its children) in the event of an error, and automatically
+     * closing any resources (such as open files for the Copy Command, or open
+     * PreparedStatements for the Select Command) regardless of success or
+     * failure.
+     *
+     * @param command
+     */
     public void run(Command command) {
         try {
-            command.execute(conn, converterStore, sqlCache, dataSourceAdapter);
+            command.execute(conn, typeConverterStore, sqlCache, dataSourceAdapter);
         } catch (Exception e) {
             rollback(e, command.getSQL());
             throw createPg4jException(e, command.getSQL());
@@ -105,6 +90,73 @@ public class PgSession {
                                                               + command.getSQL(),
                                                       e);
             }
+        }
+    }
+
+    /**
+     * Convenience method that calls a Notify Command.
+     *
+     * @param channel
+     * @param payload
+     */
+    public void pgNotify(String channel,
+                         String payload) {
+        run(Notify.config().channel(channel).payload(payload).done());
+    }
+
+    /**
+     * Convenience method that calls a Listen Command.
+     *
+     * @param channel
+     * @param payload
+     */
+    public void pgListen(String channel) {
+        run(new Listen(channel));
+    }
+
+    /**
+     * Convenience method that calls a GetNotifications Command.
+     *
+     * @param channel
+     * @param payload
+     */
+    public PGNotification[] getNotifications() {
+        GetNotifications getNotifications = new GetNotifications();
+        run(getNotifications);
+        return getNotifications.getNotifications();
+    }
+
+    /**
+     * Convenience method that calls a Commit Command.
+     *
+     * @param channel
+     * @param payload
+     */
+    public void commit() {
+        run(new Commit(conn));
+    }
+
+    /**
+     * Convenience method that calls a Rollback Command.
+     *
+     * @param channel
+     * @param payload
+     */
+    public void rollback() {
+        run(new Rollback(conn));
+    }
+
+    /**
+     * Finishes this session, closing the underlying database connection.
+     * (Closing the underlying database connection could mean actually closing
+     * it, or just returning it to the DataSourceAdapter's connection pool; the
+     * exact behaviour is left up to the DataSourceAdaper implementation.)
+     */
+    public void close() {
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            throw new Cl4pgFailedRollbackException("Could not close databse connection. Possible leaked resource!", e);
         }
     }
 

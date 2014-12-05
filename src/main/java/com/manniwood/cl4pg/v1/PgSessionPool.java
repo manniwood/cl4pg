@@ -27,6 +27,13 @@ import java.sql.Connection;
 
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
+/**
+ * A thin wrapper around a DataSourceAdapter that provides PgSessions, which
+ * wrap database Connections.
+ *
+ * @author mwood
+ *
+ */
 public class PgSessionPool {
 
     private DataSourceAdapter dataSourceAdapter;

@@ -51,6 +51,15 @@ import com.zaxxer.hikari.proxy.CallableStatementProxy;
 import com.zaxxer.hikari.proxy.ConnectionProxy;
 import com.zaxxer.hikari.proxy.PreparedStatementProxy;
 
+/**
+ * HikariCP implementation of DataSourceAdapter, with HikariCP-specific
+ * configuration, where appropriate. By default, configures itself from
+ * cl4pg/HikariCpDataSourceAdapter.properties found in the classpath. Use this
+ * DataSourceAdapter if you need high-performance connection pooling.
+ *
+ * @author mwood
+ *
+ */
 public class HikariCpDataSourceAdapter implements DataSourceAdapter {
 
     public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + HikariCpDataSourceAdapter.class.getSimpleName() + ".properties";
@@ -335,7 +344,7 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
     }
 
     @Override
-    public TypeConverterStore getConverterStore() {
+    public TypeConverterStore getTypeConverterStore() {
         return converterStore;
     }
 

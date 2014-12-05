@@ -34,18 +34,69 @@ import org.postgresql.PGStatement;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 
+/**
+ * Adapts a data source for use by the rest of Cl4Pg. For the most part, Cl4Pg
+ * is best off not knowing the implementation details of any particular data
+ * source it is using. That way, it can use data sources from different
+ * connection pool implementations, for instance. However, seeing as Cl4Pg is a
+ * library that encourages the full use of PostgreSQL, each implementation of
+ * this interface needs to provide ways of unwrapping the underlying parts of
+ * PgJDBC, so that PostgreSQL-specific commands like listen/notify or copy will
+ * work.
+ *
+ * @author mwood
+ *
+ */
 public interface DataSourceAdapter {
+
+    /**
+     * Get a connection from the DataSource. Each DataSource gets to determine
+     * what getting a connection means: Pooling DataSources will get a
+     * connection from a pool, whereas simpler DataSources will return a new
+     * connection to PostgreSQL with each call to this method.
+     *
+     * @return
+     */
     Connection getConnection();
 
     ExceptionConverter getExceptionConverter();
 
+    /**
+     * Returns the underlying PGConnection wrapped by this Connection.
+     * 
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
     PGConnection unwrapPgConnection(Connection conn) throws SQLException;
 
+    /**
+     * Returns the underlying PGStatement wrapped by this PreparedStatement.
+     * 
+     * @param pstmt
+     * @return
+     * @throws SQLException
+     */
     PGStatement unwrapPgPreparedStatement(PreparedStatement pstmt) throws SQLException;
 
+    /**
+     * Returns the underlying PGStatement wrapped by this CallableStatement.
+     * 
+     * @param cstmt
+     * @return
+     * @throws SQLException
+     */
     PGStatement unwrapPgCallableStatement(CallableStatement cstmt) throws SQLException;
 
+    /**
+     * Close a connection from the DataSource. Each DataSource gets to determine
+     * what closing a connection means: Pooling DataSources will return a
+     * connection to a pool, whereas simpler DataSources will close a connection
+     * to PostgreSQL.
+     *
+     * @return
+     */
     void close();
 
-    TypeConverterStore getConverterStore();
+    TypeConverterStore getTypeConverterStore();
 }

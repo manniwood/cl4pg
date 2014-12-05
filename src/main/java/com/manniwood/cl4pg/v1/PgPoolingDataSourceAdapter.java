@@ -46,6 +46,16 @@ import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * PGPoolingDataSource implementation of DataSourceAdapter, with
+ * PGPoolingDataSource-specific configuration, where appropriate. By default,
+ * configures itself from cl4pg/PgPoolingDataSourceAdapter.properties found in
+ * the classpath. Use this DataSourceAdapter if you need rudimentary connection
+ * pooling.
+ *
+ * @author mwood
+ *
+ */
 public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
 
     public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + PgPoolingDataSourceAdapter.class.getSimpleName() + ".properties";
@@ -325,7 +335,7 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
     }
 
     @Override
-    public TypeConverterStore getConverterStore() {
+    public TypeConverterStore getTypeConverterStore() {
         return converterStore;
     }
 

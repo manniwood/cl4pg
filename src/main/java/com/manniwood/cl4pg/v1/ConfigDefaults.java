@@ -25,7 +25,13 @@ package com.manniwood.cl4pg.v1;
 
 import java.sql.Connection;
 
-public class ConfigDefaults {
+/**
+ * Configuration defaults for Cl4Pg.
+ * 
+ * @author mwood
+ *
+ */
+public final class ConfigDefaults {
 
     public static final String PROJ_NAME = "cl4pg";
     public static final String BUILTIN_TYPE_CONVERTERS_CONF_FILE = PROJ_NAME + "/BuiltinTypeConverters.properties";

@@ -47,6 +47,16 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * PGSimpleDataSource implementation of DataSourceAdapter, with
+ * PGSimpleDataSource-specific configuration, where appropriate. By default,
+ * configures itself from cl4pg/PgSimpleDataSourceAdapter.properties found in
+ * the classpath. Use this DataSource if you need each call to getConnection()
+ * to return a brand new connection to PostgreSQL.
+ *
+ * @author mwood
+ *
+ */
 public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
 
     public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + PgSimpleDataSourceAdapter.class.getSimpleName() + ".properties";
@@ -294,7 +304,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
     }
 
     @Override
-    public TypeConverterStore getConverterStore() {
+    public TypeConverterStore getTypeConverterStore() {
         return converterStore;
     }
 
