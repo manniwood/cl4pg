@@ -29,6 +29,12 @@ import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
+/**
+ * Runs a SQL rollback command.
+ * 
+ * @author mwood
+ *
+ */
 public class Rollback implements Command {
 
     private final String sql = "rollback";

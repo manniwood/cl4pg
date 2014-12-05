@@ -29,6 +29,12 @@ import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
+/**
+ * Runs a SQL commit command.
+ * 
+ * @author mwood
+ *
+ */
 public class Commit implements Command {
 
     private final String sql = "commit";

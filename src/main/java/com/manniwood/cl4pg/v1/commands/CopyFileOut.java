@@ -36,6 +36,12 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * Runs a PgSQL copy command, outputting to the specified filename.
+ * 
+ * @author mwood
+ *
+ */
 public class CopyFileOut implements Command {
 
     private final String copyFile;

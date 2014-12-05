@@ -23,7 +23,17 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.commands;
 
+/**
+ * Utility method for constructing Update* commands in a more readable way.
+ *
+ * @author mwood
+ *
+ */
 public class Update {
+
+    private Update() {
+        // Utility class
+    }
 
     public static UpdateV.Builder usingVariadicArgs() {
         return new UpdateV.Builder();

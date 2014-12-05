@@ -36,6 +36,12 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * Runs the PgSQL listen command.
+ * 
+ * @author mwood
+ *
+ */
 public class Listen implements Command {
     private final static Logger log = LoggerFactory.getLogger(Listen.class);
 

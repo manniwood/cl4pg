@@ -43,6 +43,13 @@ import com.manniwood.cl4pg.v1.util.Cllctn;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * Calls a stored procedure that returns a result set, filling in the stored
+ * procedure's arguments using a list of variadic arguments.
+ *
+ * @author mwood
+ *
+ */
 public class CallStoredProcRefCursorV implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(CallStoredProcRefCursorV.class);

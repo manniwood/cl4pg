@@ -39,6 +39,13 @@ import com.manniwood.cl4pg.v1.util.Cllctn;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * Run a SQL update command, filling in the SQL statement's arguments using a
+ * list of variadic arguments.
+ *
+ * @author mwood
+ *
+ */
 public class UpdateV implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(UpdateV.class);

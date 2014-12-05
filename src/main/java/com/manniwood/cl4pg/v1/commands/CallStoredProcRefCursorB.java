@@ -43,6 +43,13 @@ import com.manniwood.cl4pg.v1.util.Cllctn;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * Calls a stored procedure that returns a result set, filling in the stored
+ * procedure's arguments using the getters from a bean.
+ *
+ * @author mwood
+ *
+ */
 public class CallStoredProcRefCursorB<A> implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(CallStoredProcRefCursorB.class);

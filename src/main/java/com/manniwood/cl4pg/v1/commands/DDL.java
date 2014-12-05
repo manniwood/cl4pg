@@ -35,6 +35,13 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * Runs any SQL DDL command, such as create table, create index, alter table,
+ * drop index, etc.
+ * 
+ * @author mwood
+ *
+ */
 public class DDL implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(DDL.class);

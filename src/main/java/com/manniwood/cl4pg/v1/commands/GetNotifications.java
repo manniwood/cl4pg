@@ -35,6 +35,12 @@ import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
+/**
+ * Gets notifications that this connection is listening for.
+ * 
+ * @author mwood
+ *
+ */
 public class GetNotifications implements Command {
     private final static Logger log = LoggerFactory.getLogger(GetNotifications.class);
 

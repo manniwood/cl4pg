@@ -38,6 +38,13 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * Run a SQL update command, filling in the SQL statement's arguments using the
+ * getters from a bean.
+ *
+ * @author mwood
+ *
+ */
 public class UpdateB<A> implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(UpdateB.class);

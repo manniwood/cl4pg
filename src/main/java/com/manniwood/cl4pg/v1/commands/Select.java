@@ -23,6 +23,12 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.commands;
 
+/**
+ * Utility method for constructing Select* commands in a more readable way.
+ *
+ * @author mwood
+ *
+ */
 public class Select {
 
     private Select() {

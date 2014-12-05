@@ -23,7 +23,18 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.commands;
 
+/**
+ * Utility method for constructing InsertReturning* commands in a more readable
+ * way.
+ *
+ * @author mwood
+ *
+ */
 public class InsertReturning {
+
+    private InsertReturning() {
+        // Utility class
+    }
 
     public static InsertReturningV.Builder usingVariadicArgs() {
         return new InsertReturningV.Builder();

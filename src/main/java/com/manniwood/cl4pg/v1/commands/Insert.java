@@ -23,7 +23,17 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.commands;
 
+/**
+ * Utility method for constructing Insert* commands in a more readable way.
+ *
+ * @author mwood
+ *
+ */
 public class Insert {
+
+    private Insert() {
+        // Utility class
+    }
 
     public static InsertV.Builder usingVariadicArgs() {
         return new InsertV.Builder();

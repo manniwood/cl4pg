@@ -23,7 +23,18 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.commands;
 
+/**
+ * Utility method for constructing UpdateReturning* commands in a more readable
+ * way.
+ *
+ * @author mwood
+ *
+ */
 public class UpdateReturning {
+
+    private UpdateReturning() {
+        // utility class
+    }
 
     public static UpdateReturningV.Builder usingVariadicArgs() {
         return new UpdateReturningV.Builder();

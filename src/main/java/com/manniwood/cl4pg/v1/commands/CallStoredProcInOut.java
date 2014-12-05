@@ -35,11 +35,19 @@ import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.sqlparsers.InOutArg;
 import com.manniwood.cl4pg.v1.sqlparsers.SlashParserListener;
 import com.manniwood.cl4pg.v1.sqlparsers.SqlParser;
-import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.typeconverters.SetterAndTypeConverterAndColNum;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * Calls a stored procedure using the getters and setters from a bean to set and
+ * retrieve IN, OUT, and INOUT parameters of the stored procedure.
+ * 
+ * @author mwood
+ *
+ * @param <A>
+ */
 public class CallStoredProcInOut<A> implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(CallStoredProcInOut.class);

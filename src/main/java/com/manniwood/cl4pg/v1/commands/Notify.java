@@ -35,6 +35,12 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
+/**
+ * Runs the PgSQL pg_notify() function.
+ * 
+ * @author mwood
+ *
+ */
 public class Notify implements Command {
     private final static Logger log = LoggerFactory.getLogger(Notify.class);
 
