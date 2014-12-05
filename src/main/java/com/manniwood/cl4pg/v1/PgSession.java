@@ -256,19 +256,143 @@ public class PgSession {
     }
 
     /**
-     * Convenience method to call a Select that takes no args and returns a one
-     * colum, one row result, such as "select * from foo".
+     * Convenience method that calls a Select Command using variadic args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans.
+     */
+    public <R> List<R> select(String sql,
+                              Class<R> clazz,
+                              Object... args) {
+
+        GuessConstructorListHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        run(Select.usingVariadicArgs()
+                .sql(sql)
+                .args(args)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans.
+     */
+    public <R, A> List<R> select(A a,
+                                 String sql,
+                                 Class<R> clazz) {
+
+        GuessConstructorListHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        run(Select.<A> usingBeanArg()
+                .sql(sql)
+                .arg(a)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans, and returns the first row of the result set.
+     */
+    public <R> R selectOne(String sql,
+                           Class<R> clazz,
+                           Object... args) {
+        List<R> list = select(sql, clazz, args);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans, and returns the first row of the result set.
+     */
+    public <R, A> R selectOne(A a,
+                              String sql,
+                              Class<R> clazz) {
+        List<R> list = select(a, sql, clazz);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * Convenience method to call a Select Command using variadic args and a
+     * file in the classpath, which uses the type of the single returned column
+     * to return a list of scalar objects (Integer, String, etc).
      *
      * @param sql
      * @return
      */
-    public <R> R selectOneZ(String sql) {
+    public <R> List<R> selectScalarF(String file,
+                                     Object... args) {
+        GuessScalarListHandler<R> handler = new GuessScalarListHandler<R>();
+        run(Select.usingVariadicArgs()
+                .file(file)
+                .args(args)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method to call a Select Command using variadic args and a
+     * file in the classpath, which uses the type of the single returned column
+     * to return a single (first column, first row) scalar object (Integer,
+     * String, etc). Good for sql queries such as "select * from foo".
+     *
+     * @param sql
+     * @return
+     */
+    public <R> R selectOneScalarF(String file,
+                                  Object... args) {
+        List<R> list = selectScalarF(file, args);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * Convenience method to call a Select Command using variadic args, which
+     * uses the type of the single returned column to return a list of scalar
+     * objects (Integer, String, etc).
+     *
+     * @param sql
+     * @return
+     */
+    public <R> List<R> selectScalar(String sql,
+                                    Object... args) {
         GuessScalarListHandler<R> handler = new GuessScalarListHandler<R>();
         run(Select.usingVariadicArgs()
                 .sql(sql)
+                .args(args)
                 .resultSetHandler(handler)
                 .done());
-        return handler.getList().get(0);
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method to call a Select Command using variadic args, which
+     * uses the type of the single returned column to return a single (first
+     * column, first row) scalar object (Integer, String, etc). Good for sql
+     * queries such as "select * from foo".
+     *
+     * @param sql
+     * @return
+     */
+    public <R> R selectOneScalar(String sql,
+                                 Object... args) {
+        List<R> list = selectScalar(sql, args);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
     }
 
     /**
@@ -328,6 +452,14 @@ public class PgSession {
         }
     }
 
+    /**
+     * Examine an Exception and use the exceptionConverter to return either a
+     * Cl4pgException, or a more specific sub-class of Cl4pgException.
+     * 
+     * @param e
+     * @param sql
+     * @return
+     */
     private Cl4pgException createPg4jException(Exception e,
                                                String sql) {
         if (e instanceof PSQLException) {

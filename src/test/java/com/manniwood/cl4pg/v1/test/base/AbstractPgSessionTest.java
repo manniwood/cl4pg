@@ -236,7 +236,7 @@ public abstract class AbstractPgSessionTest {
          * transaction is aborted, commands ignored until end of transaction
          * block
          */
-        Integer count = pgSession.selectOneZ("select 1");
+        Integer count = pgSession.selectOneScalar("select 1");
         Assert.assertEquals(count.intValue(),
                             1,
                             "Statement needs to return 1");
