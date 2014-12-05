@@ -32,11 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.cl4pg.v1.sqlparsers.BasicParserListener;
 import com.manniwood.cl4pg.v1.sqlparsers.SqlParser;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
@@ -65,7 +65,7 @@ public class UpdateReturningB<A> implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore,
+                        TypeConverterStore converterStore,
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
         if (Str.isNullOrEmpty(sql)) {

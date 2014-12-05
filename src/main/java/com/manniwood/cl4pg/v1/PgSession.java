@@ -35,13 +35,13 @@ import com.manniwood.cl4pg.v1.commands.GetNotifications;
 import com.manniwood.cl4pg.v1.commands.Listen;
 import com.manniwood.cl4pg.v1.commands.Notify;
 import com.manniwood.cl4pg.v1.commands.Rollback;
-import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedCleanupException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedRollbackException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgSqlException;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
 public class PgSession {
@@ -50,7 +50,7 @@ public class PgSession {
     private final SqlCache sqlCache;
     private final DataSourceAdapter dataSourceAdapter;
     private final ExceptionConverter exceptionConverter;
-    private final ConverterStore converterStore;
+    private final TypeConverterStore converterStore;
 
     public PgSession(Connection conn, DataSourceAdapter dataSourceAdapter, SqlCache sqlCache) {
         this.conn = conn;

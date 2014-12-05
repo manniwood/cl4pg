@@ -21,43 +21,42 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.typeconverters;
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
 import java.sql.CallableStatement;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class DateConverter implements TypeConverter<Date> {
+public class ByteArrayConverter implements TypeConverter<byte[]> {
 
     @Override
     public void setItem(PreparedStatement pstmt,
                         int i,
-                        Date t) throws SQLException {
+                        byte[] t) throws SQLException {
         if (t == null) {
-            pstmt.setNull(i, Types.DATE);
+            pstmt.setNull(i, Types.BINARY);
         } else {
-            pstmt.setDate(i, t);
+            pstmt.setBytes(i, t);
         }
     }
 
     @Override
-    public Date getItem(ResultSet rs,
-                        int i) throws SQLException {
-        return rs.getDate(i);
+    public byte[] getItem(ResultSet rs,
+                          int i) throws SQLException {
+        return rs.getBytes(i);
     }
 
     @Override
     public void registerOutParameter(CallableStatement cstmt,
                                      int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.DATE);
+        cstmt.registerOutParameter(i, Types.BINARY);
     }
 
     @Override
-    public Date getItem(CallableStatement cstmt,
-                        int i) throws SQLException {
-        return cstmt.getDate(i);
+    public byte[] getItem(CallableStatement cstmt,
+                          int i) throws SQLException {
+        return cstmt.getBytes(i);
     }
 }

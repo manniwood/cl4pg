@@ -21,43 +21,51 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.typeconverters;
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
-import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class BigDecimalConverter implements TypeConverter<BigDecimal> {
+public class BooleanConverter implements TypeConverter<Boolean> {
 
     @Override
     public void setItem(PreparedStatement pstmt,
                         int i,
-                        BigDecimal t) throws SQLException {
+                        Boolean t) throws SQLException {
         if (t == null) {
-            pstmt.setNull(i, Types.NUMERIC);
+            pstmt.setNull(i, Types.BOOLEAN);
         } else {
-            pstmt.setBigDecimal(i, t);
+            boolean myBoolean = t.booleanValue();
+            pstmt.setBoolean(i, myBoolean);
         }
     }
 
     @Override
-    public BigDecimal getItem(ResultSet rs,
-                              int i) throws SQLException {
-        return rs.getBigDecimal(i);
+    public Boolean getItem(ResultSet rs,
+                           int i) throws SQLException {
+        Boolean var = rs.getBoolean(i);
+        if (rs.wasNull()) {
+            return null;
+        }
+        return var;
     }
 
     @Override
     public void registerOutParameter(CallableStatement cstmt,
                                      int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.NUMERIC);
+        cstmt.registerOutParameter(i, Types.BOOLEAN);
     }
 
     @Override
-    public BigDecimal getItem(CallableStatement cstmt,
-                              int i) throws SQLException {
-        return cstmt.getBigDecimal(i);
+    public Boolean getItem(CallableStatement cstmt,
+                           int i) throws SQLException {
+        Boolean var = cstmt.getBoolean(i);
+        if (cstmt.wasNull()) {
+            return null;
+        }
+        return var;
     }
 }

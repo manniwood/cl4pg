@@ -21,51 +21,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.typeconverters;
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
-public class IntegerConverter implements TypeConverter<Integer> {
+/**
+ * Gets and sets Java types from PreparedStatements
+ * and CallableStatements. Note that because this
+ * interface is parameterized, there are no java
+ * primitive type converters. The advantage of this
+ * is that the java box types support null, which maps
+ * nicely to SQL null values. The disadvantage is
+ * the overhead of boxing and unboxing from primitives.
+ * If more control of getting and setting Java types
+ * is required, consider implementing a ResultSetHandler.
+ * @author mwood
+ *
+ * @param <T>
+ */
+public interface TypeConverter<T> {
+    void setItem(PreparedStatement pstmt,
+                 int i,
+                 T t) throws SQLException;
 
-    @Override
-    public void setItem(PreparedStatement pstmt,
-                        int i,
-                        Integer t) throws SQLException {
-        if (t == null) {
-            pstmt.setNull(i, Types.INTEGER);
-        } else {
-            int myInt = t.intValue();
-            pstmt.setInt(i, myInt);
-        }
-    }
+    T getItem(ResultSet rs,
+              int i) throws SQLException;
 
-    @Override
-    public Integer getItem(ResultSet rs,
-                           int i) throws SQLException {
-        Integer var = rs.getInt(i);
-        if (rs.wasNull()) {
-            return null;
-        }
-        return var;
-    }
+    void registerOutParameter(CallableStatement cstmt,
+                              int i) throws SQLException;
 
-    @Override
-    public void registerOutParameter(CallableStatement cstmt,
-                                     int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.INTEGER);
-    }
-
-    @Override
-    public Integer getItem(CallableStatement cstmt,
-                           int i) throws SQLException {
-        Integer var = cstmt.getInt(i);
-        if (cstmt.wasNull()) {
-            return null;
-        }
-        return var;
-    }
+    T getItem(CallableStatement cstmt,
+              int i) throws SQLException;
 }

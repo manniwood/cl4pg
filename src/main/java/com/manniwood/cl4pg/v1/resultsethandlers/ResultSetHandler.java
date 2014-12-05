@@ -26,7 +26,7 @@ package com.manniwood.cl4pg.v1.resultsethandlers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 
 /**
  * Handles ResultSets. init() is called once,
@@ -37,7 +37,7 @@ import com.manniwood.cl4pg.v1.converters.ConverterStore;
  *
  */
 public interface ResultSetHandler {
-    void init(ConverterStore converterStore,
+    void init(TypeConverterStore converterStore,
               ResultSet rs) throws SQLException;
 
     void processRow(ResultSet rs) throws SQLException;

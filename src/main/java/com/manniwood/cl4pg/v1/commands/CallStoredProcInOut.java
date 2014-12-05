@@ -31,12 +31,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.converters.ConverterStore;
-import com.manniwood.cl4pg.v1.converters.SetterAndConverterAndColNum;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.sqlparsers.InOutArg;
 import com.manniwood.cl4pg.v1.sqlparsers.SlashParserListener;
 import com.manniwood.cl4pg.v1.sqlparsers.SqlParser;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
+import com.manniwood.cl4pg.v1.typeconverters.SetterAndTypeConverterAndColNum;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import com.manniwood.cl4pg.v1.util.Str;
 
@@ -62,7 +62,7 @@ public class CallStoredProcInOut<A> implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore,
+                        TypeConverterStore converterStore,
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
         if (Str.isNullOrEmpty(sql)) {
@@ -85,7 +85,7 @@ public class CallStoredProcInOut<A> implements Command {
 
         // There is no result set handler here; we just set the
         // out parameters on the argument bean
-        List<SetterAndConverterAndColNum> settersAndConverters = converterStore.specifySetters(cstmt, arg.getClass(), gettersAndSetters);
+        List<SetterAndTypeConverterAndColNum> settersAndConverters = converterStore.specifySetters(cstmt, arg.getClass(), gettersAndSetters);
         converterStore.populateBeanUsingSetters(cstmt, arg, settersAndConverters);
     }
 

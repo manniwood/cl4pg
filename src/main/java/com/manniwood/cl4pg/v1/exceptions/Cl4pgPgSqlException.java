@@ -25,6 +25,14 @@ package com.manniwood.cl4pg.v1.exceptions;
 
 import org.postgresql.util.ServerErrorMessage;
 
+/**
+ * When built with one of the constructors that takes PgJDBC's
+ * ServerErrorMessage, parses out every part of ServerErrorMessage and makes it
+ * available from inside this class.
+ * 
+ * @author mwood
+ *
+ */
 public class Cl4pgPgSqlException extends Cl4pgSqlException {
 
     private static final long serialVersionUID = 1L;

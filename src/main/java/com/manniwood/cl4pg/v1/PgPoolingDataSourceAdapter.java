@@ -39,11 +39,11 @@ import org.postgresql.ds.PGPoolingDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.Str;
 
 public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
@@ -59,7 +59,7 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
     private static final Logger log = LoggerFactory.getLogger(PgPoolingDataSourceAdapter.class);
 
     private final ExceptionConverter exceptionConverter;
-    private final ConverterStore converterStore;
+    private final TypeConverterStore converterStore;
 
     private final PGPoolingDataSource ds;
     private final int transactionIsolationLevel;
@@ -316,7 +316,7 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;
-        converterStore = new ConverterStore(builder.typeConverterConfFiles);
+        converterStore = new TypeConverterStore(builder.typeConverterConfFiles);
     }
 
     @Override
@@ -325,7 +325,7 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
     }
 
     @Override
-    public ConverterStore getConverterStore() {
+    public TypeConverterStore getConverterStore() {
         return converterStore;
     }
 

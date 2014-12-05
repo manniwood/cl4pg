@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.typeconverters;
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;

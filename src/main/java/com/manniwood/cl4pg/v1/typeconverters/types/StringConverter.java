@@ -20,39 +20,34 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
- */
-package com.manniwood.cl4pg.v1.typeconverters;
+*/
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
-/**
- * Gets and sets Java types from PreparedStatements
- * and CallableStatements. Note that because this
- * interface is parameterized, there are no java
- * primitive type converters. The advantage of this
- * is that the java box types support null, which maps
- * nicely to SQL null values. The disadvantage is
- * the overhead of boxing and unboxing from primitives.
- * If more control of getting and setting Java types
- * is required, consider implementing a ResultSetHandler.
- * @author mwood
- *
- * @param <T>
- */
-public interface TypeConverter<T> {
-    void setItem(PreparedStatement pstmt,
-                 int i,
-                 T t) throws SQLException;
+public class StringConverter implements TypeConverter<String>{
 
-    T getItem(ResultSet rs,
-              int i) throws SQLException;
+    @Override
+    public void setItem(PreparedStatement pstmt, int i, String t) throws SQLException {
+        pstmt.setString(i, t);
+    }
 
-    void registerOutParameter(CallableStatement cstmt,
-                              int i) throws SQLException;
+    @Override
+    public String getItem(ResultSet rs, int i) throws SQLException {
+        return rs.getString(i);
+    }
 
-    T getItem(CallableStatement cstmt,
-              int i) throws SQLException;
+    @Override
+    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
+        cstmt.registerOutParameter(i, Types.VARCHAR);
+    }
+
+    @Override
+    public String getItem(CallableStatement cstmt, int i) throws SQLException {
+        return cstmt.getString(i);
+    }
 }

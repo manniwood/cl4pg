@@ -28,8 +28,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.manniwood.cl4pg.v1.converters.ConverterStore;
-import com.manniwood.cl4pg.v1.converters.SetterAndConverter;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
+import com.manniwood.cl4pg.v1.typeconverters.SetterAndTypeConverter;
 
 /**
  * Reads the names of setters for a Java bean of type R, based on the explicit
@@ -69,8 +69,8 @@ import com.manniwood.cl4pg.v1.converters.SetterAndConverter;
 public class ExplicitSettersListHandler<R> implements ResultSetHandler {
 
     private List<R> list;
-    private List<SetterAndConverter> settersAndConverters;
-    private ConverterStore converterStore;
+    private List<SetterAndTypeConverter> settersAndConverters;
+    private TypeConverterStore converterStore;
     private Class<R> returnType;
 
     public ExplicitSettersListHandler(Class<R> returnType) {
@@ -79,7 +79,7 @@ public class ExplicitSettersListHandler<R> implements ResultSetHandler {
     }
 
     @Override
-    public void init(ConverterStore converterStore,
+    public void init(TypeConverterStore converterStore,
                      ResultSet rs) throws SQLException {
         this.converterStore = converterStore;
         settersAndConverters = converterStore.specifySetters(rs, returnType);

@@ -21,39 +21,37 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.converters;
+package com.manniwood.cl4pg.v1.typeconverters;
 
-import java.lang.reflect.Constructor;
-import java.util.List;
+import java.lang.reflect.Method;
 
-import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
+import com.manniwood.cl4pg.v1.typeconverters.types.TypeConverter;
 
 /**
- * Holds a bean constructor and all of the TypeConverters, in order, for the
- * constructor arguments of that bean. Used to cache info about beans we want to
- * construct from result set rows.
+ * Holds a setter method for a bean, and a typeConverter that will convert a
+ * result-set's column into the Java type required by the setter method for the
+ * bean.
  *
  * @author mwood
  *
  */
-public class ConstructorAndConverters {
+public class SetterAndTypeConverter {
 
-    private final Constructor<?> constructor;
-    private final List<TypeConverter<?>> typeConverters;
+    private final TypeConverter<?> typeConverter;
+    private final Method setter;
 
-    public ConstructorAndConverters(Constructor<?> constructor,
-            List<TypeConverter<?>> converters) {
+    public SetterAndTypeConverter(TypeConverter<?> converter, Method setter) {
         super();
-        this.constructor = constructor;
-        this.typeConverters = converters;
+        this.typeConverter = converter;
+        this.setter = setter;
     }
 
-    public Constructor<?> getConstructor() {
-        return constructor;
+    public TypeConverter<?> getConverter() {
+        return typeConverter;
     }
 
-    public List<TypeConverter<?>> getConverters() {
-        return typeConverters;
+    public Method getSetter() {
+        return setter;
     }
 
 }

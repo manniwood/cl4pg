@@ -21,57 +21,43 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.typeconverters;
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
 import java.sql.CallableStatement;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-/**
- * Do NOT use this converter; it is unreliable.
- * 
- * @author mwood
- *
- */
-public class DoubleConverter implements TypeConverter<Double> {
+public class DateConverter implements TypeConverter<Date> {
 
     @Override
     public void setItem(PreparedStatement pstmt,
                         int i,
-                        Double t) throws SQLException {
+                        Date t) throws SQLException {
         if (t == null) {
-            pstmt.setNull(i, Types.DOUBLE);
+            pstmt.setNull(i, Types.DATE);
         } else {
-            int myDouble = t.intValue();
-            pstmt.setDouble(i, myDouble);
+            pstmt.setDate(i, t);
         }
     }
 
     @Override
-    public Double getItem(ResultSet rs,
-                          int i) throws SQLException {
-        Double var = rs.getDouble(i);
-        if (rs.wasNull()) {
-            return null;
-        }
-        return var;
+    public Date getItem(ResultSet rs,
+                        int i) throws SQLException {
+        return rs.getDate(i);
     }
 
     @Override
     public void registerOutParameter(CallableStatement cstmt,
                                      int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.DOUBLE);
+        cstmt.registerOutParameter(i, Types.DATE);
     }
 
     @Override
-    public Double getItem(CallableStatement cstmt,
-                          int i) throws SQLException {
-        Double var = cstmt.getDouble(i);
-        if (cstmt.wasNull()) {
-            return null;
-        }
-        return var;
+    public Date getItem(CallableStatement cstmt,
+                        int i) throws SQLException {
+        return cstmt.getDate(i);
     }
 }

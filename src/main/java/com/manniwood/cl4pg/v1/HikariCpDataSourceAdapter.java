@@ -38,11 +38,11 @@ import org.postgresql.PGStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.cl4pg.v1.converters.ConverterStore;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.Str;
 import com.zaxxer.hikari.HikariConfig;
@@ -64,7 +64,7 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
     private static final Logger log = LoggerFactory.getLogger(HikariCpDataSourceAdapter.class);
 
     private final ExceptionConverter exceptionConverter;
-    private final ConverterStore converterStore;
+    private final TypeConverterStore converterStore;
 
     private final HikariDataSource ds;
     private final int transactionIsolationLevel;
@@ -325,7 +325,7 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;
-        converterStore = new ConverterStore(builder.typeConverterConfFiles);
+        converterStore = new TypeConverterStore(builder.typeConverterConfFiles);
         ds = new HikariDataSource(config);
     }
 
@@ -335,7 +335,7 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
     }
 
     @Override
-    public ConverterStore getConverterStore() {
+    public TypeConverterStore getConverterStore() {
         return converterStore;
     }
 

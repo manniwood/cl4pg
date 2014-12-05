@@ -21,11 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.converters;
+package com.manniwood.cl4pg.v1.typeconverters;
 
 import java.lang.reflect.Method;
 
-import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
+import com.manniwood.cl4pg.v1.typeconverters.types.TypeConverter;
 
 /**
  * Holds a setter method for a bean, a typeConverter that will convert a
@@ -36,14 +36,14 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
  * @author mwood
  *
  */
-public class SetterAndConverterAndColNum {
+public class SetterAndTypeConverterAndColNum {
 
     private final TypeConverter<?> typeConverter;
     private final Method setter;
     private final int colNum;
     private final int setCol;
 
-    public SetterAndConverterAndColNum(
+    public SetterAndTypeConverterAndColNum(
             TypeConverter<?> converter,
             Method setter,
             int colNum,

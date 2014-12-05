@@ -21,43 +21,57 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.typeconverters;
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.sql.Types;
 
-public class TimeConverter implements TypeConverter<Time> {
+/**
+ * Do NOT use this converter; it is unreliable.
+ * 
+ * @author mwood
+ *
+ */
+public class DoubleConverter implements TypeConverter<Double> {
 
     @Override
     public void setItem(PreparedStatement pstmt,
                         int i,
-                        Time t) throws SQLException {
+                        Double t) throws SQLException {
         if (t == null) {
-            pstmt.setNull(i, Types.TIME);
+            pstmt.setNull(i, Types.DOUBLE);
         } else {
-            pstmt.setTime(i, t);
+            int myDouble = t.intValue();
+            pstmt.setDouble(i, myDouble);
         }
     }
 
     @Override
-    public Time getItem(ResultSet rs,
-                        int i) throws SQLException {
-        return rs.getTime(i);
+    public Double getItem(ResultSet rs,
+                          int i) throws SQLException {
+        Double var = rs.getDouble(i);
+        if (rs.wasNull()) {
+            return null;
+        }
+        return var;
     }
 
     @Override
     public void registerOutParameter(CallableStatement cstmt,
                                      int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.TIME);
+        cstmt.registerOutParameter(i, Types.DOUBLE);
     }
 
     @Override
-    public Time getItem(CallableStatement cstmt,
-                        int i) throws SQLException {
-        return cstmt.getTime(i);
+    public Double getItem(CallableStatement cstmt,
+                          int i) throws SQLException {
+        Double var = cstmt.getDouble(i);
+        if (cstmt.wasNull()) {
+            return null;
+        }
+        return var;
     }
 }

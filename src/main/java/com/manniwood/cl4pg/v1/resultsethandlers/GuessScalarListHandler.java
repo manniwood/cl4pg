@@ -28,8 +28,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.manniwood.cl4pg.v1.converters.ConverterStore;
-import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
+import com.manniwood.cl4pg.v1.typeconverters.types.TypeConverter;
 
 /**
  * Guesses the type of scalar, based on single column's type metadata of a
@@ -55,7 +55,7 @@ public class GuessScalarListHandler<R> implements ResultSetHandler {
     }
 
     @Override
-    public void init(ConverterStore converterStore,
+    public void init(TypeConverterStore converterStore,
                      ResultSet rs) throws SQLException {
         typeConverter = converterStore.guessConverter(rs);
     }

@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.typeconverters;
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -29,24 +29,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class LongConverter implements TypeConverter<Long> {
+public class IntegerConverter implements TypeConverter<Integer> {
 
     @Override
     public void setItem(PreparedStatement pstmt,
                         int i,
-                        Long t) throws SQLException {
+                        Integer t) throws SQLException {
         if (t == null) {
-            pstmt.setNull(i, Types.BIGINT);
+            pstmt.setNull(i, Types.INTEGER);
         } else {
-            long myInt = t.longValue();
-            pstmt.setLong(i, myInt);
+            int myInt = t.intValue();
+            pstmt.setInt(i, myInt);
         }
     }
 
     @Override
-    public Long getItem(ResultSet rs,
-                        int i) throws SQLException {
-        Long var = rs.getLong(i);
+    public Integer getItem(ResultSet rs,
+                           int i) throws SQLException {
+        Integer var = rs.getInt(i);
         if (rs.wasNull()) {
             return null;
         }
@@ -56,17 +56,16 @@ public class LongConverter implements TypeConverter<Long> {
     @Override
     public void registerOutParameter(CallableStatement cstmt,
                                      int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.BIGINT);
+        cstmt.registerOutParameter(i, Types.INTEGER);
     }
 
     @Override
-    public Long getItem(CallableStatement cstmt,
-                        int i) throws SQLException {
-        Long var = cstmt.getLong(i);
+    public Integer getItem(CallableStatement cstmt,
+                           int i) throws SQLException {
+        Integer var = cstmt.getInt(i);
         if (cstmt.wasNull()) {
             return null;
         }
         return var;
     }
-
 }

@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.converters;
+package com.manniwood.cl4pg.v1.typeconverters;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +46,7 @@ import com.manniwood.cl4pg.v1.ConfigDefaults;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
 import com.manniwood.cl4pg.v1.sqlparsers.InOutArg;
-import com.manniwood.cl4pg.v1.typeconverters.TypeConverter;
+import com.manniwood.cl4pg.v1.typeconverters.types.TypeConverter;
 import com.manniwood.cl4pg.v1.util.ColumnLabelConverter;
 import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.Str;
@@ -59,13 +59,13 @@ import com.manniwood.cl4pg.v1.util.Str;
  * @author mwood
  *
  */
-public class ConverterStore {
+public class TypeConverterStore {
 
-    private final static Logger log = LoggerFactory.getLogger(ConverterStore.class);
+    private final static Logger log = LoggerFactory.getLogger(TypeConverterStore.class);
 
     private final Map<Class<?>, TypeConverter<?>> typeConverters;
 
-    public ConverterStore(String typeConverterConfFiles) {
+    public TypeConverterStore(String typeConverterConfFiles) {
         // The builtin type typeConverters conf file is either the only
         // type typeConverters file in the list, or the first typeConverters
         // file
@@ -93,7 +93,7 @@ public class ConverterStore {
     }
 
     /**
-     * Loads the ConverterStore's properties from a properties file in the
+     * Loads the TypeConverterStore's properties from a properties file in the
      * classpath.
      *
      * @param path
@@ -305,9 +305,9 @@ public class ConverterStore {
      * @return
      * @throws SQLException
      */
-    public <T> List<SetterAndConverter> guessSetters(ResultSet rs,
+    public <T> List<SetterAndTypeConverter> guessSetters(ResultSet rs,
                                                      Class<T> returnType) throws SQLException {
-        List<SetterAndConverter> settersAndConverters = new ArrayList<>();
+        List<SetterAndTypeConverter> settersAndConverters = new ArrayList<>();
         try {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
@@ -318,7 +318,7 @@ public class ConverterStore {
                 String setterName = ColumnLabelConverter.convert(label);
                 Method setter = findSetterMethod(returnType, parameterType, setterName);
                 TypeConverter<?> converter = typeConverters.get(parameterType);
-                settersAndConverters.add(new SetterAndConverter(converter, setter));
+                settersAndConverters.add(new SetterAndTypeConverter(converter, setter));
             }
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
             throw new Cl4pgReflectionException(e);
@@ -341,9 +341,9 @@ public class ConverterStore {
      * @return
      * @throws SQLException
      */
-    public <T> List<SetterAndConverter> specifySetters(ResultSet rs,
+    public <T> List<SetterAndTypeConverter> specifySetters(ResultSet rs,
                                                        Class<T> returnType) throws SQLException {
-        List<SetterAndConverter> settersAndConverters = new ArrayList<>();
+        List<SetterAndTypeConverter> settersAndConverters = new ArrayList<>();
         try {
             ResultSetMetaData md = rs.getMetaData();
             int numCols = md.getColumnCount();
@@ -353,7 +353,7 @@ public class ConverterStore {
                 Class<?> parameterType = Class.forName(className);
                 Method setter = findSetterMethod(returnType, parameterType, setterName);
                 TypeConverter<?> converter = typeConverters.get(parameterType);
-                settersAndConverters.add(new SetterAndConverter(converter, setter));
+                settersAndConverters.add(new SetterAndTypeConverter(converter, setter));
             }
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
             throw new Cl4pgReflectionException(e);
@@ -385,10 +385,10 @@ public class ConverterStore {
      * @return
      * @throws SQLException
      */
-    public <T> List<SetterAndConverterAndColNum> specifySetters(CallableStatement cstmt,
+    public <T> List<SetterAndTypeConverterAndColNum> specifySetters(CallableStatement cstmt,
                                                                 Class<T> returnType,
                                                                 List<InOutArg> args) throws SQLException {
-        List<SetterAndConverterAndColNum> settersAndConverters = new ArrayList<>();
+        List<SetterAndTypeConverterAndColNum> settersAndConverters = new ArrayList<>();
         try {
             int absCol = 0;
             int setCol = 1;
@@ -407,7 +407,7 @@ public class ConverterStore {
                 Class<?> parameterType = Class.forName(className);
                 Method setter = findSetterMethod(returnType, parameterType, setterName);
                 TypeConverter<?> converter = typeConverters.get(parameterType);
-                settersAndConverters.add(new SetterAndConverterAndColNum(converter, setter, absCol, setCol));
+                settersAndConverters.add(new SetterAndTypeConverterAndColNum(converter, setter, absCol, setCol));
                 // only increment for non-null setters
                 setCol++;
             }
@@ -490,12 +490,12 @@ public class ConverterStore {
      */
     public <T> T buildBeanUsingSetters(ResultSet rs,
                                        Class<T> returnType,
-                                       List<SetterAndConverter> settersAndConverters) throws SQLException {
+                                       List<SetterAndTypeConverter> settersAndConverters) throws SQLException {
         T t = null;
         try {
             t = returnType.newInstance();
             int col = 1; // JDBC cols start at 1, not zero
-            for (SetterAndConverter sac : settersAndConverters) {
+            for (SetterAndTypeConverter sac : settersAndConverters) {
                 sac.getSetter().invoke(t, sac.getConverter().getItem(rs, col));
                 col++;
             }
@@ -517,9 +517,9 @@ public class ConverterStore {
      */
     public <T> T populateBeanUsingSetters(CallableStatement cstmt,
                                           T t,
-                                          List<SetterAndConverterAndColNum> settersAndConverters) throws SQLException {
+                                          List<SetterAndTypeConverterAndColNum> settersAndConverters) throws SQLException {
         try {
-            for (SetterAndConverterAndColNum sac : settersAndConverters) {
+            for (SetterAndTypeConverterAndColNum sac : settersAndConverters) {
                 log.debug("Calling setter {} for column {}", sac.getConverter(), sac.getColNum());
                 sac.getSetter().invoke(t, sac.getConverter().getItem(cstmt, sac.getColNum()));
             }
@@ -548,7 +548,7 @@ public class ConverterStore {
      * @return
      * @throws SQLException
      */
-    public <T> ConstructorAndConverters guessConstructor(ResultSet rs,
+    public <T> ConstructorAndTypeConverters guessConstructor(ResultSet rs,
                                                          Class<T> returnType) throws SQLException {
         Constructor<?> constructor = null;
         List<TypeConverter<?>> convs = new ArrayList<>();
@@ -567,7 +567,7 @@ public class ConverterStore {
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
             throw new Cl4pgReflectionException(e);
         }
-        return new ConstructorAndConverters(constructor, convs);
+        return new ConstructorAndTypeConverters(constructor, convs);
     }
 
     /**
@@ -589,7 +589,7 @@ public class ConverterStore {
      * @return
      * @throws SQLException
      */
-    public <T> ConstructorAndConverters specifyConstructorArgs(ResultSet rs,
+    public <T> ConstructorAndTypeConverters specifyConstructorArgs(ResultSet rs,
                                                                Class<T> returnType) throws SQLException {
         Constructor<?> constructor = null;
         List<TypeConverter<?>> convs = new ArrayList<>();
@@ -608,7 +608,7 @@ public class ConverterStore {
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException e) {
             throw new Cl4pgReflectionException(e);
         }
-        return new ConstructorAndConverters(constructor, convs);
+        return new ConstructorAndTypeConverters(constructor, convs);
     }
 
     /**
@@ -625,7 +625,7 @@ public class ConverterStore {
     @SuppressWarnings("unchecked")
     public <T> T buildBeanUsingConstructor(ResultSet rs,
                                            Class<T> returnType,
-                                           ConstructorAndConverters cac) throws SQLException {
+                                           ConstructorAndTypeConverters cac) throws SQLException {
         T t = null;
         try {
             Object[] params = new Object[cac.getConverters().size()];

@@ -21,42 +21,43 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.typeconverters;
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 
-public class ByteArrayConverter implements TypeConverter<byte[]> {
+public class TimestampConverter implements TypeConverter<Timestamp> {
 
     @Override
     public void setItem(PreparedStatement pstmt,
                         int i,
-                        byte[] t) throws SQLException {
+                        Timestamp t) throws SQLException {
         if (t == null) {
-            pstmt.setNull(i, Types.BINARY);
+            pstmt.setNull(i, Types.TIMESTAMP);
         } else {
-            pstmt.setBytes(i, t);
+            pstmt.setTimestamp(i, t);
         }
     }
 
     @Override
-    public byte[] getItem(ResultSet rs,
-                          int i) throws SQLException {
-        return rs.getBytes(i);
+    public Timestamp getItem(ResultSet rs,
+                             int i) throws SQLException {
+        return rs.getTimestamp(i);
     }
 
     @Override
     public void registerOutParameter(CallableStatement cstmt,
                                      int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.BINARY);
+        cstmt.registerOutParameter(i, Types.TIMESTAMP);
     }
 
     @Override
-    public byte[] getItem(CallableStatement cstmt,
-                          int i) throws SQLException {
-        return cstmt.getBytes(i);
+    public Timestamp getItem(CallableStatement cstmt,
+                             int i) throws SQLException {
+        return cstmt.getTimestamp(i);
     }
 }

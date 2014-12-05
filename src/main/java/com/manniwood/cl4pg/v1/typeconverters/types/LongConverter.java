@@ -20,8 +20,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
-package com.manniwood.cl4pg.v1.typeconverters;
+ */
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -29,25 +29,44 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class StringConverter implements TypeConverter<String>{
+public class LongConverter implements TypeConverter<Long> {
 
     @Override
-    public void setItem(PreparedStatement pstmt, int i, String t) throws SQLException {
-        pstmt.setString(i, t);
+    public void setItem(PreparedStatement pstmt,
+                        int i,
+                        Long t) throws SQLException {
+        if (t == null) {
+            pstmt.setNull(i, Types.BIGINT);
+        } else {
+            long myInt = t.longValue();
+            pstmt.setLong(i, myInt);
+        }
     }
 
     @Override
-    public String getItem(ResultSet rs, int i) throws SQLException {
-        return rs.getString(i);
+    public Long getItem(ResultSet rs,
+                        int i) throws SQLException {
+        Long var = rs.getLong(i);
+        if (rs.wasNull()) {
+            return null;
+        }
+        return var;
     }
 
     @Override
-    public void registerOutParameter(CallableStatement cstmt, int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.VARCHAR);
+    public void registerOutParameter(CallableStatement cstmt,
+                                     int i) throws SQLException {
+        cstmt.registerOutParameter(i, Types.BIGINT);
     }
 
     @Override
-    public String getItem(CallableStatement cstmt, int i) throws SQLException {
-        return cstmt.getString(i);
+    public Long getItem(CallableStatement cstmt,
+                        int i) throws SQLException {
+        Long var = cstmt.getLong(i);
+        if (cstmt.wasNull()) {
+            return null;
+        }
+        return var;
     }
+
 }

@@ -21,51 +21,43 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.typeconverters;
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Types;
 
-public class BooleanConverter implements TypeConverter<Boolean> {
+public class TimeConverter implements TypeConverter<Time> {
 
     @Override
     public void setItem(PreparedStatement pstmt,
                         int i,
-                        Boolean t) throws SQLException {
+                        Time t) throws SQLException {
         if (t == null) {
-            pstmt.setNull(i, Types.BOOLEAN);
+            pstmt.setNull(i, Types.TIME);
         } else {
-            boolean myBoolean = t.booleanValue();
-            pstmt.setBoolean(i, myBoolean);
+            pstmt.setTime(i, t);
         }
     }
 
     @Override
-    public Boolean getItem(ResultSet rs,
-                           int i) throws SQLException {
-        Boolean var = rs.getBoolean(i);
-        if (rs.wasNull()) {
-            return null;
-        }
-        return var;
+    public Time getItem(ResultSet rs,
+                        int i) throws SQLException {
+        return rs.getTime(i);
     }
 
     @Override
     public void registerOutParameter(CallableStatement cstmt,
                                      int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.BOOLEAN);
+        cstmt.registerOutParameter(i, Types.TIME);
     }
 
     @Override
-    public Boolean getItem(CallableStatement cstmt,
-                           int i) throws SQLException {
-        Boolean var = cstmt.getBoolean(i);
-        if (cstmt.wasNull()) {
-            return null;
-        }
-        return var;
+    public Time getItem(CallableStatement cstmt,
+                        int i) throws SQLException {
+        return cstmt.getTime(i);
     }
 }

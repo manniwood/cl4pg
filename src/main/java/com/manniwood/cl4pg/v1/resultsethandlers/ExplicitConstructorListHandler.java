@@ -28,8 +28,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.manniwood.cl4pg.v1.converters.ConstructorAndConverters;
-import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.typeconverters.ConstructorAndTypeConverters;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 
 /**
  * Reads the types of constructor arguments for a Java bean of type R, based on
@@ -65,8 +65,8 @@ import com.manniwood.cl4pg.v1.converters.ConverterStore;
 public class ExplicitConstructorListHandler<R> implements ResultSetHandler {
 
     private List<R> list;
-    private ConstructorAndConverters constructorAndConverters;
-    private ConverterStore converterStore;
+    private ConstructorAndTypeConverters constructorAndConverters;
+    private TypeConverterStore converterStore;
     private Class<R> returnType;
 
     public ExplicitConstructorListHandler(Class<R> returnType) {
@@ -75,7 +75,7 @@ public class ExplicitConstructorListHandler<R> implements ResultSetHandler {
     }
 
     @Override
-    public void init(ConverterStore converterStore,
+    public void init(TypeConverterStore converterStore,
                      ResultSet rs) throws SQLException {
         this.converterStore = converterStore;
         constructorAndConverters = converterStore.specifyConstructorArgs(rs, returnType);

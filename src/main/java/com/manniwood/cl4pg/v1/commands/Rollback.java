@@ -26,7 +26,7 @@ package com.manniwood.cl4pg.v1.commands;
 import java.sql.Connection;
 
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.converters.ConverterStore;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
 public class Rollback implements Command {
@@ -40,7 +40,7 @@ public class Rollback implements Command {
 
     @Override
     public void execute(Connection connection,
-                        ConverterStore converterStore,
+                        TypeConverterStore converterStore,
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
         conn.rollback();

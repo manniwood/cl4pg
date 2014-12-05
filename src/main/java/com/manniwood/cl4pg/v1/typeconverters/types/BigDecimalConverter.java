@@ -21,43 +21,43 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.typeconverters;
+package com.manniwood.cl4pg.v1.typeconverters.types;
 
+import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
 
-public class TimestampConverter implements TypeConverter<Timestamp> {
+public class BigDecimalConverter implements TypeConverter<BigDecimal> {
 
     @Override
     public void setItem(PreparedStatement pstmt,
                         int i,
-                        Timestamp t) throws SQLException {
+                        BigDecimal t) throws SQLException {
         if (t == null) {
-            pstmt.setNull(i, Types.TIMESTAMP);
+            pstmt.setNull(i, Types.NUMERIC);
         } else {
-            pstmt.setTimestamp(i, t);
+            pstmt.setBigDecimal(i, t);
         }
     }
 
     @Override
-    public Timestamp getItem(ResultSet rs,
-                             int i) throws SQLException {
-        return rs.getTimestamp(i);
+    public BigDecimal getItem(ResultSet rs,
+                              int i) throws SQLException {
+        return rs.getBigDecimal(i);
     }
 
     @Override
     public void registerOutParameter(CallableStatement cstmt,
                                      int i) throws SQLException {
-        cstmt.registerOutParameter(i, Types.TIMESTAMP);
+        cstmt.registerOutParameter(i, Types.NUMERIC);
     }
 
     @Override
-    public Timestamp getItem(CallableStatement cstmt,
-                             int i) throws SQLException {
-        return cstmt.getTimestamp(i);
+    public BigDecimal getItem(CallableStatement cstmt,
+                              int i) throws SQLException {
+        return cstmt.getBigDecimal(i);
     }
 }
