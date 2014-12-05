@@ -100,7 +100,7 @@ public abstract class AbstractPgSessionTest {
         pool = new PgSessionPool(adapter);
         pgSession = pool.getSession();
 
-        pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
+        pgSession.ddlFile("sql/create_temp_users_table.sql");
         pgSession.commit();
     }
 
@@ -127,7 +127,7 @@ public abstract class AbstractPgSessionTest {
      */
     @BeforeMethod
     public void truncateTableUsers() {
-        pgSession.run(DDL.config().sql("truncate table users").done());
+        pgSession.ddl("truncate table users");
         pgSession.commit();
     }
 

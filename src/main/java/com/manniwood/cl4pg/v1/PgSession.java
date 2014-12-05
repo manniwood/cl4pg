@@ -31,6 +31,7 @@ import org.postgresql.util.PSQLException;
 
 import com.manniwood.cl4pg.v1.commands.Command;
 import com.manniwood.cl4pg.v1.commands.Commit;
+import com.manniwood.cl4pg.v1.commands.DDL;
 import com.manniwood.cl4pg.v1.commands.GetNotifications;
 import com.manniwood.cl4pg.v1.commands.Listen;
 import com.manniwood.cl4pg.v1.commands.Notify;
@@ -117,9 +118,27 @@ public class PgSession {
     }
 
     /**
+     * Convenience method that calls a DDL Command.
+     *
+     * @param sql
+     */
+    public void ddl(String sql) {
+        run(DDL.config().sql(sql).done());
+    }
+
+    /**
+     * Convenience method that calls a DDL Command from a file in the classpath.
+     *
+     * @param sql
+     */
+    public void ddlFile(String file) {
+        run(DDL.config().file(file).done());
+    }
+
+    /**
      * Convenience method to call a Select that takes no args and returns a one
      * colum, one row result, such as "select * from foo".
-     * 
+     *
      * @param sql
      * @return
      */
