@@ -48,6 +48,7 @@ import com.manniwood.cl4pg.v1.exceptions.Cl4pgSqlException;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
+import com.manniwood.cl4pg.v1.util.Cllctn;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
 /**
@@ -220,6 +221,38 @@ public class PgSession {
                 .resultSetHandler(handler)
                 .done());
         return handler.getList();
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args and a
+     * file in the classpath, which uses the names of the returned columns to
+     * guess the constructor for the returned beans, and returns the first row
+     * of the result set.
+     */
+    public <R> R selectOneF(String file,
+                            Class<R> clazz,
+                            Object... args) {
+        List<R> list = selectF(file, clazz, args);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args and a
+     * file in the classpath, which uses the names of the returned columns to
+     * guess the constructor for the returned beans, and returns the first row
+     * of the result set.
+     */
+    public <R, A> R selectOneF(A a,
+                               String file,
+                               Class<R> clazz) {
+        List<R> list = selectF(a, file, clazz);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
     }
 
     /**

@@ -141,6 +141,16 @@ public abstract class AbstractSelectTest {
     }
 
     @Test(priority = 3)
+    public void testGuessConstructorListHandlerOne() {
+        ImmutableUser actualImmutable = pgSession.selectOneF("sql/select_user_guess_setters.sql",
+                                                             ImmutableUser.class,
+                                                             UUID.fromString(AbstractPgSessionTest.TEST_ID));
+        pgSession.rollback();
+
+        Assert.assertTrue(Users.equals(actualImmutable, expected), "users must match");
+    }
+
+    @Test(priority = 4)
     public void testExplicitConstructorListHandler() {
         ExplicitConstructorListHandler<ImmutableUser> handler = new ExplicitConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(Select.usingVariadicArgs()
@@ -154,7 +164,7 @@ public abstract class AbstractSelectTest {
         Assert.assertTrue(Users.equals(actualImmutable, expected), "users must match");
     }
 
-    @Test(priority = 4)
+    @Test(priority = 5)
     public void testGuessSettersListHandlerBeanArg() {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         pgSession.run(Select.<User> usingBeanArg()
@@ -168,7 +178,7 @@ public abstract class AbstractSelectTest {
         Assert.assertEquals(actual, expected, "users must match");
     }
 
-    @Test(priority = 5)
+    @Test(priority = 6)
     public void testExplicitSettersListHandlerBeanArg() {
 
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
@@ -183,7 +193,7 @@ public abstract class AbstractSelectTest {
         Assert.assertEquals(actual, expected, "users must match");
     }
 
-    @Test(priority = 6)
+    @Test(priority = 7)
     public void testGuessConstructorListHandlerBeanArg() {
         List<ImmutableUser> users = pgSession.selectF(expected,
                                                       "sql/select_user_guess_setters_bean_param.sql",
@@ -194,7 +204,17 @@ public abstract class AbstractSelectTest {
         Assert.assertTrue(Users.equals(actualImmutable, expected), "users must match");
     }
 
-    @Test(priority = 7)
+    @Test(priority = 8)
+    public void testGuessConstructorListHandlerBeanArgOne() {
+        ImmutableUser actualImmutable = pgSession.selectOneF(expected,
+                                                             "sql/select_user_guess_setters_bean_param.sql",
+                                                             ImmutableUser.class);
+        pgSession.rollback();
+
+        Assert.assertTrue(Users.equals(actualImmutable, expected), "users must match");
+    }
+
+    @Test(priority = 9)
     public void testExplicitConstructorListHandlerBeanArg() {
         ExplicitConstructorListHandler<ImmutableUser> handler = new ExplicitConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(Select.<User> usingBeanArg()
