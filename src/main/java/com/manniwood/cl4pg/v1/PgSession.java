@@ -66,13 +66,18 @@ public class PgSession {
     private final DataSourceAdapter dataSourceAdapter;
     private final ExceptionConverter exceptionConverter;
     private final TypeConverterStore typeConverterStore;
+    private final ResultSetHandlerBuilder resultSetHandlerBuilder;
 
-    public PgSession(Connection conn, DataSourceAdapter dataSourceAdapter, SqlCache sqlCache) {
+    public PgSession(Connection conn,
+            DataSourceAdapter dataSourceAdapter,
+            SqlCache sqlCache,
+            ResultSetHandlerBuilder resultSetHandlerBuilder) {
         this.conn = conn;
         this.dataSourceAdapter = dataSourceAdapter;
         this.exceptionConverter = dataSourceAdapter.getExceptionConverter();
         this.typeConverterStore = dataSourceAdapter.getTypeConverterStore();
         this.sqlCache = sqlCache;
+        this.resultSetHandlerBuilder = resultSetHandlerBuilder;
     }
 
     /**

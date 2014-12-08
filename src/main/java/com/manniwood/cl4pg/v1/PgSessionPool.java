@@ -38,14 +38,22 @@ public class PgSessionPool {
 
     private DataSourceAdapter dataSourceAdapter;
     private final SqlCache sqlCache = new SqlCache();
+    private final ResultSetHandlerBuilder resultSetHandlerBuilder;
 
     public PgSessionPool(DataSourceAdapter dataSourceAdapter) {
         this.dataSourceAdapter = dataSourceAdapter;
+        this.resultSetHandlerBuilder = new GuessScalarConstructorResultSetHandlerBuilder();
+    }
+
+    public PgSessionPool(DataSourceAdapter dataSourceAdapter,
+            ResultSetHandlerBuilder resultSetHandlerBuilder) {
+        this.dataSourceAdapter = dataSourceAdapter;
+        this.resultSetHandlerBuilder = resultSetHandlerBuilder;
     }
 
     public PgSession getSession() {
         Connection conn = dataSourceAdapter.getConnection();
-        return new PgSession(conn, dataSourceAdapter, sqlCache);
+        return new PgSession(conn, dataSourceAdapter, sqlCache, resultSetHandlerBuilder);
     }
 
     public void close() {
