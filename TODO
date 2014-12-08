@@ -1,8 +1,6 @@
 
 -------- v1.0.x
 
-- Write Builders (factories) for other RowSetHandlers
-
 - Make HikariCP not a direct dependency
 
 - Write typeconverters for all types in PgJDBC driver (including array types)
