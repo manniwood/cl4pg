@@ -35,11 +35,11 @@ public class Select {
         // utility class
     }
 
-    public static SelectV.Builder usingVariadicArgs() {
-        return new SelectV.Builder();
+    public static <R> SelectV.Builder<R> usingVariadicArgs() {
+        return new SelectV.Builder<R>();
     }
 
-    public static <A> SelectB.Builder<A> usingBeanArg() {
-        return new SelectB.Builder<A>();
+    public static <A, R> SelectB.Builder<A, R> usingBeanArg() {
+        return new SelectB.Builder<A, R>();
     }
 }

@@ -140,7 +140,7 @@ public abstract class AbstractDeleteReturningTest {
                 .arg(expected)
                 .done());
         pgSession.commit();
-        UpdateReturningB<User> updateReturningB = UpdateReturning.<User> usingBeanArg()
+        UpdateReturningB<User, User> updateReturningB = UpdateReturning.<User, User> usingBeanArg()
                 .file("sql/delete_user_returning.sql")
                 .arg(expected)
                 .resultSetHandler(handler)
@@ -159,7 +159,7 @@ public abstract class AbstractDeleteReturningTest {
         // TODO: now assert no users in table
         // Let's use sql to do the checking for us
         GuessScalarListHandler<Long> handler2 = new GuessScalarListHandler<Long>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Long> usingVariadicArgs()
                 .sql("select count(*) from users")
                 .resultSetHandler(handler2)
                 .done());

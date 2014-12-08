@@ -47,17 +47,17 @@ import com.manniwood.cl4pg.v1.util.Str;
  * @author mwood
  *
  */
-public class InsertReturningB<A> implements Command {
+public class InsertReturningB<A, R> implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(InsertReturningB.class);
 
     private String sql;
     private final String filename;
-    private final ResultSetHandler resultSetHandler;
+    private final ResultSetHandler<R> resultSetHandler;
     private final A arg;
     private PreparedStatement pstmt;
 
-    private InsertReturningB(Builder<A> builder) {
+    private InsertReturningB(Builder<A, R> builder) {
         this.sql = builder.sql;
         this.filename = builder.filename;
         this.resultSetHandler = builder.resultSetHandler;
@@ -106,48 +106,48 @@ public class InsertReturningB<A> implements Command {
         }
     }
 
-    public static <P> Builder<P> config() {
-        return new Builder<P>();
+    public static <A, R> Builder<A, R> config() {
+        return new Builder<A, R>();
     }
 
-    public static class Builder<A> {
+    public static class Builder<A, R> {
         private String sql;
         private String filename;
-        private ResultSetHandler resultSetHandler;
+        private ResultSetHandler<R> resultSetHandler;
         private A arg;
 
         public Builder() {
             // null constructor
         }
 
-        public Builder<A> sql(String sql) {
+        public Builder<A, R> sql(String sql) {
             this.sql = sql;
             return this;
         }
 
-        public Builder<A> file(String filename) {
+        public Builder<A, R> file(String filename) {
             this.filename = filename;
             return this;
         }
 
-        public Builder<A> resultSetHandler(ResultSetHandler resultSetHandler) {
+        public Builder<A, R> resultSetHandler(ResultSetHandler<R> resultSetHandler) {
             this.resultSetHandler = resultSetHandler;
             return this;
         }
 
-        public Builder<A> arg(A arg) {
+        public Builder<A, R> arg(A arg) {
             this.arg = arg;
             return this;
         }
 
-        public InsertReturningB<A> done() {
+        public InsertReturningB<A, R> done() {
             if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
                 throw new Cl4pgConfigException("SQL string or file must be specified.");
             }
             if (resultSetHandler == null) {
                 throw new Cl4pgConfigException("A result set handler must be specified.");
             }
-            return new InsertReturningB<A>(this);
+            return new InsertReturningB<A, R>(this);
         }
     }
 

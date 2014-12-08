@@ -89,7 +89,7 @@ public class IntegerTest {
         pgSession.commit();
 
         GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Integer> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -111,7 +111,7 @@ public class IntegerTest {
         pgSession.commit();
 
         GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Integer> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -133,7 +133,7 @@ public class IntegerTest {
         pgSession.commit();
 
         GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Integer> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -155,7 +155,7 @@ public class IntegerTest {
         pgSession.commit();
 
         GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Integer> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());

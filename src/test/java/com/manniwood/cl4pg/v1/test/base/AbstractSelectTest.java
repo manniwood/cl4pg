@@ -103,7 +103,7 @@ public abstract class AbstractSelectTest {
     @Test(priority = 0)
     public void testGuessSettersListHandler() {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
                 .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
@@ -118,7 +118,7 @@ public abstract class AbstractSelectTest {
     public void testExplicitSettersListHandler() {
 
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
                 .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
@@ -153,7 +153,7 @@ public abstract class AbstractSelectTest {
     @Test(priority = 4)
     public void testExplicitConstructorListHandler() {
         ExplicitConstructorListHandler<ImmutableUser> handler = new ExplicitConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<ImmutableUser> usingVariadicArgs()
                 .file("sql/select_user_use_constructor.sql")
                 .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
                 .resultSetHandler(handler)
@@ -167,7 +167,7 @@ public abstract class AbstractSelectTest {
     @Test(priority = 5)
     public void testGuessSettersListHandlerBeanArg() {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
-        pgSession.run(Select.<User> usingBeanArg()
+        pgSession.run(Select.<User, User> usingBeanArg()
                 .file("sql/select_user_guess_setters_bean_param.sql")
                 .arg(expected)
                 .resultSetHandler(handler)
@@ -182,7 +182,7 @@ public abstract class AbstractSelectTest {
     public void testExplicitSettersListHandlerBeanArg() {
 
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
-        pgSession.run(Select.<User> usingBeanArg()
+        pgSession.run(Select.<User, User> usingBeanArg()
                 .file("sql/select_user_use_setters_bean_param.sql")
                 .arg(expected)
                 .resultSetHandler(handler)
@@ -217,7 +217,7 @@ public abstract class AbstractSelectTest {
     @Test(priority = 9)
     public void testExplicitConstructorListHandlerBeanArg() {
         ExplicitConstructorListHandler<ImmutableUser> handler = new ExplicitConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(Select.<User> usingBeanArg()
+        pgSession.run(Select.<User, ImmutableUser> usingBeanArg()
                 .file("sql/select_user_use_constructor_bean_param.sql")
                 .arg(expected)
                 .resultSetHandler(handler)
@@ -231,7 +231,7 @@ public abstract class AbstractSelectTest {
     @Test(priority = 20)
     public void testNulls() {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
                 .args(UUID.fromString(AbstractPgSessionTest.USER_WITH_NULLS_TEST_ID))
                 .resultSetHandler(handler)

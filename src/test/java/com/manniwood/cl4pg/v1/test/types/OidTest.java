@@ -89,7 +89,7 @@ public class OidTest {
         pgSession.commit();
 
         GuessScalarListHandler<Long> handler = new GuessScalarListHandler<Long>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Long> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -111,7 +111,7 @@ public class OidTest {
         pgSession.commit();
 
         GuessScalarListHandler<Long> handler = new GuessScalarListHandler<Long>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Long> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -134,7 +134,7 @@ public class OidTest {
         pgSession.commit();
 
         GuessScalarListHandler<Long> handler = new GuessScalarListHandler<Long>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Long> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -158,7 +158,7 @@ public class OidTest {
         pgSession.commit();
 
         GuessScalarListHandler<Long> handler = new GuessScalarListHandler<Long>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Long> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());

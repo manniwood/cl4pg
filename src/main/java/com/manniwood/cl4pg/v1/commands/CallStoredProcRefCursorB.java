@@ -50,17 +50,17 @@ import com.manniwood.cl4pg.v1.util.Str;
  * @author mwood
  *
  */
-public class CallStoredProcRefCursorB<A> implements Command {
+public class CallStoredProcRefCursorB<A, R> implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(CallStoredProcRefCursorB.class);
 
     private String sql;
     private final String filename;
-    private final ResultSetHandler resultSetHandler;
+    private final ResultSetHandler<R> resultSetHandler;
     private final A arg;
     private CallableStatement cstmt;
 
-    private CallStoredProcRefCursorB(Builder<A> builder) {
+    private CallStoredProcRefCursorB(Builder<A, R> builder) {
         this.sql = builder.sql;
         this.filename = builder.filename;
         this.resultSetHandler = builder.resultSetHandler;
@@ -124,48 +124,48 @@ public class CallStoredProcRefCursorB<A> implements Command {
         }
     }
 
-    public static <A> Builder<A> config() {
-        return new Builder<A>();
+    public static <A, R> Builder<A, R> config() {
+        return new Builder<A, R>();
     }
 
-    public static class Builder<A> {
+    public static class Builder<A, R> {
         private String sql;
         private String filename;
-        private ResultSetHandler resultSetHandler;
+        private ResultSetHandler<R> resultSetHandler;
         private A arg;
 
         public Builder() {
             // null constructor
         }
 
-        public Builder<A> sql(String sql) {
+        public Builder<A, R> sql(String sql) {
             this.sql = sql;
             return this;
         }
 
-        public Builder<A> file(String filename) {
+        public Builder<A, R> file(String filename) {
             this.filename = filename;
             return this;
         }
 
-        public Builder<A> resultSetHandler(ResultSetHandler resultSetHandler) {
+        public Builder<A, R> resultSetHandler(ResultSetHandler<R> resultSetHandler) {
             this.resultSetHandler = resultSetHandler;
             return this;
         }
 
-        public Builder<A> arg(A arg) {
+        public Builder<A, R> arg(A arg) {
             this.arg = arg;
             return this;
         }
 
-        public CallStoredProcRefCursorB<A> done() {
+        public CallStoredProcRefCursorB<A, R> done() {
             if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
                 throw new Cl4pgConfigException("SQL string or file must be specified.");
             }
             if (resultSetHandler == null) {
                 throw new Cl4pgConfigException("A result set handler must be specified.");
             }
-            return new CallStoredProcRefCursorB<A>(this);
+            return new CallStoredProcRefCursorB<A, R>(this);
         }
     }
 

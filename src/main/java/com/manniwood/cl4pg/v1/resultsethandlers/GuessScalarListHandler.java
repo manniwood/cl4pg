@@ -45,7 +45,7 @@ import com.manniwood.cl4pg.v1.typeconverters.types.TypeConverter;
  *
  * @param <R>
  */
-public class GuessScalarListHandler<R> implements ResultSetHandler {
+public class GuessScalarListHandler<R> implements ResultSetHandler<R> {
 
     private List<R> list;
     private TypeConverter<?> typeConverter;
@@ -66,6 +66,7 @@ public class GuessScalarListHandler<R> implements ResultSetHandler {
         list.add((R) typeConverter.getItem(rs, 1));
     }
 
+    @Override
     public List<R> getList() {
         return list;
     }

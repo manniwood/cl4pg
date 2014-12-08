@@ -91,7 +91,7 @@ public class DateTest {
         pgSession.commit();
 
         GuessScalarListHandler<Date> handler = new GuessScalarListHandler<Date>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Date> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -113,7 +113,7 @@ public class DateTest {
         pgSession.commit();
 
         GuessScalarListHandler<Date> handler = new GuessScalarListHandler<Date>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Date> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());

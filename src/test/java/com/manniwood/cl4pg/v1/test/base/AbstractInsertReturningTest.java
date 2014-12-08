@@ -132,7 +132,7 @@ public abstract class AbstractInsertReturningTest {
 
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         User expected = createExpectedUser();
-        pgSession.run(InsertReturning.<User> usingBeanArg()
+        pgSession.run(InsertReturning.<User, User> usingBeanArg()
                 .file("sql/insert_user_returning.sql")
                 .arg(expected)
                 .resultSetHandler(handler)

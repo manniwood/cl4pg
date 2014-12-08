@@ -138,7 +138,7 @@ public abstract class AbstractPgSessionTest {
         pgSession.commit();
 
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
-        pgSession.run(Select.<User> usingBeanArg()
+        pgSession.run(Select.<User, User> usingBeanArg()
                 .file("sql/select_user_guess_setters_bean_param.sql")
                 .arg(expected)
                 .resultSetHandler(handler)
@@ -177,7 +177,7 @@ public abstract class AbstractPgSessionTest {
         // the notifications just because you have run a query and committed,
         // but not yet retrieved the notifications.
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
                 .args(UUID.fromString(TEST_ID))
                 .resultSetHandler(handler)

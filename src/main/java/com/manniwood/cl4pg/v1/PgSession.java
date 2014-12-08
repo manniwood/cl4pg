@@ -47,6 +47,7 @@ import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgSqlException;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
+import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.Cllctn;
 import com.manniwood.cl4pg.v1.util.SqlCache;
@@ -196,8 +197,8 @@ public class PgSession {
                                Class<R> clazz,
                                Object... args) {
 
-        GuessConstructorListHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
-        run(Select.usingVariadicArgs()
+        ResultSetHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        run(Select.<R> usingVariadicArgs()
                 .file(file)
                 .args(args)
                 .resultSetHandler(handler)
@@ -214,8 +215,8 @@ public class PgSession {
                                   String file,
                                   Class<R> clazz) {
 
-        GuessConstructorListHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
-        run(Select.<A> usingBeanArg()
+        ResultSetHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        run(Select.<A, R> usingBeanArg()
                 .file(file)
                 .arg(a)
                 .resultSetHandler(handler)
@@ -264,8 +265,8 @@ public class PgSession {
                               Class<R> clazz,
                               Object... args) {
 
-        GuessConstructorListHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
-        run(Select.usingVariadicArgs()
+        ResultSetHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        run(Select.<R> usingVariadicArgs()
                 .sql(sql)
                 .args(args)
                 .resultSetHandler(handler)
@@ -282,8 +283,8 @@ public class PgSession {
                                  String sql,
                                  Class<R> clazz) {
 
-        GuessConstructorListHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
-        run(Select.<A> usingBeanArg()
+        ResultSetHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        run(Select.<A, R> usingBeanArg()
                 .sql(sql)
                 .arg(a)
                 .resultSetHandler(handler)
@@ -331,8 +332,8 @@ public class PgSession {
      */
     public <R> List<R> selectScalarF(String file,
                                      Object... args) {
-        GuessScalarListHandler<R> handler = new GuessScalarListHandler<R>();
-        run(Select.usingVariadicArgs()
+        ResultSetHandler<R> handler = new GuessScalarListHandler<R>();
+        run(Select.<R> usingVariadicArgs()
                 .file(file)
                 .args(args)
                 .resultSetHandler(handler)
@@ -368,8 +369,8 @@ public class PgSession {
      */
     public <R> List<R> selectScalar(String sql,
                                     Object... args) {
-        GuessScalarListHandler<R> handler = new GuessScalarListHandler<R>();
-        run(Select.usingVariadicArgs()
+        ResultSetHandler<R> handler = new GuessScalarListHandler<R>();
+        run(Select.<R> usingVariadicArgs()
                 .sql(sql)
                 .args(args)
                 .resultSetHandler(handler)
@@ -455,7 +456,7 @@ public class PgSession {
     /**
      * Examine an Exception and use the exceptionConverter to return either a
      * Cl4pgException, or a more specific sub-class of Cl4pgException.
-     * 
+     *
      * @param e
      * @param sql
      * @return

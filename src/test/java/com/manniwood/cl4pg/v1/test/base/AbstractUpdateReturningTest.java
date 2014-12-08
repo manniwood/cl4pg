@@ -139,7 +139,7 @@ public abstract class AbstractUpdateReturningTest {
                 .done());
         pgSession.commit();
         expected.setName("New Name");
-        UpdateReturningB<User> updateReturningB = UpdateReturning.<User> usingBeanArg()
+        UpdateReturningB<User, User> updateReturningB = UpdateReturning.<User, User> usingBeanArg()
                 .file("sql/update_user_returning.sql")
                 .arg(expected)
                 .resultSetHandler(handler)

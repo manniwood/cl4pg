@@ -100,7 +100,7 @@ public abstract class AbstractDeleteTest {
         pgSession.commit();
 
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
                 .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
                 .resultSetHandler(handler)
@@ -114,7 +114,7 @@ public abstract class AbstractDeleteTest {
     @AfterMethod
     public void assertUserIsDeleted() {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
                 .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
                 .resultSetHandler(handler)

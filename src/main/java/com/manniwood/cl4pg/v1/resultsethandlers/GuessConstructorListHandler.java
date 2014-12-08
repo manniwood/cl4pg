@@ -47,7 +47,7 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
  *
  * @param <R>
  */
-public class GuessConstructorListHandler<R> implements ResultSetHandler {
+public class GuessConstructorListHandler<R> implements ResultSetHandler<R> {
 
     private List<R> list;
     private ConstructorAndTypeConverters constructorAndConverters;

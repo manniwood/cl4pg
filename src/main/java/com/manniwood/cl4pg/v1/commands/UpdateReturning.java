@@ -36,11 +36,11 @@ public class UpdateReturning {
         // utility class
     }
 
-    public static UpdateReturningV.Builder usingVariadicArgs() {
-        return new UpdateReturningV.Builder();
+    public static <R> UpdateReturningV.Builder<R> usingVariadicArgs() {
+        return new UpdateReturningV.Builder<R>();
     }
 
-    public static <A> UpdateReturningB.Builder<A> usingBeanArg() {
-        return new UpdateReturningB.Builder<A>();
+    public static <A, R> UpdateReturningB.Builder<A, R> usingBeanArg() {
+        return new UpdateReturningB.Builder<A, R>();
     }
 }

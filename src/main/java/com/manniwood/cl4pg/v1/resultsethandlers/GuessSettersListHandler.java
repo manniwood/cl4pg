@@ -28,31 +28,29 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.typeconverters.SetterAndTypeConverter;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 
 /**
- * Guesses the names of setter methods on a Java bean
- * of type R, based on the column names in the result set,
- * and returns a list of beans of type R, one for each
- * row from the result set.
+ * Guesses the names of setter methods on a Java bean of type R, based on the
+ * column names in the result set, and returns a list of beans of type R, one
+ * for each row from the result set.
  *
- * So, a result set with columns
- * "first_name" and "last_name" will, for each row, instantiate
- * a bean of type R using R's null constructor, and then call
- * setFirstName() and setLastName() on that bean, using the
- * values from the ResultSet.
+ * So, a result set with columns "first_name" and "last_name" will, for each
+ * row, instantiate a bean of type R using R's null constructor, and then call
+ * setFirstName() and setLastName() on that bean, using the values from the
+ * ResultSet.
  *
  * @author mwood
  *
  * @param <R>
  */
-public class GuessSettersListHandler<R> implements ResultSetHandler {
+public class GuessSettersListHandler<R> implements ResultSetHandler<R> {
 
-    private List<R>                  list;
+    private List<R> list;
     private List<SetterAndTypeConverter> settersAndConverters;
-    private TypeConverterStore           converterStore;
-    private Class<R>                 returnType;
+    private TypeConverterStore converterStore;
+    private Class<R> returnType;
 
     public GuessSettersListHandler(Class<R> returnType) {
         list = new ArrayList<R>();
@@ -71,6 +69,7 @@ public class GuessSettersListHandler<R> implements ResultSetHandler {
         list.add(converterStore.buildBeanUsingSetters(rs, returnType, settersAndConverters));
     }
 
+    @Override
     public List<R> getList() {
         return list;
     }

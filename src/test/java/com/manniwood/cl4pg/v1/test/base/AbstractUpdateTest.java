@@ -106,7 +106,7 @@ public abstract class AbstractUpdateTest {
         pgSession.commit();
 
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
                 .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
                 .resultSetHandler(handler)
@@ -120,7 +120,7 @@ public abstract class AbstractUpdateTest {
     @AfterMethod
     public void assertUserIsUpdated() {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
                 .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
                 .resultSetHandler(handler)

@@ -62,7 +62,7 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
  *
  * @param <R>
  */
-public class ExplicitConstructorListHandler<R> implements ResultSetHandler {
+public class ExplicitConstructorListHandler<R> implements ResultSetHandler<R> {
 
     private List<R> list;
     private ConstructorAndTypeConverters constructorAndConverters;
@@ -86,6 +86,7 @@ public class ExplicitConstructorListHandler<R> implements ResultSetHandler {
         list.add(converterStore.buildBeanUsingConstructor(rs, returnType, constructorAndConverters));
     }
 
+    @Override
     public List<R> getList() {
         return list;
     }

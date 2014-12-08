@@ -123,7 +123,7 @@ public abstract class AbstractCopyTest {
 
         // Let's use sql to do the checking for us
         GuessScalarListHandler<Long> handler = new GuessScalarListHandler<Long>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Long> usingVariadicArgs()
                 .sql("select count(*) from (select * from users except select * from dup_users) as q")
                 .resultSetHandler(handler)
                 .done());

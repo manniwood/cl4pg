@@ -36,11 +36,11 @@ public class InsertReturning {
         // Utility class
     }
 
-    public static InsertReturningV.Builder usingVariadicArgs() {
-        return new InsertReturningV.Builder();
+    public static <R> InsertReturningV.Builder<R> usingVariadicArgs() {
+        return new InsertReturningV.Builder<R>();
     }
 
-    public static <A> InsertReturningB.Builder<A> usingBeanArg() {
-        return new InsertReturningB.Builder<A>();
+    public static <A, R> InsertReturningB.Builder<A, R> usingBeanArg() {
+        return new InsertReturningB.Builder<A, R>();
     }
 }

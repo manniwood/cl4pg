@@ -91,7 +91,7 @@ public class DoublePrecisionTest {
         pgSession.commit();
 
         GuessScalarListHandler<BigDecimal> handler = new GuessScalarListHandler<BigDecimal>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<BigDecimal> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -113,7 +113,7 @@ public class DoublePrecisionTest {
         pgSession.commit();
 
         GuessScalarListHandler<BigDecimal> handler = new GuessScalarListHandler<BigDecimal>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<BigDecimal> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -137,7 +137,7 @@ public class DoublePrecisionTest {
         pgSession.commit();
 
         GuessScalarListHandler<BigDecimal> handler = new GuessScalarListHandler<BigDecimal>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<BigDecimal> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -161,7 +161,7 @@ public class DoublePrecisionTest {
         pgSession.commit();
 
         GuessScalarListHandler<BigDecimal> handler = new GuessScalarListHandler<BigDecimal>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<BigDecimal> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());

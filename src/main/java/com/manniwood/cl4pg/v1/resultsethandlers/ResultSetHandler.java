@@ -25,20 +25,23 @@ package com.manniwood.cl4pg.v1.resultsethandlers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 
 /**
- * Handles ResultSets. init() is called once,
- * after an implementation of ResultSetHandler is
- * instantiated; then, processRow() is called once
- * per row in the ResultSet.
+ * Handles ResultSets. init() is called once, after an implementation of
+ * ResultSetHandler is instantiated; then, processRow() is called once per row
+ * in the ResultSet.
+ *
  * @author mwood
  *
  */
-public interface ResultSetHandler {
+public interface ResultSetHandler<R> {
     void init(TypeConverterStore converterStore,
               ResultSet rs) throws SQLException;
 
     void processRow(ResultSet rs) throws SQLException;
+
+    List<R> getList();
 }

@@ -89,7 +89,7 @@ public class BitTest {
         pgSession.commit();
 
         GuessScalarListHandler<Boolean> handler = new GuessScalarListHandler<Boolean>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Boolean> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -111,7 +111,7 @@ public class BitTest {
         pgSession.commit();
 
         GuessScalarListHandler<Boolean> handler = new GuessScalarListHandler<Boolean>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Boolean> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -133,7 +133,7 @@ public class BitTest {
         pgSession.commit();
 
         GuessScalarListHandler<Boolean> handler = new GuessScalarListHandler<Boolean>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Boolean> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());

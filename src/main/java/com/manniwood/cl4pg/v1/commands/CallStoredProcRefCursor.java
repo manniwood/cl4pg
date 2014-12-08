@@ -36,12 +36,12 @@ public class CallStoredProcRefCursor {
         // utility class
     }
 
-    public static CallStoredProcRefCursorV.Builder usingVariadicArgs() {
-        return new CallStoredProcRefCursorV.Builder();
+    public static <R> CallStoredProcRefCursorV.Builder<R> usingVariadicArgs() {
+        return new CallStoredProcRefCursorV.Builder<R>();
     }
 
-    public static <A> CallStoredProcRefCursorB.Builder<A> usingBeanArg() {
-        return new CallStoredProcRefCursorB.Builder<A>();
+    public static <A, R> CallStoredProcRefCursorB.Builder<A, R> usingBeanArg() {
+        return new CallStoredProcRefCursorB.Builder<A, R>();
     }
 
 }

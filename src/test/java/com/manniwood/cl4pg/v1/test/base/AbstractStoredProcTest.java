@@ -181,7 +181,7 @@ public abstract class AbstractStoredProcTest {
     @Test(priority = 3)
     public void testAddAndReturnV() {
         GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<Integer> usingVariadicArgs()
                 .sql("select add_and_return from add_and_return(#{java.lang.Integer}, #{java.lang.Integer})")
                 .args(1, 2)
                 .resultSetHandler(handler)
@@ -200,7 +200,7 @@ public abstract class AbstractStoredProcTest {
         addends.setSecond(3);
 
         GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.<TwoInts> usingBeanArg()
+        pgSession.run(Select.<TwoInts, Integer> usingBeanArg()
                 .sql("select add_and_return from add_and_return(#{getFirst}, #{getSecond})")
                 .arg(addends)
                 .resultSetHandler(handler)
@@ -218,7 +218,7 @@ public abstract class AbstractStoredProcTest {
                                                    AbstractPgSessionTest.PASSWORD_3,
                                                    AbstractPgSessionTest.EMPLOYEE_ID_3);
         GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(CallStoredProcRefCursor.<ImmutableUser> usingBeanArg()
+        pgSession.run(CallStoredProcRefCursor.<ImmutableUser, ImmutableUser> usingBeanArg()
                 .sql("{ #{refcursor} = call get_user_by_id(#{getId}) }")
                 .arg(expected)
                 .resultSetHandler(handler)
@@ -235,7 +235,7 @@ public abstract class AbstractStoredProcTest {
                                                    AbstractPgSessionTest.PASSWORD_3,
                                                    AbstractPgSessionTest.EMPLOYEE_ID_3);
         GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(CallStoredProcRefCursor.usingVariadicArgs()
+        pgSession.run(CallStoredProcRefCursor.<ImmutableUser> usingVariadicArgs()
                 .sql("{ #{refcursor} = call get_user_by_id(#{java.util.UUID}) }")
                 .args(expected.getId())
                 .resultSetHandler(handler)

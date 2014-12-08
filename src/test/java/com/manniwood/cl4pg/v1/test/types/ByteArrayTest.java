@@ -89,7 +89,7 @@ public class ByteArrayTest {
         pgSession.commit();
 
         GuessScalarListHandler<byte[]> handler = new GuessScalarListHandler<byte[]>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<byte[]> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -111,7 +111,7 @@ public class ByteArrayTest {
         pgSession.commit();
 
         GuessScalarListHandler<byte[]> handler = new GuessScalarListHandler<byte[]>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<byte[]> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
@@ -133,7 +133,7 @@ public class ByteArrayTest {
         pgSession.commit();
 
         GuessScalarListHandler<byte[]> handler = new GuessScalarListHandler<byte[]>();
-        pgSession.run(Select.usingVariadicArgs()
+        pgSession.run(Select.<byte[]> usingVariadicArgs()
                 .sql("select col from test limit 1")
                 .resultSetHandler(handler)
                 .done());
