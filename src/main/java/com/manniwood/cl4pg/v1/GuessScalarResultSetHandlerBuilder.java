@@ -23,22 +23,16 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1;
 
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 
-public class GuessScalarConstructorResultSetHandlerBuilder implements ResultSetHandlerBuilder {
+public class GuessScalarResultSetHandlerBuilder implements ScalarResultSetHandlerBuilder {
 
-    public GuessScalarConstructorResultSetHandlerBuilder() {
+    public GuessScalarResultSetHandlerBuilder() {
     }
 
     @Override
-    public <R> ResultSetHandler<R> buildRowResulSettHandler(Class<R> clazz) {
-        return new GuessConstructorListHandler<R>(clazz);
-    }
-
-    @Override
-    public <R> ResultSetHandler<R> buildScalarResultSetHandler() {
+    public <R> ResultSetHandler<R> build() {
         return new GuessScalarListHandler<R>();
     }
 

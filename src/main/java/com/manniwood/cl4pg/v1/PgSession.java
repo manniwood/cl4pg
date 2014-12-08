@@ -45,8 +45,6 @@ import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedCleanupException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedRollbackException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgSqlException;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.Cllctn;
@@ -66,18 +64,21 @@ public class PgSession {
     private final DataSourceAdapter dataSourceAdapter;
     private final ExceptionConverter exceptionConverter;
     private final TypeConverterStore typeConverterStore;
-    private final ResultSetHandlerBuilder resultSetHandlerBuilder;
+    private final ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder;
+    private final RowResultSetHandlerBuilder rowResultSetHandlerBuilder;
 
     public PgSession(Connection conn,
             DataSourceAdapter dataSourceAdapter,
             SqlCache sqlCache,
-            ResultSetHandlerBuilder resultSetHandlerBuilder) {
+            ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder,
+            RowResultSetHandlerBuilder rowResultSetHandlerBuilder) {
         this.conn = conn;
         this.dataSourceAdapter = dataSourceAdapter;
         this.exceptionConverter = dataSourceAdapter.getExceptionConverter();
         this.typeConverterStore = dataSourceAdapter.getTypeConverterStore();
         this.sqlCache = sqlCache;
-        this.resultSetHandlerBuilder = resultSetHandlerBuilder;
+        this.scalarResultSetHandlerBuilder = scalarResultSetHandlerBuilder;
+        this.rowResultSetHandlerBuilder = rowResultSetHandlerBuilder;
     }
 
     /**
@@ -202,7 +203,7 @@ public class PgSession {
                                Class<R> clazz,
                                Object... args) {
 
-        ResultSetHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(clazz);
         run(Select.<R> usingVariadicArgs()
                 .file(file)
                 .args(args)
@@ -220,7 +221,7 @@ public class PgSession {
                                   String file,
                                   Class<R> clazz) {
 
-        ResultSetHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(clazz);
         run(Select.<A, R> usingBeanArg()
                 .file(file)
                 .arg(a)
@@ -270,7 +271,7 @@ public class PgSession {
                               Class<R> clazz,
                               Object... args) {
 
-        ResultSetHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(clazz);
         run(Select.<R> usingVariadicArgs()
                 .sql(sql)
                 .args(args)
@@ -288,7 +289,7 @@ public class PgSession {
                                  String sql,
                                  Class<R> clazz) {
 
-        ResultSetHandler<R> handler = new GuessConstructorListHandler<R>(clazz);
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(clazz);
         run(Select.<A, R> usingBeanArg()
                 .sql(sql)
                 .arg(a)
@@ -337,7 +338,7 @@ public class PgSession {
      */
     public <R> List<R> selectScalarF(String file,
                                      Object... args) {
-        ResultSetHandler<R> handler = new GuessScalarListHandler<R>();
+        ResultSetHandler<R> handler = scalarResultSetHandlerBuilder.build();
         run(Select.<R> usingVariadicArgs()
                 .file(file)
                 .args(args)
@@ -374,7 +375,7 @@ public class PgSession {
      */
     public <R> List<R> selectScalar(String sql,
                                     Object... args) {
-        ResultSetHandler<R> handler = new GuessScalarListHandler<R>();
+        ResultSetHandler<R> handler = scalarResultSetHandlerBuilder.build();
         run(Select.<R> usingVariadicArgs()
                 .sql(sql)
                 .args(args)

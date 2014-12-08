@@ -38,22 +38,30 @@ public class PgSessionPool {
 
     private DataSourceAdapter dataSourceAdapter;
     private final SqlCache sqlCache = new SqlCache();
-    private final ResultSetHandlerBuilder resultSetHandlerBuilder;
+    private final ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder;
+    private final RowResultSetHandlerBuilder rowResultSetHandlerBuilder;
 
     public PgSessionPool(DataSourceAdapter dataSourceAdapter) {
         this.dataSourceAdapter = dataSourceAdapter;
-        this.resultSetHandlerBuilder = new GuessScalarConstructorResultSetHandlerBuilder();
+        this.scalarResultSetHandlerBuilder = new GuessScalarResultSetHandlerBuilder();
+        this.rowResultSetHandlerBuilder = new GuessConstructorResultSetHandlerBuilder();
     }
 
     public PgSessionPool(DataSourceAdapter dataSourceAdapter,
-            ResultSetHandlerBuilder resultSetHandlerBuilder) {
+            ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder,
+            RowResultSetHandlerBuilder rowResultSetHandlerBuilder) {
         this.dataSourceAdapter = dataSourceAdapter;
-        this.resultSetHandlerBuilder = resultSetHandlerBuilder;
+        this.scalarResultSetHandlerBuilder = scalarResultSetHandlerBuilder;
+        this.rowResultSetHandlerBuilder = rowResultSetHandlerBuilder;
     }
 
     public PgSession getSession() {
         Connection conn = dataSourceAdapter.getConnection();
-        return new PgSession(conn, dataSourceAdapter, sqlCache, resultSetHandlerBuilder);
+        return new PgSession(conn,
+                             dataSourceAdapter,
+                             sqlCache,
+                             scalarResultSetHandlerBuilder,
+                             rowResultSetHandlerBuilder);
     }
 
     public void close() {

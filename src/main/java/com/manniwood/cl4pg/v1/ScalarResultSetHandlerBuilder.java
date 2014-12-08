@@ -25,8 +25,7 @@ package com.manniwood.cl4pg.v1;
 
 import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 
-public interface ResultSetHandlerBuilder {
-    <R> ResultSetHandler<R> buildRowResulSettHandler(Class<R> clazz);
+public interface ScalarResultSetHandlerBuilder {
 
-    <R> ResultSetHandler<R> buildScalarResultSetHandler();
+    <R> ResultSetHandler<R> build();
 }
