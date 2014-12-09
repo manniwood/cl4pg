@@ -29,6 +29,15 @@
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleInsertReturningTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleUpdateReturningTest" />
             
+            <class name="com.manniwood.cl4pg.v1.test.ds.tomcatjdbc.TomcatCopyTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.tomcatjdbc.TomcatDeleteTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.tomcatjdbc.TomcatSelectTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.tomcatjdbc.TomcatSessionTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.tomcatjdbc.TomcatStoredProcTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.tomcatjdbc.TomcatUpdateTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.tomcatjdbc.TomcatInsertReturningTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.tomcatjdbc.TomcatUpdateReturningTest" />
+            
             <!--  type tests -->
             <class name="com.manniwood.cl4pg.v1.test.types.BooleanTest" />
             <class name="com.manniwood.cl4pg.v1.test.types.ByteArrayTest" />
