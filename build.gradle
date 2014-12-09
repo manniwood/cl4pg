@@ -6,17 +6,27 @@ group = 'com.manniwood'
 version = '1.0.0-SNAPSHOT'
 description = "cl4pg --- The Convenience Library for PostgreSQL"
 
+ext.pgJDBC = 'org.postgresql:postgresql:9.3-1101-jdbc4'
+ext.hikariCP = 'com.zaxxer:HikariCP-java6:2.0.1'
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile 'org.postgresql:postgresql:9.3-1101-jdbc4'
+    compile pgJDBC
     compile 'org.slf4j:slf4j-api:1.7.7'
-    compile 'com.zaxxer:HikariCP-java6:2.0.1'
+    compile hikariCP
     testCompile 'org.testng:testng:6.8.8'
     testCompile 'ch.qos.logback:logback-core:1.1.2'
     testCompile 'ch.qos.logback:logback-classic:1.1.2'
+}
+
+configurations {
+    // Allow the user to provide her/his own version of the JDBC driver.
+    runtime.exclude module: pgJDBC
+    // If the user is not using HikariCP, then it isn't a runtime dependency.
+    runtime.exclude module: hikariCP
 }
 
 test {
