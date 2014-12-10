@@ -32,8 +32,8 @@ public class GuessSettersResultSetHandlerBuilder implements RowResultSetHandlerB
     }
 
     @Override
-    public <R> ResultSetHandler<R> build(Class<R> clazz) {
-        return new GuessSettersListHandler<R>(clazz);
+    public <R> ResultSetHandler<R> build(Class<R> returnClass) {
+        return new GuessSettersListHandler<R>(returnClass);
     }
 
 }

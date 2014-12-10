@@ -122,7 +122,6 @@ public class PgSession {
      * Convenience method that calls a Listen Command.
      *
      * @param channel
-     * @param payload
      */
     public void pgListen(String channel) {
         run(new Listen(channel));
@@ -140,7 +139,7 @@ public class PgSession {
     /**
      * Convenience method that calls a DDL Command from a file in the classpath.
      *
-     * @param sql
+     * @param file
      */
     public void ddlF(String file) {
         run(DDL.config().file(file).done());
@@ -150,11 +149,11 @@ public class PgSession {
      * Convenience method that calls an Insert Command using a bean argument and
      * a file in the classpath.
      */
-    public <A> void insert(A a,
+    public <A> void insert(A arg,
                            String sql) {
         run(Insert.<A> usingBeanArg()
                 .sql(sql)
-                .arg(a)
+                .arg(arg)
                 .done());
     }
 
@@ -162,11 +161,11 @@ public class PgSession {
      * Convenience method that calls an Insert Command using a bean argument and
      * a file in the classpath.
      */
-    public <A> void insertF(A a,
+    public <A> void insertF(A arg,
                             String file) {
         run(Insert.<A> usingBeanArg()
                 .file(file)
-                .arg(a)
+                .arg(arg)
                 .done());
     }
 
@@ -200,10 +199,10 @@ public class PgSession {
      * guess the constructor for the returned beans.
      */
     public <R> List<R> selectF(String file,
-                               Class<R> clazz,
+                               Class<R> returnClass,
                                Object... args) {
 
-        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(clazz);
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
         run(Select.<R> usingVariadicArgs()
                 .file(file)
                 .args(args)
@@ -217,14 +216,14 @@ public class PgSession {
      * file in the classpath, which uses the names of the returned columns to
      * guess the constructor for the returned beans.
      */
-    public <R, A> List<R> selectF(A a,
+    public <R, A> List<R> selectF(A arg,
                                   String file,
-                                  Class<R> clazz) {
+                                  Class<R> returnClass) {
 
-        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(clazz);
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
         run(Select.<A, R> usingBeanArg()
                 .file(file)
-                .arg(a)
+                .arg(arg)
                 .resultSetHandler(handler)
                 .done());
         return handler.getList();
@@ -237,9 +236,9 @@ public class PgSession {
      * of the result set.
      */
     public <R> R selectOneF(String file,
-                            Class<R> clazz,
+                            Class<R> returnClass,
                             Object... args) {
-        List<R> list = selectF(file, clazz, args);
+        List<R> list = selectF(file, returnClass, args);
         if (Cllctn.isNullOrEmpty(list)) {
             return null;
         }
@@ -252,10 +251,10 @@ public class PgSession {
      * guess the constructor for the returned beans, and returns the first row
      * of the result set.
      */
-    public <R, A> R selectOneF(A a,
+    public <R, A> R selectOneF(A arg,
                                String file,
-                               Class<R> clazz) {
-        List<R> list = selectF(a, file, clazz);
+                               Class<R> returnClass) {
+        List<R> list = selectF(arg, file, returnClass);
         if (Cllctn.isNullOrEmpty(list)) {
             return null;
         }
@@ -268,10 +267,10 @@ public class PgSession {
      * returned beans.
      */
     public <R> List<R> select(String sql,
-                              Class<R> clazz,
+                              Class<R> returnClass,
                               Object... args) {
 
-        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(clazz);
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
         run(Select.<R> usingVariadicArgs()
                 .sql(sql)
                 .args(args)
@@ -285,14 +284,14 @@ public class PgSession {
      * uses the names of the returned columns to guess the constructor for the
      * returned beans.
      */
-    public <R, A> List<R> select(A a,
+    public <R, A> List<R> select(A arg,
                                  String sql,
-                                 Class<R> clazz) {
+                                 Class<R> returnClass) {
 
-        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(clazz);
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
         run(Select.<A, R> usingBeanArg()
                 .sql(sql)
-                .arg(a)
+                .arg(arg)
                 .resultSetHandler(handler)
                 .done());
         return handler.getList();
@@ -304,9 +303,9 @@ public class PgSession {
      * returned beans, and returns the first row of the result set.
      */
     public <R> R selectOne(String sql,
-                           Class<R> clazz,
+                           Class<R> returnClass,
                            Object... args) {
-        List<R> list = select(sql, clazz, args);
+        List<R> list = select(sql, returnClass, args);
         if (Cllctn.isNullOrEmpty(list)) {
             return null;
         }
@@ -318,10 +317,10 @@ public class PgSession {
      * uses the names of the returned columns to guess the constructor for the
      * returned beans, and returns the first row of the result set.
      */
-    public <R, A> R selectOne(A a,
+    public <R, A> R selectOne(A arg,
                               String sql,
-                              Class<R> clazz) {
-        List<R> list = select(a, sql, clazz);
+                              Class<R> returnClass) {
+        List<R> list = select(arg, sql, returnClass);
         if (Cllctn.isNullOrEmpty(list)) {
             return null;
         }
@@ -333,7 +332,7 @@ public class PgSession {
      * file in the classpath, which uses the type of the single returned column
      * to return a list of scalar objects (Integer, String, etc).
      *
-     * @param sql
+     * @param file
      * @return
      */
     public <R> List<R> selectScalarF(String file,
@@ -353,7 +352,7 @@ public class PgSession {
      * to return a single (first column, first row) scalar object (Integer,
      * String, etc). Good for sql queries such as "select * from foo".
      *
-     * @param sql
+     * @param file
      * @return
      */
     public <R> R selectOneScalarF(String file,
@@ -404,9 +403,6 @@ public class PgSession {
 
     /**
      * Convenience method that calls a GetNotifications Command.
-     *
-     * @param channel
-     * @param payload
      */
     public PGNotification[] getNotifications() {
         GetNotifications getNotifications = new GetNotifications();
@@ -416,9 +412,6 @@ public class PgSession {
 
     /**
      * Convenience method that calls a Commit Command.
-     *
-     * @param channel
-     * @param payload
      */
     public void commit() {
         run(new Commit(conn));
@@ -426,9 +419,6 @@ public class PgSession {
 
     /**
      * Convenience method that calls a Rollback Command.
-     *
-     * @param channel
-     * @param payload
      */
     public void rollback() {
         run(new Rollback(conn));

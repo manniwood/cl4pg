@@ -32,8 +32,8 @@ public class GuessConstructorResultSetHandlerBuilder implements RowResultSetHand
     }
 
     @Override
-    public <R> ResultSetHandler<R> build(Class<R> clazz) {
-        return new GuessConstructorListHandler<R>(clazz);
+    public <R> ResultSetHandler<R> build(Class<R> returnClass) {
+        return new GuessConstructorListHandler<R>(returnClass);
     }
 
 }

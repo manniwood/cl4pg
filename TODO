@@ -1,12 +1,11 @@
 
 -------- v1.0.x
 
-- Add a test to be certain application name is being correctly set, esp. for
-Hikari and Tomcat pools.
+- Write documentation
+
+- Ensure configuration is easy and documented.
 
 - Write typeconverters for all types in PgJDBC driver (including array types)
-
-- Write documentation
 
 -------- v1.1.x
 

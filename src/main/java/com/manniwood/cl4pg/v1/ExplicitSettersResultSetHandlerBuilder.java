@@ -32,8 +32,8 @@ public class ExplicitSettersResultSetHandlerBuilder implements RowResultSetHandl
     }
 
     @Override
-    public <R> ResultSetHandler<R> build(Class<R> clazz) {
-        return new ExplicitSettersListHandler<R>(clazz);
+    public <R> ResultSetHandler<R> build(Class<R> returnClass) {
+        return new ExplicitSettersListHandler<R>(returnClass);
     }
 
 }

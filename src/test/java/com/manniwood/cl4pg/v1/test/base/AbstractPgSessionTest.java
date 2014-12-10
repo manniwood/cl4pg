@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.manniwood.cl4pg.v1.ConfigDefaults;
 import org.postgresql.PGNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,4 +243,12 @@ public abstract class AbstractPgSessionTest {
                             "Statement needs to return 1");
     }
 
+    @Test(priority = 5)
+    public void testApplicationNameIsSet() {
+        String actualAppName = pgSession.selectOne(
+                "select application_name from pg_stat_activity where application_name = #{java.lang.String}",
+                String.class,
+                ConfigDefaults.DEFAULT_APP_NAME);
+        Assert.assertEquals(actualAppName, ConfigDefaults.DEFAULT_APP_NAME, "App name needs to be " + ConfigDefaults.DEFAULT_APP_NAME);
+    }
 }

@@ -32,8 +32,8 @@ public class ExplicitConstructorResultSetHandlerBuilder implements RowResultSetH
     }
 
     @Override
-    public <R> ResultSetHandler<R> build(Class<R> clazz) {
-        return new ExplicitConstructorListHandler<R>(clazz);
+    public <R> ResultSetHandler<R> build(Class<R> returnClass) {
+        return new ExplicitConstructorListHandler<R>(returnClass);
     }
 
 }
