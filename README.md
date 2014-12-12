@@ -9,11 +9,12 @@ There are already other ORMs / SQL mappers in Java. Ones that
 - [provide fluent ways to map and write SQL](http://jdbi.org/)
 
 They all make no assumptions about the database that will be used, and therefore
-have to be somewhat database-agnostic.
+have to be somewhat database-agnostic (though the SQL-based ones at least allow
+using your database's SQL dialect more directly).
 
 Cl4pg assumes you have picked [PostgreSQL](http://www.postgresql.org/) and are
-sticking with it. You are looking for a library that, instead of masking PostgreSQL's
-unique features, brings those unique features to the fore, and makes them easy to use.
+sticking with it. You are looking for a library that, does not hide PostgreSQL's
+unique features, but instead makes them easy to use.
 
 Let's get started.
 
@@ -28,11 +29,21 @@ port=5432  # didn't have to be in this file; default
 database=somedb
 user=someuser
 password=somepassword
-ApplicationName=My Great App
+ApplicationName=My Great App  # Yes, this does get used
 # 2 == TRANSACTION_READ_COMMITTED;
 # didn't have to be in this file; default
 TransactionIsolationLevel=2
 ```
+
+> Please note that the irregular use of upper and lower case in the parameter
+names reflects the actual parameter names used by the underlying PostgreSQL
+JDBC driver.
+
+> Please also note the first PostgreSQL-specific setting: the ApplicationName
+parameter will show up in the `application_name` column of the
+`pg_stat_activity` table for each connection made by Cl4pg. This makes
+identifying and debugging Cl4pg connections from inside PostgreSQL
+that much easier.
 
 You get a connection to the database like so:
 
