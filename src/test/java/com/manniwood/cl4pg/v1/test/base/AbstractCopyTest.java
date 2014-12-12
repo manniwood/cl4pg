@@ -71,8 +71,8 @@ public abstract class AbstractCopyTest {
 
         pgSession = pool.getSession();
 
-        pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
-        pgSession.run(DDL.config().file("sql/create_temp_dup_users_table.sql").done());
+        pgSession.ddlF("sql/create_temp_users_table.sql");
+        pgSession.ddlF("sql/create_temp_dup_users_table.sql");
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
@@ -90,11 +90,8 @@ public abstract class AbstractCopyTest {
                                           AbstractPgSessionTest.EMPLOYEE_ID_3));
 
         for (ImmutableUser u : usersToLoad) {
-            pgSession.run(Insert.<ImmutableUser> usingBeanArg()
-                    .file("sql/insert_user.sql")
-                    .arg(u)
-                    .done());
-        }
+            pgSession.<ImmutableUser>insertF(u, "sql/insert_user.sql");
+        }pgSession.copyOut("copy users to stdout", "/tmp/the_users_file.copy");
         pgSession.commit();
     }
 
@@ -108,26 +105,16 @@ public abstract class AbstractCopyTest {
 
     @Test(priority = 0)
     public void testCopy() {
-        pgSession.run(CopyFileOut.config()
-                .copyFile(AbstractPgSessionTest.TEST_COPY_FILE)
-                .sql("copy users to stdout")
-                .done());
+        pgSession.copyOut("copy users to stdout", AbstractPgSessionTest.TEST_COPY_FILE);
         // can safely roll back, because file has already been created
         pgSession.rollback();
 
-        pgSession.run(CopyFileIn.config()
-                .copyFile(AbstractPgSessionTest.TEST_COPY_FILE)
-                .sql("copy dup_users from stdin")
-                .done());
+        pgSession.copyIn("copy dup_users from stdin", AbstractPgSessionTest.TEST_COPY_FILE);
         pgSession.commit();
 
         // Let's use sql to do the checking for us
-        GuessScalarListHandler<Long> handler = new GuessScalarListHandler<Long>();
-        pgSession.run(Select.<Long> usingVariadicArgs()
-                .sql("select count(*) from (select * from users except select * from dup_users) as q")
-                .resultSetHandler(handler)
-                .done());
-        Long count = handler.getList().get(0);
+        Long count = pgSession.selectOneScalar("select count(*) from (select * from users except select * from dup_users) as q", Long.class);
+
         Assert.assertEquals(count.longValue(),
                             0L,
                             "User tables must be the same after copy");

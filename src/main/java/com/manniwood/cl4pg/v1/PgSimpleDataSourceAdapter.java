@@ -75,7 +75,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         try {
             conn = ds.getConnection();
             conn.setTransactionIsolation(transactionIsolationLevel);
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(false);  // XXX: make this configurable
         } catch (SQLException e) {
             throw new Cl4pgFailedConnectionException("Could not get connection.", e);
         }

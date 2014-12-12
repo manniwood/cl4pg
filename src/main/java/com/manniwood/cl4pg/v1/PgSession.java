@@ -27,18 +27,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.manniwood.cl4pg.v1.commands.*;
 import org.postgresql.PGNotification;
 import org.postgresql.util.PSQLException;
 
-import com.manniwood.cl4pg.v1.commands.Command;
-import com.manniwood.cl4pg.v1.commands.Commit;
-import com.manniwood.cl4pg.v1.commands.DDL;
-import com.manniwood.cl4pg.v1.commands.GetNotifications;
-import com.manniwood.cl4pg.v1.commands.Insert;
-import com.manniwood.cl4pg.v1.commands.Listen;
-import com.manniwood.cl4pg.v1.commands.Notify;
-import com.manniwood.cl4pg.v1.commands.Rollback;
-import com.manniwood.cl4pg.v1.commands.Select;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedCleanupException;
@@ -143,6 +135,47 @@ public class PgSession {
      */
     public void ddlF(String file) {
         run(DDL.config().file(file).done());
+    }
+
+    /**
+     * Convenience method that calls a Copy Command
+     */
+    public void copyOut(String sql, String outFile) {
+        run(CopyFileOut.config()
+                .copyFile(outFile)
+                .sql(sql)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls a Copy Command
+     */
+    public void copyOutF(String file, String outFile) {
+        run(CopyFileOut.config()
+                .copyFile(outFile)
+                .file(file)
+                .done());
+    }
+
+
+    /**
+     * Convenience method that calls a Copy Command
+     */
+    public void copyIn(String sql, String inFile) {
+        run(CopyFileIn.config()
+                .copyFile(inFile)
+                .sql(sql)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls a Copy Command
+     */
+    public void copyInF(String file, String inFile) {
+        run(CopyFileIn.config()
+                .copyFile(inFile)
+                .file(file)
+                .done());
     }
 
     /**

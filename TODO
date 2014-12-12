@@ -1,6 +1,8 @@
 
 -------- v1.0.x
 
+- Make autocommit configurable
+
 - Write documentation
 
 - Ensure configuration is easy and documented.
