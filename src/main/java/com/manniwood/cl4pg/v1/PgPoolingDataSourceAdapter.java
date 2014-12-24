@@ -33,6 +33,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import com.manniwood.cl4pg.v1.util.TransactionIsolationLevelConverter;
 import org.postgresql.PGConnection;
 import org.postgresql.PGStatement;
 import org.postgresql.ds.PGPoolingDataSource;
@@ -178,7 +179,7 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
 
         String transactionIsolationLevelStr = props.getProperty(ConfigDefaults.TRANSACTION_ISOLATION_LEVEL_KEY);
         if (!Str.isNullOrEmpty(transactionIsolationLevelStr)) {
-            builder.transactionIsolationLevel(Integer.parseInt(transactionIsolationLevelStr));
+            builder.transactionIsolationLevelName(transactionIsolationLevelStr);
         }
 
         String typeConverterConfFilesStr = props.getProperty(ConfigDefaults.TYPE_CONVERTER_CONF_FILES_KEY);
@@ -277,6 +278,11 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
                 throw new IllegalArgumentException("Transaction Isolation Level \"" + transactionIsolationLevelStr + "\" is not valid.");
             }
             this.transactionIsolationLevel = transactionIsolationLevel;
+            return this;
+        }
+
+        public Builder transactionIsolationLevelName(String name) {
+            this.transactionIsolationLevel = TransactionIsolationLevelConverter.convert(name);
             return this;
         }
 
