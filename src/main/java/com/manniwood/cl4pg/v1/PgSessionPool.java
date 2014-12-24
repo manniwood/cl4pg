@@ -23,6 +23,7 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1;
 
+import java.io.Closeable;
 import java.sql.Connection;
 
 import com.manniwood.cl4pg.v1.util.SqlCache;
@@ -34,7 +35,7 @@ import com.manniwood.cl4pg.v1.util.SqlCache;
  * @author mwood
  *
  */
-public class PgSessionPool {
+public class PgSessionPool implements Closeable {
 
     private DataSourceAdapter dataSourceAdapter;
     private final SqlCache sqlCache = new SqlCache();
@@ -64,6 +65,7 @@ public class PgSessionPool {
                              rowResultSetHandlerBuilder);
     }
 
+    @Override
     public void close() {
         dataSourceAdapter.close();
     }

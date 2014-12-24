@@ -30,18 +30,24 @@ JDBC driver.
 You get a connection to the database like so:
 
 ```Java
+// Build a data source adapter for the PostgreSQL JDBC driver's included
+// PGSimpleDataSource from cl4pg/PgSimpleDataSourceAdapter.properties
+// in the classpath --- the default conf file for this adapter.
 DataSourceAdapter adapter = PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
+
+// Hand the adapter to a PgSessionPool. When we hand PgSessionPool a
+// PgSimpleDataSourceAdapter, there really is no pool at all: Every getSession()
+// opens a new connection to the database, and every close() closes it.
+// However, for PgPoolingDataSourceAdapter, HikariCpDataSourceAdapter,
+// and TomcatJDBCDataSourceAdapter, getSession() and close() get and return
+// database connections from the pools managed by those adapters.
 PgSessionPool pool = new PgSessionPool(adapter);
+
+// Start a session at somehost:5432/somedb, according to our example config
 PgSession pgSession = pool.getSession();
 ```
 
-TODO: link to how to configure other connection adapters
-
-> Cl4pg's SimpleDataSourceAdapter wraps PgJDBC's PGSimpleDataSource, so
-unlike all of Cl4pg's other DataSourceAdapters, this one's PgSessionPool
-is not really a pool at all: every call to `getSession()` opens a new
-connection to the database. Other DataSourceAdapters (such as the
-HikariCpDataSourceAdapter) have actual, configurable, connection pooling.
+[How to configure the other data source adapters...](docs/more/data_source_adapters.md)
 
 ## DDL
 
