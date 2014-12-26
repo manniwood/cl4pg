@@ -117,6 +117,7 @@ Let's select a count of how many users we have.
 
 ```Java
 Long count = pgSession.selectOneScalar("select count(*) from users");
+pgSession.rollback();  // no need to commit
 ```
 
 Simple things should be simple. Cl4pg guesses the correct type converter and
@@ -205,6 +206,7 @@ You could then search for any particular user by ID like so:
 ImmutableUser user = pgSession.selectOneF("sql/find_user_by_id.sql",
                          ImmutableUser.class,
                          UUID.fromString("99999999-a4fa-49fc-b6b4-62eca118fbf7"));
+pgSession.rollback();  // no need to commit
 ```
 
 Cl4pg does a few things for us here.
@@ -269,16 +271,142 @@ You could select a list of users whose `employee_id`s are greater than
 List<ImmutableUser> users = pgSession.selectF("sql/find_user_gt_emp_id.sql",
                          ImmutableUser.class,
                          42);
+pgSession.rollback();  // no need to commit
 ```
 
+### Using a Bean Instead of Variadic Args
+
+So far, we have shown the utility of selecting our ImmutableUser by variadic args.
+If we only have an ID for a user, we can just hand that ID to `pgSession.select` or
+`pgSession.selectF` as a variadic arg, and Cl4pg will fill in `#{java.util.UUID}`
+in the correct spot in our SQL template.
+
+There may be other times when you have values you would like to get pulled out of
+a bean to fill in the parameters of our SQL template. This is possible to! Instead of using
+`pgSession.select("some SQL", SomeReturn.class, variadic args...)`, you would use 
+`pgSession.select(SomeBean, "some SQL", SomeReturn.class)`. It's a nice calling convention:
+if you want to use variadic args, they go as the last arguments to `pgSession.select`, but
+if you want to use a bean, it is the first argument of `pgSession.select`.
+
+Your SQL template will need to change, too. Now, it will look like this (in a file 
+`sql/find_user_by_bean_id.sql`):
+
+```SQL
+select id,
+       name,
+       password,
+       employee_id
+  from users
+ where id = #{getId}
+```
+
+```Java
+// Note we only bother correctly filling in the one attribute we need
+ImmutableUser findMe = new ImmutableUser("99999999-a4fa-49fc-b6b4-62eca118fbf7", null, null, 0);
+
+ImmutableUser actualImmutable = pgSession.selectOneF(findMe,
+                                 "sql/find_user_by_bean_id.sql",
+                                 ImmutableUser.class);
+pgSession.rollback();  // no need to commit
+```
+
+Or, returning to our example of finding users whose `employee_id` is greater than 42:
+
+Let's assume a file named `sql/find_user_gt_emp_id_bean.sql` in your classpath 
+
+```SQL
+select id,
+       name,
+       password,
+       employee_id
+  from users
+ where employee_id > #{getEmployeeId}
+```
+
+```Java
+// Note we only bother correctly filling in the one attribute we need
+ImmutableUser findMe = new ImmutableUser("00000000-a4fa-49fc-b6b4-62eca118fbf7", null, null, 42);
+
+ImmutableUser actualImmutable = pgSession.selectOneF(findMe,
+                                 "sql/find_user_gt_emp_id_bean.sql",
+                                 ImmutableUser.class);
+pgSession.rollback();  // no need to commit
+```
+
+### Using Setters Instead of Constructors, and More!
+
+There are many more ways to select data from Cl4pg and map it to your Java
+objects. [Details here.](docs/more/select.md)
+
+## Insert
+
+Cl4pg's `insert` method names and signatures follow the same conventions as `select`:
+
+- If the method is named `insert`, the SQL is assumed to be right in the string, whereas
+if the method is named `insertF`, the SQL is assumed to be a file in the classpath with that name.
+
+- If the String comes first in the `insert` method, it is assumed that variadic args come next.
+If an Object is first, followed by a String, the Object is a bean whose getters will be used to
+fill in parameters.
+
+Let's assume this SQL file on the classpath:
+
+`sql/insert_user_variadic.sql`:
+
+```SQL
+insert into users (
+    id,  -- UUID
+    name,  -- text
+    password,  -- text
+    employee_id)  -- int
+values (#{java.util.UUID},
+        #{java.lang.String},
+        #{java.lang.String},
+        #{java.lang.Integer})
+```
+
+We can insert a user like this:
+
+
+```Java
+pgSession.insertF("sql/insert_user_variadic.sql", "00000000-a4fa-49fc-b6b4-62eca118fbf7", null, "password", 42);
+pgSession.commit();  // don't forget!
+```
+
+If we assume this SQL file on the classpath:
+
+`sql/insert_user.sql`:
+
+```SQL
+insert into users (
+    id,  -- UUID
+    name,  -- text
+    password,  -- text
+    employee_id)  -- int
+values (#{getId},
+        #{getName},
+        #{getPassword},
+        #{getEmployeeId})
+```
+
+We can a user bean like this:
+
+
+```Java
+ImmutableUser newUser = new ImmutableUser("99999999-a4fa-49fc-b6b4-62eca118fbf7", "Bob", "easypassword", 1);
+pgSession.insertF(newUser, "sql/insert_user.sql");
+pgSession.commit();  // don't forget!
+```
 
 ## Exception Handling
+
+to be written
 
 ## Listen/Notify
 
 to be written
 
-## Insert
+## Stored Procedures
 
 to be written
 
