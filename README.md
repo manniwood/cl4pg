@@ -389,7 +389,7 @@ values (#{getId},
         #{getEmployeeId})
 ```
 
-We can a user bean like this:
+We can a use a bean like this:
 
 
 ```Java
