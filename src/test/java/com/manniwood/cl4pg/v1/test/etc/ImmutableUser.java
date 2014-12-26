@@ -31,7 +31,7 @@ public class ImmutableUser {
     private final UUID id;
     private final String name;
     private final String password;
-    private final int employeeId;
+    private final Integer employeeId;  // Integer allows null; int does not
 
     public ImmutableUser(UUID id, String name, String password, Integer employeeId) {
         super();
@@ -39,14 +39,6 @@ public class ImmutableUser {
         this.name = name;
         this.password = password;
         this.employeeId = employeeId.intValue();
-    }
-
-    public ImmutableUser(UUID id, String name, String password, int employeeId) {
-        super();
-        this.id = id;
-        this.name = name;
-        this.password = password;
-        this.employeeId = employeeId;
     }
 
     public UUID getId() {
@@ -61,7 +53,7 @@ public class ImmutableUser {
         return password;
     }
 
-    public int getEmployeeId() {
+    public Integer getEmployeeId() {
         return employeeId;
     }
 
@@ -82,6 +74,6 @@ public class ImmutableUser {
         return Objects.equals(id, other.id)
                 && Objects.equals(name, other.name)
                 && Objects.equals(password, other.password)
-                && employeeId == other.employeeId;
+                && Objects.equals(employeeId, other.employeeId);
     }
 }

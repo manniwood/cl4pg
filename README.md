@@ -102,12 +102,177 @@ Let's assume we have the following PostgreSQL copy file named /tmp/users.copy
 We could load our users table from that file like so:
 
 ```Java
-pgSession.copyIn("copy dup_users from stdin", "/tmp/users.copy");
+pgSession.copyIn("copy users from stdin", "/tmp/users.copy");
 pgSesion.commit();
 ```
 
 PosgtreSQL's proprietary copy format is a first-class citizen
 with Cl4pg.
+
+## Select
+
+### One Row, One Column as an Object
+
+Let's select a count of how many users we have.
+
+```Java
+Long count = pgSession.selectOneScalar("select count(*) from users");
+```
+
+Simple things should be simple. Cl4pg guesses the correct type converter and
+converts the column "count( * )" to a Java long.
+
+### One Row, Many Columns as a Bean
+
+Let's select a user by user id, and return that result as a Java bean.
+
+Let's assume the following immutable bean definition:
+
+```Java
+package com.manniwood.cl4pg.v1.test.etc;
+
+import java.util.Objects;
+import java.util.UUID;
+
+public class ImmutableUser {
+
+    private final UUID id;
+    private final String name;
+    private final String password;
+    private final int employeeId;
+
+    public ImmutableUser(UUID id, String name, String password, Integer employeeId) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.password = password;
+        this.employeeId = employeeId.intValue();
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public int getEmployeeId() {
+        return employeeId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, password, employeeId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ImmutableUser other = (ImmutableUser) obj;
+        return Objects.equals(id, other.id)
+                && Objects.equals(name, other.name)
+                && Objects.equals(password, other.password)
+                && Objects.equals(employeeId, other.employeeId);
+    }
+}
+```
+
+Let's also assume you have the following contents in a file named
+`sql/find_user_by_id.sql` in your classpath:
+
+```SQL
+select id,
+       name,
+       password,
+       employee_id
+  from users
+ where id = #{java.util.UUID}
+```
+
+You could then search for any particular user by ID like so:
+
+```Java
+ImmutableUser user = pgSession.selectOneF("sql/find_user_by_id.sql",
+                         ImmutableUser.class,
+                         UUID.fromString("99999999-a4fa-49fc-b6b4-62eca118fbf7"));
+```
+
+Cl4pg does a few things for us here.
+
+`pgSession.selectOneF`'s first argument is the sql file on our classpath.
+
+The second argument is the return type.
+
+All remaining arguments are variadic, and of type Object; these get
+substituted in the provided sql statement, in the order provided,
+and are cast to the class given inside `#{}`. In our example, the
+string `#{java.util.UUID}` gets filled in with the UUID we provide
+as the first and only variadic arg, above.
+
+> That is, under the covers, `#{}` becomes a `?` in a prepared statement, 
+and it gets filled in like so: `preparedStatement.setObject(1, theUUID)`.
+
+> A more interesting example might have a SQL template with
+`where foo = #{java.lang.String} and bar = #{java.lang.Integer}`. If we
+provided the variadic args to `pgSession.selectOneF` as "Hello" and 42,
+under the covers, the SQL template would become `where foo = ? and bar = ?` 
+as a prepared statement, and that prepared statement would get filled in 
+with `pstmt.setString(1, "Hello")` followed by
+`pstmt.setInt(2, 42)`. Finally, if the last argument,
+was `null` instead of 42, the final prepared statement setter would 
+have ended up being `pstmt.setNull(2, Types.INTEGER)`.
+
+But that's just mapping the arguments going *in* to the SQL. What
+about the rows coming *out* of the SQL? How do those create an
+instance of ImmutableUser?
+
+The second argument of `pgSession.selectOneF` is the return type, so
+Cl4pg knows what type of bean it is trying to return. It then looks
+at the return column types, in the order given, using 
+`ResultSetMetaData.getColumnClassName()`. So in our example,
+`id, name, password, employee_id` would correspond to 
+UUID, String, String, Integer. We would therefore look for a constructor
+matching the signature `ImmutableUser(UUID, String, String, Integer)`,
+and use that constructor to build our ImmutableUser instance.
+
+### Many Rows, Many Columns as a List of Beans
+
+Let's say you want to return a list of users whose `employee_id`s are
+greater than 42.
+
+Let's assume a file named `sql/find_user_gt_emp_id.sql` in your classpath 
+that has the following contents:
+
+```SQL
+select id,
+       name,
+       password,
+       employee_id
+  from users
+ where employee_id > #{java.lang.Integer}
+```
+
+You could select a list of users whose `employee_id`s are greater than
+42 like so:
+
+```Java
+List<ImmutableUser> users = pgSession.selectF("sql/find_user_gt_emp_id.sql",
+                         ImmutableUser.class,
+                         42);
+```
+
+
+## Exception Handling
 
 ## Listen/Notify
 
@@ -117,8 +282,6 @@ to be written
 
 to be written
 
-## Select
 
-to be written
 
 

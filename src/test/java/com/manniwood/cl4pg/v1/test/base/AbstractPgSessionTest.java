@@ -23,20 +23,7 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.base;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import com.manniwood.cl4pg.v1.ConfigDefaults;
-import org.postgresql.PGNotification;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
 import com.manniwood.cl4pg.v1.PgSessionPool;
@@ -46,6 +33,18 @@ import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.cl4pg.v1.test.etc.User;
 import com.manniwood.cl4pg.v1.test.exceptions.UserAlreadyExistsException;
+import org.postgresql.PGNotification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Please note that these tests must be run serially, and not all at once.
@@ -63,19 +62,19 @@ public abstract class AbstractPgSessionTest {
 
     public static final String TEST_PASSWORD = "passwd";
     public static final String TEST_USERNAME = "Hubert";
-    public static final int TEST_EMPLOYEE_ID = 13;
+    public static final Integer TEST_EMPLOYEE_ID = 13;
     public static final String TEST_ID = "99999999-a4fa-49fc-b6b4-62eca118fbf7";
 
     public static final String USER_WITH_NULLS_TEST_ID = "88888888-a4fa-49fc-b6b4-62eca118fbf7";
 
     public static final String THIRD_PASSWORD = "blarg";
     public static final String THIRD_USERNAME = "Manni";
-    public static final int THIRD_EMPLOYEE_ID = 12;
+    public static final Integer THIRD_EMPLOYEE_ID = 12;
     public static final String THIRD_ID = "77777777-a4fa-49fc-b6b4-62eca118fbf7";
 
     public static final String UPDATED_THIRD_PASSWORD = "updated blarg";
     public static final String UPDATED_THIRD_USERNAME = "Updated Manni";
-    public static final int UPDATED_THIRD_EMPLOYEE_ID = 89;
+    public static final Integer UPDATED_THIRD_EMPLOYEE_ID = 89;
 
     public static final String ID_1 = "11111111-a4fa-49fc-b6b4-62eca118fbf7";
     public static final String ID_2 = "22222222-a4fa-49fc-b6b4-62eca118fbf7";
@@ -86,9 +85,9 @@ public abstract class AbstractPgSessionTest {
     public static final String PASSWORD_1 = "password one";
     public static final String PASSWORD_2 = "password two";
     public static final String PASSWORD_3 = "password three";
-    public static final int EMPLOYEE_ID_1 = 1;
-    public static final int EMPLOYEE_ID_2 = 2;
-    public static final int EMPLOYEE_ID_3 = 3;
+    public static final Integer EMPLOYEE_ID_1 = 1;
+    public static final Integer EMPLOYEE_ID_2 = 2;
+    public static final Integer EMPLOYEE_ID_3 = 3;
 
     private PgSession pgSession;
     private PgSessionPool pool;

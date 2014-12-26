@@ -31,7 +31,7 @@ public class User {
     private UUID id;
     private String name;
     private String password;
-    private int employeeId;
+    private Integer employeeId;
 
     public User() {
     }
@@ -60,11 +60,11 @@ public class User {
         this.password = password;
     }
 
-    public int getEmployeeId() {
+    public Integer getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(int employeeId) {
+    public void setEmployeeId(Integer employeeId) {
         this.employeeId = employeeId;
     }
 
@@ -90,7 +90,7 @@ public class User {
         return Objects.equals(id, other.id)
                 && Objects.equals(name, other.name)
                 && Objects.equals(password, other.password)
-                && employeeId == other.employeeId;
+                && Objects.equals(employeeId, other.employeeId);
     }
 
 }

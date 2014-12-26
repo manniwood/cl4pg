@@ -113,7 +113,7 @@ public abstract class AbstractCopyTest {
         pgSession.commit();
 
         // Let's use sql to do the checking for us
-        Long count = pgSession.selectOneScalar("select count(*) from (select * from users except select * from dup_users) as q", Long.class);
+        Long count = pgSession.selectOneScalar("select count(*) from (select * from users except select * from dup_users) as q");
 
         Assert.assertEquals(count.longValue(),
                             0L,

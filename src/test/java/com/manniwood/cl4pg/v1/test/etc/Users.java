@@ -38,7 +38,7 @@ public class Users {
 
     public static boolean equals(User u,
                                  ImmutableUser iu) {
-        return u.getEmployeeId() == iu.getEmployeeId()
+        return Objects.equals(u.getEmployeeId(), iu.getEmployeeId())
                 && Objects.equals(u.getId(), iu.getId())
                 && Objects.equals(u.getName(), iu.getName())
                 && Objects.equals(u.getPassword(), iu.getPassword());
