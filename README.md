@@ -400,7 +400,115 @@ pgSession.commit();  // don't forget!
 
 ## Exception Handling
 
-to be written
+Whenever an exception is encountered, Cl4pg automatically does a rollback, and throws
+a `Cl4pgException`, or a subclass of `Cl4pgException`, which is an unchecked exception.
+
+[Find out why Cl4pgException is unchecked.](docs/philosophy/exceptions.md)
+
+The original exception can always be accessed using `getCause()`.
+
+Furthermore, if the underlying exception was a `PSQLException`, it will get wrapped in a
+`Cl4pgPgSqlException`, which will have many useful access methods such as `getTable()`
+and `getConstraint()`.
+
+Finally, when the underlying exception is a `PSQLException`, which is in turn wrapped
+in a `Cl4pgPgSqlException`, that `Cl4pgPgSqlException` actually goes through an exception
+converter before being thrown. The default exception converter is quite simple, it just does
+a pass-through:
+
+```Java
+public class DefaultExceptionConverter implements ExceptionConverter {
+    @Override
+    public Cl4pgException convert(Cl4pgPgSqlException e) {
+        return e;
+    }
+}
+```
+
+However, you can write your own exception converter to throw more specific exceptions instead.
+
+For instance, let's assume this table definition:
+
+```SQL
+create table users (
+    id uuid constraint users_pk primary key not null,
+    name text not null,
+    password text not null,
+    employee_id int constraint users_employee_id_uniq not null);
+```
+
+Let's assume a file named `sql/insert_user.sql` on the classpath, with the following
+contents:
+
+```Java
+insert into users (
+    id,  -- UUID
+    name,  -- text
+    password,  -- text
+    employee_id)  -- int
+values (#{getId},
+        #{getName},
+        #{getPassword},
+        #{getEmployeeId})
+```
+
+Let's assume we want to throw the following exception every time we try to
+create a user that already exists:
+
+```Java
+public class UserAlreadyExistsException extends Cl4pgPgSqlException {
+    // the rest of the class omitted; important thing is to extend Cl4pgPgSqlException
+}
+```
+
+Now let's assume the following exception converter:
+
+```Java
+public class TestExceptionConverter implements ExceptionConverter {
+    @Override
+    public Cl4pgException convert(Cl4pgPgSqlException e) {
+        // http://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
+        // shows that sql state 23505 is "unique_violation". When we created
+        // our users table, we named the primary key constraint "users_pk".
+        if ("23505".equals(e.getSqlState()) && "users_pk".equals(e.getConstraint())) {
+            return new UserAlreadyExistsException(e);
+        } else {
+            return e;
+        }
+    }
+}
+```
+
+We plug our exception converter simply by putting this line in our configuration
+file:
+
+```INI
+ExceptionConverter=com.something.exceptionmappers.TestExceptionConverter
+```
+
+And now, this piece of code should work as expected:
+
+```Java
+User expected = createExpectedUser();
+pgSession.insertF(expected, "sql/insert_user.sql");
+pgSession.commit();
+boolean correctlyCaughtException = false;
+try {
+    pgSession.insertF(expected, "sql/insert_user.sql");
+    pgSession.commit();
+} catch (UserAlreadyExistsException e) {
+    log.info("Cannot insert user twice!");
+    log.info("Exception: " + e.toString(), e);
+    correctlyCaughtException = true;
+}
+Assert.assertTrue(correctlyCaughtException, "Had to catch custom exception");
+```
+
+What's particularly nice is that any truly exceptional exception (database not
+reachable, database ran out of storage, database exploded) will not be caught
+here, and, instead, can percolate up to whatever part of your application
+handles more "exceptional" exceptions.
+
 
 ## Listen/Notify
 

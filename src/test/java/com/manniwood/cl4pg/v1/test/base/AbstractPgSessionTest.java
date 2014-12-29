@@ -205,18 +205,21 @@ public abstract class AbstractPgSessionTest {
         User expected = createExpectedUser();
         pgSession.insertF(expected, "sql/insert_user.sql");
         pgSession.commit();
+        boolean correctlyCaughtException = false;
         try {
             pgSession.insertF(expected, "sql/insert_user.sql");
             pgSession.commit();
         } catch (UserAlreadyExistsException e) {
             log.info("Cannot insert user twice!");
             log.info("Exception: " + e.toString(), e);
+            correctlyCaughtException = true;
         }
 
         // put the original tmp users table back
         pgSession.ddl("drop table users");
         pgSession.ddlF("sql/create_temp_users_table.sql");
         pgSession.commit();
+        Assert.assertTrue(correctlyCaughtException, "Had to catch custom exception");
     }
 
     @Test(priority = 4)

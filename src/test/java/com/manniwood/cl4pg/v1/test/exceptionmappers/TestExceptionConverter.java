@@ -32,6 +32,9 @@ public class TestExceptionConverter implements ExceptionConverter {
 
     @Override
     public Cl4pgException convert(Cl4pgPgSqlException e) {
+        // http://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
+        // shows that sql state 23505 is "unique_violation"  When we created
+        // our users table, we named the primary key constraint "users_pk".
         if ("23505".equals(e.getSqlState()) && "users_pk".equals(e.getConstraint())) {
             return new UserAlreadyExistsException(e);
         } else {
