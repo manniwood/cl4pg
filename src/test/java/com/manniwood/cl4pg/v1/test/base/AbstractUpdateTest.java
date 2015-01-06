@@ -23,26 +23,15 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.base;
 
-import java.util.UUID;
-
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
-import com.manniwood.cl4pg.v1.PgSessionPool;
-import com.manniwood.cl4pg.v1.commands.DDL;
-import com.manniwood.cl4pg.v1.commands.Insert;
-import com.manniwood.cl4pg.v1.commands.Select;
-import com.manniwood.cl4pg.v1.commands.Update;
-import com.manniwood.cl4pg.v1.commands.UpdateB;
-import com.manniwood.cl4pg.v1.commands.UpdateV;
+import com.manniwood.cl4pg.v1.commands.*;
 import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitSettersListHandler;
 import com.manniwood.cl4pg.v1.test.etc.User;
+import org.testng.Assert;
+import org.testng.annotations.*;
+
+import java.util.UUID;
 
 /**
  * Please note that these tests must be run serially, and not all at once.
@@ -56,7 +45,7 @@ import com.manniwood.cl4pg.v1.test.etc.User;
 public abstract class AbstractUpdateTest {
 
     private PgSession pgSession;
-    private PgSessionPool pool;
+    private DataSourceAdapter adapter;
 
     private User expectedUser;
     private User updatedUser;
@@ -64,11 +53,9 @@ public abstract class AbstractUpdateTest {
     @BeforeClass
     public void init() {
 
-        DataSourceAdapter adapter = configureDataSourceAdapter();
+        adapter = configureDataSourceAdapter();
 
-        pool = new PgSessionPool(adapter);
-
-        pgSession = pool.getSession();
+        pgSession = adapter.getSession();
 
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.commit();
@@ -91,7 +78,7 @@ public abstract class AbstractUpdateTest {
     @AfterClass
     public void tearDown() {
         pgSession.close();
-        pool.close();
+        adapter.close();
     }
 
     @BeforeMethod
@@ -161,6 +148,4 @@ public abstract class AbstractUpdateTest {
 
         Assert.assertEquals(numberUpdated, 1, "One user must be deleted.");
     }
-
-    // TODO: implement updateReturning
 }

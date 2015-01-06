@@ -26,7 +26,6 @@ package com.manniwood.cl4pg.v1.test.base;
 import com.manniwood.cl4pg.v1.ConfigDefaults;
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
-import com.manniwood.cl4pg.v1.PgSessionPool;
 import com.manniwood.cl4pg.v1.commands.DDL;
 import com.manniwood.cl4pg.v1.commands.Select;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
@@ -90,14 +89,13 @@ public abstract class AbstractPgSessionTest {
     public static final Integer EMPLOYEE_ID_3 = 3;
 
     private PgSession pgSession;
-    private PgSessionPool pool;
+    private DataSourceAdapter adapter;
 
     @BeforeClass
     public void init() {
 
-        DataSourceAdapter adapter = configureDataSourceAdapter();
-        pool = new PgSessionPool(adapter);
-        pgSession = pool.getSession();
+        adapter = configureDataSourceAdapter();
+        pgSession = adapter.getSession();
 
         pgSession.ddlF("sql/create_temp_users_table.sql");
         pgSession.commit();
@@ -108,7 +106,7 @@ public abstract class AbstractPgSessionTest {
     @AfterClass
     public void tearDown() {
         pgSession.close();
-        pool.close();
+        adapter.close();
     }
 
     private User createExpectedUser() {
@@ -162,8 +160,7 @@ public abstract class AbstractPgSessionTest {
         expected.add("bal");
 
         DataSourceAdapter adapter2 = configureDataSourceAdapter();
-        PgSessionPool pool2 = new PgSessionPool(adapter2);
-        PgSession pgSession2 = pool2.getSession();
+        PgSession pgSession2 = adapter2.getSession();
 
         pgSession2.pgListen("foo \" bar");
         pgSession2.commit();
@@ -194,6 +191,7 @@ public abstract class AbstractPgSessionTest {
         }
         Assert.assertEquals(actual, expected, "Notifications must all be recieved, in the same order");
         pgSession2.close();
+        adapter2.close();
     }
 
     @Test(priority = 3)

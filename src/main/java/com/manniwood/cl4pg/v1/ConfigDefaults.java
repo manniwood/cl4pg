@@ -27,7 +27,7 @@ import java.sql.Connection;
 
 /**
  * Configuration defaults for Cl4Pg.
- * 
+ *
  * @author mwood
  *
  */
@@ -54,6 +54,10 @@ public final class ConfigDefaults {
     public static final String EXCEPTION_CONVERTER_KEY = "ExceptionConverter";
     public static final String TRANSACTION_ISOLATION_LEVEL_KEY = "TransactionIsolationLevel";
     public static final String TYPE_CONVERTER_CONF_FILES_KEY = "TypeConverterConfFiles";
+    public static final String DEFAULT_SCALAR_RESULT_SET_HANDLER_BUILDER = "com.manniwood.cl4pg.v1.GuessScalarResultSetHandlerBuilder";
+    public static final String DEFAULT_ROW_RESULT_SET_HANDLER_BUILDER = "com.manniwood.cl4pg.v1.GuessConstructorResultSetHandlerBuilder";
+    public static final String SCALAR_RESULT_SET_HANDLER_BUILDER_KEY = "ScalarResultSetHandlerBuilder";
+    public static final String ROW_RESULT_SET_HANDLER_BUILDER_KEY = "RowResultSetHandlerBuilder";
 
     private ConfigDefaults() {
         // Utility class

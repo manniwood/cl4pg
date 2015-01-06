@@ -23,27 +23,21 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.base;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.PgSession;
+import com.manniwood.cl4pg.v1.commands.*;
+import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
+import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
+import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
+import com.manniwood.cl4pg.v1.test.etc.TwoInts;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.PgSession;
-import com.manniwood.cl4pg.v1.PgSessionPool;
-import com.manniwood.cl4pg.v1.commands.CallStoredProcInOut;
-import com.manniwood.cl4pg.v1.commands.CallStoredProcRefCursor;
-import com.manniwood.cl4pg.v1.commands.DDL;
-import com.manniwood.cl4pg.v1.commands.Insert;
-import com.manniwood.cl4pg.v1.commands.Select;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
-import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
-import com.manniwood.cl4pg.v1.test.etc.TwoInts;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Please note that these tests must be run serially, and not all at once.
@@ -57,16 +51,14 @@ import com.manniwood.cl4pg.v1.test.etc.TwoInts;
 public abstract class AbstractStoredProcTest {
 
     private PgSession pgSession;
-    private PgSessionPool pool;
+    private DataSourceAdapter adapter;
 
     @BeforeClass
     public void init() {
 
-        DataSourceAdapter adapter = configureDataSourceAdapter();
+        adapter = configureDataSourceAdapter();
 
-        pool = new PgSessionPool(adapter);
-
-        pgSession = pool.getSession();
+        pgSession = adapter.getSession();
 
         pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
         pgSession.run(DDL.config().file("sql/create_swap_func.sql").done());
@@ -111,7 +103,7 @@ public abstract class AbstractStoredProcTest {
         pgSession.run(DDL.config().file("sql/drop_get_user_by_id_func.sql").done());
         pgSession.commit();
         pgSession.close();
-        pool.close();
+        adapter.close();
     }
 
     @Test(priority = 0)

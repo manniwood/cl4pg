@@ -23,11 +23,13 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1;
 
+import java.io.Closeable;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import com.manniwood.cl4pg.v1.util.SqlCache;
 import org.postgresql.PGConnection;
 import org.postgresql.PGStatement;
 
@@ -47,7 +49,7 @@ import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
  * @author mwood
  *
  */
-public interface DataSourceAdapter {
+public interface DataSourceAdapter extends Closeable {
 
     /**
      * Get a connection from the DataSource. Each DataSource gets to determine
@@ -59,11 +61,39 @@ public interface DataSourceAdapter {
      */
     Connection getConnection();
 
+    /**
+     * Get a PgSession, which wraps a DataSource.
+     */
+    PgSession getSession();
+
+
+    /**
+     * Get the ExceptionConverter used by this DataSourceAdapter.
+     * @return
+     */
     ExceptionConverter getExceptionConverter();
 
     /**
+     * Get the SqlCache used by this DataSourceAdapter
+     * @return
+     */
+    SqlCache getSqlCache();
+
+    /**
+     * Get the ScalarResultSetHandlerBuilder used by this DataSourceAdapter
+     * @return
+     */
+    ScalarResultSetHandlerBuilder getScalarResultSetHandlerBuilder();
+
+    /**
+     * Get the RowResultSetHandlerBuilder used by this DataSourceAdapter
+     * @return
+     */
+    RowResultSetHandlerBuilder getRowResultSetHandlerBuilder();
+
+    /**
      * Returns the underlying PGConnection wrapped by this Connection.
-     * 
+     *
      * @param conn
      * @return
      * @throws SQLException
@@ -72,7 +102,7 @@ public interface DataSourceAdapter {
 
     /**
      * Returns the underlying PGStatement wrapped by this PreparedStatement.
-     * 
+     *
      * @param pstmt
      * @return
      * @throws SQLException
@@ -81,7 +111,7 @@ public interface DataSourceAdapter {
 
     /**
      * Returns the underlying PGStatement wrapped by this CallableStatement.
-     * 
+     *
      * @param cstmt
      * @return
      * @throws SQLException
@@ -89,10 +119,9 @@ public interface DataSourceAdapter {
     PGStatement unwrapPgCallableStatement(CallableStatement cstmt) throws SQLException;
 
     /**
-     * Close a connection from the DataSource. Each DataSource gets to determine
-     * what closing a connection means: Pooling DataSources will return a
-     * connection to a pool, whereas simpler DataSources will close a connection
-     * to PostgreSQL.
+     * Close the DataSource. Each DataSource gets to determine
+     * what closing the DataSource means: Pooling DataSources will close all connections
+     * in the connection pool, whereas simpler DataSources will probably do nothing.
      *
      * @return
      */

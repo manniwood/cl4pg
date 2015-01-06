@@ -35,7 +35,7 @@ import java.util.Properties;
 
 import javax.sql.PooledConnection;
 
-import com.manniwood.cl4pg.v1.util.TransactionIsolationLevelConverter;
+import com.manniwood.cl4pg.v1.util.*;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.postgresql.PGConnection;
 import org.postgresql.PGStatement;
@@ -47,8 +47,6 @@ import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
-import com.manniwood.cl4pg.v1.util.ResourceUtil;
-import com.manniwood.cl4pg.v1.util.Str;
 
 /**
  * HikariCP implementation of DataSourceAdapter, with HikariCP-specific
@@ -71,11 +69,20 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(TomcatJDBCDataSourceAdapter.class);
 
+    private final SqlCache sqlCache = new SqlCache();
+    private final ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder;
+    private final RowResultSetHandlerBuilder rowResultSetHandlerBuilder;
+
     private final ExceptionConverter exceptionConverter;
     private final TypeConverterStore converterStore;
 
     private final org.apache.tomcat.jdbc.pool.DataSource ds;
     private final int transactionIsolationLevel;
+
+    @Override
+    public PgSession getSession() {
+        return new PgSession(this);
+    }
 
     @Override
     public Connection getConnection() {
@@ -179,6 +186,16 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
             builder.exceptionConverter(exceptionConverterStr);
         }
 
+        String scalarResultSetHandlerBuilder = props.getProperty(ConfigDefaults.SCALAR_RESULT_SET_HANDLER_BUILDER_KEY);
+        if (!Str.isNullOrEmpty(scalarResultSetHandlerBuilder)) {
+            builder.scalarResultSetHandlerBuilder(scalarResultSetHandlerBuilder);
+        }
+
+        String rowResultSetHandlerBuilder = props.getProperty(ConfigDefaults.ROW_RESULT_SET_HANDLER_BUILDER_KEY);
+        if (!Str.isNullOrEmpty(rowResultSetHandlerBuilder)) {
+            builder.rowResultSetHandlerBuilder(rowResultSetHandlerBuilder);
+        }
+
         String transactionIsolationLevelStr = props.getProperty(ConfigDefaults.TRANSACTION_ISOLATION_LEVEL_KEY);
         if (!Str.isNullOrEmpty(transactionIsolationLevelStr)) {
             builder.transactionIsolationLevelName(transactionIsolationLevelStr);
@@ -205,6 +222,10 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         private int initialConnections = DEFAULT_INITIAL_CONNECTIONS;
         private int maxConnections = DEFAULT_MAX_CONNECTIONS;
         private String typeConverterConfFiles = null;
+        private String scalarResultSetHandlerBuilderStr = ConfigDefaults.DEFAULT_SCALAR_RESULT_SET_HANDLER_BUILDER;
+        private ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder = null;
+        private String rowResultSetHandlerBuilderStr = ConfigDefaults.DEFAULT_ROW_RESULT_SET_HANDLER_BUILDER;
+        private RowResultSetHandlerBuilder rowResultSetHandlerBuilder = null;
 
         public Builder() {
             // null constructor
@@ -266,6 +287,26 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
+        public Builder scalarResultSetHandlerBuilder(String scalarResultSetHandlerBuilderStr) {
+            this.scalarResultSetHandlerBuilderStr = scalarResultSetHandlerBuilderStr;
+            return this;
+        }
+
+        public Builder scalarResultSetHandlerBuilder(ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder) {
+            this.scalarResultSetHandlerBuilder = scalarResultSetHandlerBuilder;
+            return this;
+        }
+
+        public Builder rowResultSetHandlerBuilder(String rowResultSetHandlerBuilderStr) {
+            this.rowResultSetHandlerBuilderStr = rowResultSetHandlerBuilderStr;
+            return this;
+        }
+
+        public Builder rowResultSetHandlerBuilder(RowResultSetHandlerBuilder rowResultSetHandlerBuilder) {
+            this.rowResultSetHandlerBuilder = rowResultSetHandlerBuilder;
+            return this;
+        }
+
         public Builder transactionIsolationLevel(int transactionIsolationLevel) {
             this.transactionIsolationLevel = transactionIsolationLevel;
             return this;
@@ -298,14 +339,19 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
                 if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
                     this.exceptionConverterStr = ConfigDefaults.DEFAULT_EXCEPTION_CONVERTER_CLASS;
                 }
-                try {
-                    Class<?> clazz = Class.forName(this.exceptionConverterStr);
-                    Constructor<?> constructor = clazz.getDeclaredConstructor();
-                    this.exceptionConverter = (ExceptionConverter) constructor.newInstance();
-                } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
-                        | IllegalArgumentException | InvocationTargetException e) {
-                    throw new Cl4pgReflectionException("Could not instantiate exception converter " + this.exceptionConverterStr, e);
+                this.exceptionConverter = (ExceptionConverter) ReflectionUtil.instantiateUsingNullConstructor(this.exceptionConverterStr);
+            }
+            if (this.scalarResultSetHandlerBuilder == null) {
+                if (Str.isNullOrEmpty(this.scalarResultSetHandlerBuilderStr)) {
+                    this.scalarResultSetHandlerBuilderStr = ConfigDefaults.DEFAULT_SCALAR_RESULT_SET_HANDLER_BUILDER;
                 }
+                this.scalarResultSetHandlerBuilder = (ScalarResultSetHandlerBuilder) ReflectionUtil.instantiateUsingNullConstructor(this.scalarResultSetHandlerBuilderStr);
+            }
+            if (this.rowResultSetHandlerBuilder == null) {
+                if (Str.isNullOrEmpty(this.rowResultSetHandlerBuilderStr)) {
+                    this.rowResultSetHandlerBuilderStr = ConfigDefaults.DEFAULT_ROW_RESULT_SET_HANDLER_BUILDER;
+                }
+                this.rowResultSetHandlerBuilder = (RowResultSetHandlerBuilder) ReflectionUtil.instantiateUsingNullConstructor(this.rowResultSetHandlerBuilderStr);
             }
             return new TomcatJDBCDataSourceAdapter(this);
         }
@@ -316,6 +362,8 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         converterStore = null;
         ds = null;
         transactionIsolationLevel = -1;
+        this.scalarResultSetHandlerBuilder = null;
+        this.rowResultSetHandlerBuilder = null;
     }
 
     private TomcatJDBCDataSourceAdapter(Builder builder) {
@@ -338,6 +386,8 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;
         converterStore = new TypeConverterStore(builder.typeConverterConfFiles);
+        scalarResultSetHandlerBuilder = builder.scalarResultSetHandlerBuilder;
+        rowResultSetHandlerBuilder = builder.rowResultSetHandlerBuilder;
 
         org.apache.tomcat.jdbc.pool.DataSource tomcatDS = new org.apache.tomcat.jdbc.pool.DataSource();
         tomcatDS.setPoolProperties(p);
@@ -352,6 +402,21 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
     @Override
     public TypeConverterStore getTypeConverterStore() {
         return converterStore;
+    }
+
+    @Override
+    public SqlCache getSqlCache() {
+        return sqlCache;
+    }
+
+    @Override
+    public ScalarResultSetHandlerBuilder getScalarResultSetHandlerBuilder() {
+        return scalarResultSetHandlerBuilder;
+    }
+
+    @Override
+    public RowResultSetHandlerBuilder getRowResultSetHandlerBuilder() {
+        return rowResultSetHandlerBuilder;
     }
 
 }

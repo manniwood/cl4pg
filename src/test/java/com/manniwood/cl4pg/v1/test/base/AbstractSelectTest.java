@@ -23,17 +23,8 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.base;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.manniwood.cl4pg.v1.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
-import com.manniwood.cl4pg.v1.PgSessionPool;
 import com.manniwood.cl4pg.v1.commands.Select;
 import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitSettersListHandler;
@@ -41,6 +32,13 @@ import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
 import com.manniwood.cl4pg.v1.test.etc.User;
 import com.manniwood.cl4pg.v1.test.etc.Users;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Please note that these tests must be run serially, and not all at once.
@@ -54,9 +52,9 @@ import com.manniwood.cl4pg.v1.test.etc.Users;
 public abstract class AbstractSelectTest {
 
     private PgSession pgSession;
-    private PgSessionPool pool;
     private static final User expected = createExpectedUser();
     private static final User userWithNulls = createUserWithNulls();
+    private DataSourceAdapter adapter;
 
     private static User createExpectedUser() {
         User expected;
@@ -78,11 +76,9 @@ public abstract class AbstractSelectTest {
     @BeforeClass
     public void init() {
 
-        DataSourceAdapter adapter = configureDataSourceAdapter();
+        adapter = configureDataSourceAdapter();
 
-        pool = new PgSessionPool(adapter);
-
-        pgSession = pool.getSession();
+        pgSession = adapter.getSession();
 
         pgSession.ddlF("sql/create_temp_users_table.sql");
         pgSession.commit();
@@ -97,7 +93,7 @@ public abstract class AbstractSelectTest {
     @AfterClass
     public void tearDown() {
         pgSession.close();
-        pool.close();
+        adapter.close();
     }
 
     @Test(priority = 0)

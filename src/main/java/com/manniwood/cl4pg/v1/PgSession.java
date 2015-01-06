@@ -23,6 +23,7 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1;
 
+import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -49,7 +50,7 @@ import com.manniwood.cl4pg.v1.util.SqlCache;
  * @author mwood
  *
  */
-public class PgSession {
+public class PgSession implements Closeable {
 
     private final Connection conn;
     private final SqlCache sqlCache;
@@ -71,6 +72,16 @@ public class PgSession {
         this.sqlCache = sqlCache;
         this.scalarResultSetHandlerBuilder = scalarResultSetHandlerBuilder;
         this.rowResultSetHandlerBuilder = rowResultSetHandlerBuilder;
+    }
+
+    public PgSession(DataSourceAdapter dataSourceAdapter) {
+        this.conn = dataSourceAdapter.getConnection();
+        this.dataSourceAdapter = dataSourceAdapter;
+        this.exceptionConverter = dataSourceAdapter.getExceptionConverter();
+        this.typeConverterStore = dataSourceAdapter.getTypeConverterStore();
+        this.sqlCache = dataSourceAdapter.getSqlCache();
+        this.scalarResultSetHandlerBuilder = dataSourceAdapter.getScalarResultSetHandlerBuilder();
+        this.rowResultSetHandlerBuilder = dataSourceAdapter.getRowResultSetHandlerBuilder();
     }
 
     /**
@@ -463,6 +474,7 @@ public class PgSession {
      * it, or just returning it to the DataSourceAdapter's connection pool; the
      * exact behaviour is left up to the DataSourceAdaper implementation.)
      */
+    @Override
     public void close() {
         try {
             conn.close();

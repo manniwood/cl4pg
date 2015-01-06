@@ -23,22 +23,20 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.types;
 
-import java.math.BigDecimal;
-
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.PgSession;
+import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
+import com.manniwood.cl4pg.v1.commands.DDL;
+import com.manniwood.cl4pg.v1.commands.Insert;
+import com.manniwood.cl4pg.v1.commands.Select;
+import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.PgSession;
-import com.manniwood.cl4pg.v1.PgSessionPool;
-import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
-import com.manniwood.cl4pg.v1.commands.DDL;
-import com.manniwood.cl4pg.v1.commands.Insert;
-import com.manniwood.cl4pg.v1.commands.Select;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
+import java.math.BigDecimal;
 
 /**
  * Please note that these tests must be run serially, and not all at once.
@@ -51,14 +49,13 @@ import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
  */
 public class DoublePrecisionTest {
     private PgSession pgSession;
-    private PgSessionPool pool;
+    private DataSourceAdapter adapter;
 
     @BeforeClass
     public void init() {
 
-        DataSourceAdapter adapter = PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
-        pool = new PgSessionPool(adapter);
-        pgSession = pool.getSession();
+        adapter = PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
+        pgSession = adapter.getSession();
 
         pgSession.run(DDL.config().sql("create temporary table test(col double precision)").done());
         pgSession.commit();
@@ -67,7 +64,7 @@ public class DoublePrecisionTest {
     @AfterClass
     public void tearDown() {
         pgSession.close();
-        pool.close();
+        adapter.close();
     }
 
     /**

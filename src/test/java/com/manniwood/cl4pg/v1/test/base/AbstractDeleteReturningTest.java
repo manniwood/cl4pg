@@ -23,8 +23,12 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.base;
 
-import java.util.UUID;
-
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.PgSession;
+import com.manniwood.cl4pg.v1.commands.*;
+import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
+import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
+import com.manniwood.cl4pg.v1.test.etc.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -33,17 +37,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.PgSession;
-import com.manniwood.cl4pg.v1.PgSessionPool;
-import com.manniwood.cl4pg.v1.commands.DDL;
-import com.manniwood.cl4pg.v1.commands.Insert;
-import com.manniwood.cl4pg.v1.commands.Select;
-import com.manniwood.cl4pg.v1.commands.UpdateReturning;
-import com.manniwood.cl4pg.v1.commands.UpdateReturningB;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
-import com.manniwood.cl4pg.v1.test.etc.User;
+import java.util.UUID;
 
 /**
  * Please note that these tests must be run serially, and not all at once.
@@ -89,14 +83,13 @@ public abstract class AbstractDeleteReturningTest {
     public static final int EMPLOYEE_ID_3 = 3;
 
     private PgSession pgSession;
-    private PgSessionPool pool;
+    private DataSourceAdapter adapter;
 
     @BeforeClass
     public void init() {
 
         DataSourceAdapter adapter = configureDataSourceAdapter();
-        pool = new PgSessionPool(adapter);
-        pgSession = pool.getSession();
+        pgSession = adapter.getSession();
 
         pgSession.run(DDL.config().file("sql/create_temp_constrained_users_table.sql").done());
         pgSession.commit();
@@ -107,7 +100,7 @@ public abstract class AbstractDeleteReturningTest {
     @AfterClass
     public void tearDown() {
         pgSession.close();
-        pool.close();
+        adapter.close();
     }
 
     private User createExpectedUser() {

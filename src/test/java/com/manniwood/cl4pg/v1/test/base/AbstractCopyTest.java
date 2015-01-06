@@ -23,28 +23,20 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.base;
 
+import com.manniwood.cl4pg.v1.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.PgSession;
+import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.PgSession;
-import com.manniwood.cl4pg.v1.PgSessionPool;
-import com.manniwood.cl4pg.v1.commands.CopyFileIn;
-import com.manniwood.cl4pg.v1.commands.CopyFileOut;
-import com.manniwood.cl4pg.v1.commands.DDL;
-import com.manniwood.cl4pg.v1.commands.Insert;
-import com.manniwood.cl4pg.v1.commands.Select;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
-import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
 
 /**
  * Please note that these tests must be run serially, and not all at once.
@@ -58,18 +50,16 @@ import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
 public abstract class AbstractCopyTest {
 
     private PgSession pgSession;
-    private PgSessionPool pool;
+    private DataSourceAdapter adapter;
 
     @BeforeClass
     public void init() throws IOException {
 
         Files.deleteIfExists(Paths.get(AbstractPgSessionTest.TEST_COPY_FILE));
 
-        DataSourceAdapter adapter = configureDataSourceAdapter();
+        adapter = configureDataSourceAdapter();
 
-        pool = new PgSessionPool(adapter);
-
-        pgSession = pool.getSession();
+        pgSession = adapter.getSession();
 
         pgSession.ddlF("sql/create_temp_users_table.sql");
         pgSession.ddlF("sql/create_temp_dup_users_table.sql");
@@ -100,7 +90,7 @@ public abstract class AbstractCopyTest {
     @AfterClass
     public void tearDown() {
         pgSession.close();
-        pool.close();
+        adapter.close();
     }
 
     @Test(priority = 0)
