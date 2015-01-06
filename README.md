@@ -117,8 +117,9 @@ Long count = pgSession.selectOneScalar("select count(*) from users");
 pgSession.rollback();  // no need to commit
 ```
 
-Simple things should be simple. Cl4pg guesses the correct type converter and
-converts the column "count( * )" to a Java long.
+Simple things should be simple. Cl4pg determines the correct type converter 
+based on the return type (`Long`, in this example) and
+converts the column "count( * )" to a Java Long object.
 
 ### One Row, Many Columns as a Bean
 
