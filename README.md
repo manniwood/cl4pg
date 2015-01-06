@@ -219,10 +219,10 @@ and are cast to the class given inside `#{}`. In our example, the
 string `#{java.util.UUID}` gets filled in with the UUID we provide
 as the first and only variadic arg, above.
 
-> That is, under the covers, `#{}` becomes a `?` in a prepared statement, 
+That is, under the covers, `#{}` becomes a `?` in a prepared statement, 
 and it gets filled in like so: `preparedStatement.setObject(1, theUUID)`.
 
-> A more interesting example might have a SQL template with
+A more interesting example might have a SQL template with
 `where foo = #{java.lang.String} and bar = #{java.lang.Integer}`. If we
 provided the variadic args to `pgSession.selectOneF` as "Hello" and 42,
 under the covers, the SQL template would become `where foo = ? and bar = ?` 

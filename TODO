@@ -1,6 +1,8 @@
 
 -------- v1.0.x
 
+- Rename Cl4pgPgSqlException; pgPg is hard on the eyes
+
 - Make autocommit configurable
 
 - Write documentation in docs/more
