@@ -138,14 +138,14 @@ public class ImmutableUser {
     private final UUID id;
     private final String name;
     private final String password;
-    private final int employeeId;
+    private final Integer employeeId;
 
     public ImmutableUser(UUID id, String name, String password, Integer employeeId) {
         super();
         this.id = id;
         this.name = name;
         this.password = password;
-        this.employeeId = employeeId.intValue();
+        this.employeeId = employeeId;
     }
 
     public UUID getId() {
@@ -160,7 +160,7 @@ public class ImmutableUser {
         return password;
     }
 
-    public int getEmployeeId() {
+    public Integer getEmployeeId() {
         return employeeId;
     }
 
