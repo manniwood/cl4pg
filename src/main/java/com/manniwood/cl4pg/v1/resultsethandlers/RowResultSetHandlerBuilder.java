@@ -21,19 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1;
+package com.manniwood.cl4pg.v1.resultsethandlers;
 
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 
-public class GuessConstructorResultSetHandlerBuilder implements RowResultSetHandlerBuilder {
-
-    public GuessConstructorResultSetHandlerBuilder() {
-    }
-
-    @Override
-    public <R> ResultSetHandler<R> build(Class<R> returnClass) {
-        return new GuessConstructorListHandler<R>(returnClass);
-    }
-
+public interface RowResultSetHandlerBuilder {
+    <R> ResultSetHandler<R> build(Class<R> returnClass);
 }

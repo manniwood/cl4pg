@@ -30,7 +30,7 @@ import java.sql.Connection;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;

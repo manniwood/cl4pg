@@ -21,19 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1;
+package com.manniwood.cl4pg.v1.datasourceadapters;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import javax.sql.PooledConnection;
+
+import com.manniwood.cl4pg.v1.*;
+import com.manniwood.cl4pg.v1.resultsethandlers.RowResultSetHandlerBuilder;
+import com.manniwood.cl4pg.v1.resultsethandlers.ScalarResultSetHandlerBuilder;
 import com.manniwood.cl4pg.v1.util.*;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.postgresql.PGConnection;
 import org.postgresql.PGStatement;
 import org.slf4j.Logger;
@@ -42,13 +46,7 @@ import org.slf4j.LoggerFactory;
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
-import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.proxy.CallableStatementProxy;
-import com.zaxxer.hikari.proxy.ConnectionProxy;
-import com.zaxxer.hikari.proxy.PreparedStatementProxy;
 
 /**
  * HikariCP implementation of DataSourceAdapter, with HikariCP-specific
@@ -59,9 +57,9 @@ import com.zaxxer.hikari.proxy.PreparedStatementProxy;
  * @author mwood
  *
  */
-public class HikariCpDataSourceAdapter implements DataSourceAdapter {
+public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
 
-    public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + HikariCpDataSourceAdapter.class.getSimpleName() + ".properties";
+    public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + TomcatJDBCDataSourceAdapter.class.getSimpleName() + ".properties";
 
     public static final int DEFAULT_INITIAL_CONNECTIONS = 5;
     public static final int DEFAULT_MAX_CONNECTIONS = 20;
@@ -69,7 +67,7 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
     public static final String INITIAL_CONNECTIONS_KEY = "initialConnections";
     public static final String MAX_CONNECTIONS_KEY = "maxConnections";
 
-    private static final Logger log = LoggerFactory.getLogger(HikariCpDataSourceAdapter.class);
+    private static final Logger log = LoggerFactory.getLogger(TomcatJDBCDataSourceAdapter.class);
 
     private final SqlCache sqlCache = new SqlCache();
     private final ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder;
@@ -78,7 +76,7 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
     private final ExceptionConverter exceptionConverter;
     private final TypeConverterStore converterStore;
 
-    private final HikariDataSource ds;
+    private final org.apache.tomcat.jdbc.pool.DataSource ds;
     private final int transactionIsolationLevel;
 
     @Override
@@ -106,31 +104,29 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
 
     @Override
     public PGConnection unwrapPgConnection(Connection conn) throws SQLException {
-        ConnectionProxy proxy = (ConnectionProxy) conn;
-        return proxy.<PGConnection> unwrap(PGConnection.class);
+        PooledConnection tomcatPooledConnection = (PooledConnection) conn;
+        return (PGConnection) tomcatPooledConnection.getConnection();
     }
 
     @Override
     public PGStatement unwrapPgPreparedStatement(PreparedStatement pstmt) throws SQLException {
-        PreparedStatementProxy proxy = (PreparedStatementProxy) pstmt;
-        return proxy.<PGStatement> unwrap(PGStatement.class);
+        return (PGStatement) pstmt;
     }
 
     @Override
     public PGStatement unwrapPgCallableStatement(CallableStatement cstmt) throws SQLException {
-        CallableStatementProxy proxy = (CallableStatementProxy) cstmt;
-        return proxy.<PGStatement> unwrap(PGStatement.class);
+        return (PGStatement) cstmt;
     }
 
-    public static HikariCpDataSourceAdapter.Builder configure() {
-        return new HikariCpDataSourceAdapter.Builder();
+    public static TomcatJDBCDataSourceAdapter.Builder configure() {
+        return new TomcatJDBCDataSourceAdapter.Builder();
     }
 
-    public static HikariCpDataSourceAdapter buildFromDefaultConfFile() {
+    public static TomcatJDBCDataSourceAdapter buildFromDefaultConfFile() {
         return buildFromConfFile(DEFAULT_CONF_FILE);
     }
 
-    public static HikariCpDataSourceAdapter buildFromConfFile(String path) {
+    public static TomcatJDBCDataSourceAdapter buildFromConfFile(String path) {
         log.debug("Conf file: " + path);
         Properties props = new Properties();
         InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
@@ -143,7 +139,7 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
             throw new Cl4pgConfFileException("Could not read conf file \"" + path + "\"", e);
         }
 
-        Builder builder = new HikariCpDataSourceAdapter.Builder();
+        Builder builder = new TomcatJDBCDataSourceAdapter.Builder();
 
         String hostname = props.getProperty(ConfigDefaults.HOSTNAME_KEY);
         if (!Str.isNullOrEmpty(hostname)) {
@@ -338,7 +334,7 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
-        public HikariCpDataSourceAdapter done() {
+        public TomcatJDBCDataSourceAdapter done() {
             if (this.exceptionConverter == null) {
                 if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
                     this.exceptionConverterStr = ConfigDefaults.DEFAULT_EXCEPTION_CONVERTER_CLASS;
@@ -357,11 +353,11 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
                 }
                 this.rowResultSetHandlerBuilder = (RowResultSetHandlerBuilder) ReflectionUtil.instantiateUsingNullConstructor(this.rowResultSetHandlerBuilderStr);
             }
-            return new HikariCpDataSourceAdapter(this);
+            return new TomcatJDBCDataSourceAdapter(this);
         }
     }
 
-    private HikariCpDataSourceAdapter() {
+    private TomcatJDBCDataSourceAdapter() {
         exceptionConverter = null;
         converterStore = null;
         ds = null;
@@ -370,21 +366,21 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         this.rowResultSetHandlerBuilder = null;
     }
 
-    private HikariCpDataSourceAdapter(Builder builder) {
-        HikariConfig config = new HikariConfig();
+    private TomcatJDBCDataSourceAdapter(Builder builder) {
         String url = "jdbc:postgresql://" + builder.hostname + ":" + builder.port + "/" + builder.database;
-        // config.setDataSourceClassName(PGSimpleDataSource.class.getName());
-        config.setDriverClassName(org.postgresql.Driver.class.getName());
-        config.setJdbcUrl(url);
-        config.setUsername(builder.username);
-        config.setPassword(builder.password);
-        config.setMinimumIdle(builder.initialConnections);
-        config.setMaximumPoolSize(builder.maxConnections);
+        PoolProperties p = new PoolProperties();
+        p.setUrl(url);
+        p.setDriverClassName(org.postgresql.Driver.class.getName());
+        p.setUsername(builder.username);
+        p.setPassword(builder.password);
+        p.setInitialSize(builder.initialConnections);
+        p.setMaxActive(builder.maxConnections);
 
         // PostgreSQL-specific properties
         Properties props = new Properties();
         props.setProperty(ConfigDefaults.APP_NAME_KEY, builder.appName);
-        config.setDataSourceProperties(props);
+
+        p.setDbProperties(props);
 
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
@@ -393,7 +389,9 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         scalarResultSetHandlerBuilder = builder.scalarResultSetHandlerBuilder;
         rowResultSetHandlerBuilder = builder.rowResultSetHandlerBuilder;
 
-        ds = new HikariDataSource(config);
+        org.apache.tomcat.jdbc.pool.DataSource tomcatDS = new org.apache.tomcat.jdbc.pool.DataSource();
+        tomcatDS.setPoolProperties(p);
+        ds = tomcatDS;
     }
 
     @Override

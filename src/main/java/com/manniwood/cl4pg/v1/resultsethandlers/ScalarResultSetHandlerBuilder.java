@@ -21,19 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1;
+package com.manniwood.cl4pg.v1.resultsethandlers;
 
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
 
-public class GuessScalarResultSetHandlerBuilder implements ScalarResultSetHandlerBuilder {
+public interface ScalarResultSetHandlerBuilder {
 
-    public GuessScalarResultSetHandlerBuilder() {
-    }
-
-    @Override
-    public <R> ResultSetHandler<R> build() {
-        return new GuessScalarListHandler<R>();
-    }
-
+    <R> ResultSetHandler<R> build();
 }

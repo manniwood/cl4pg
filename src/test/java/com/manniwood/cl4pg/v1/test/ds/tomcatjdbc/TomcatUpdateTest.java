@@ -25,8 +25,8 @@ package com.manniwood.cl4pg.v1.test.ds.tomcatjdbc;
 
 import org.testng.annotations.Test;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.TomcatJDBCDataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.TomcatJDBCDataSourceAdapter;
 import com.manniwood.cl4pg.v1.test.base.AbstractUpdateTest;
 
 @Test

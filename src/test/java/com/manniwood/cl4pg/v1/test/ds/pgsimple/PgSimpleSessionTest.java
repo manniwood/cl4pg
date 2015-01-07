@@ -25,8 +25,8 @@ package com.manniwood.cl4pg.v1.test.ds.pgsimple;
 
 import org.testng.annotations.Test;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.PgSimpleDataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.PgSimpleDataSourceAdapter;
 import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
 
 @Test

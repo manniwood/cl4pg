@@ -21,53 +21,47 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1;
+package com.manniwood.cl4pg.v1.datasourceadapters;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import javax.sql.PooledConnection;
-
+import com.manniwood.cl4pg.v1.ConfigDefaults;
+import com.manniwood.cl4pg.v1.PgSession;
+import com.manniwood.cl4pg.v1.resultsethandlers.RowResultSetHandlerBuilder;
+import com.manniwood.cl4pg.v1.resultsethandlers.ScalarResultSetHandlerBuilder;
 import com.manniwood.cl4pg.v1.util.*;
-import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.postgresql.PGConnection;
 import org.postgresql.PGStatement;
+import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
-import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 
 /**
- * HikariCP implementation of DataSourceAdapter, with HikariCP-specific
- * configuration, where appropriate. By default, configures itself from
- * cl4pg/HikariCpDataSourceAdapter.properties found in the classpath. Use this
- * DataSourceAdapter if you need high-performance connection pooling.
+ * PGSimpleDataSource implementation of DataSourceAdapter, with
+ * PGSimpleDataSource-specific configuration, where appropriate. By default,
+ * configures itself from cl4pg/PgSimpleDataSourceAdapter.properties found in
+ * the classpath. Use this DataSource if you need each call to getConnection()
+ * to return a brand new connection to PostgreSQL.
  *
  * @author mwood
  *
  */
-public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
+public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
 
-    public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + TomcatJDBCDataSourceAdapter.class.getSimpleName() + ".properties";
+    public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + PgSimpleDataSourceAdapter.class.getSimpleName() + ".properties";
 
-    public static final int DEFAULT_INITIAL_CONNECTIONS = 5;
-    public static final int DEFAULT_MAX_CONNECTIONS = 20;
-
-    public static final String INITIAL_CONNECTIONS_KEY = "initialConnections";
-    public static final String MAX_CONNECTIONS_KEY = "maxConnections";
-
-    private static final Logger log = LoggerFactory.getLogger(TomcatJDBCDataSourceAdapter.class);
+    private final static Logger log = LoggerFactory.getLogger(PgSimpleDataSourceAdapter.class);
 
     private final SqlCache sqlCache = new SqlCache();
     private final ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder;
@@ -76,7 +70,7 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
     private final ExceptionConverter exceptionConverter;
     private final TypeConverterStore converterStore;
 
-    private final org.apache.tomcat.jdbc.pool.DataSource ds;
+    private final PGSimpleDataSource ds;
     private final int transactionIsolationLevel;
 
     @Override
@@ -90,7 +84,7 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         try {
             conn = ds.getConnection();
             conn.setTransactionIsolation(transactionIsolationLevel);
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(false);  // XXX: make this configurable
         } catch (SQLException e) {
             throw new Cl4pgFailedConnectionException("Could not get connection.", e);
         }
@@ -104,8 +98,7 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
 
     @Override
     public PGConnection unwrapPgConnection(Connection conn) throws SQLException {
-        PooledConnection tomcatPooledConnection = (PooledConnection) conn;
-        return (PGConnection) tomcatPooledConnection.getConnection();
+        return (PGConnection) conn;
     }
 
     @Override
@@ -118,16 +111,15 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         return (PGStatement) cstmt;
     }
 
-    public static TomcatJDBCDataSourceAdapter.Builder configure() {
-        return new TomcatJDBCDataSourceAdapter.Builder();
+    public static PgSimpleDataSourceAdapter.Builder configure() {
+        return new PgSimpleDataSourceAdapter.Builder();
     }
 
-    public static TomcatJDBCDataSourceAdapter buildFromDefaultConfFile() {
+    public static PgSimpleDataSourceAdapter buildFromDefaultConfFile() {
         return buildFromConfFile(DEFAULT_CONF_FILE);
     }
 
-    public static TomcatJDBCDataSourceAdapter buildFromConfFile(String path) {
-        log.debug("Conf file: " + path);
+    public static PgSimpleDataSourceAdapter buildFromConfFile(String path) {
         Properties props = new Properties();
         InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
         if (inStream == null) {
@@ -139,7 +131,7 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
             throw new Cl4pgConfFileException("Could not read conf file \"" + path + "\"", e);
         }
 
-        Builder builder = new TomcatJDBCDataSourceAdapter.Builder();
+        Builder builder = new PgSimpleDataSourceAdapter.Builder();
 
         String hostname = props.getProperty(ConfigDefaults.HOSTNAME_KEY);
         if (!Str.isNullOrEmpty(hostname)) {
@@ -169,16 +161,6 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         String appName = props.getProperty(ConfigDefaults.APP_NAME_KEY);
         if (!Str.isNullOrEmpty(appName)) {
             builder.appName(appName);
-        }
-
-        String initialConnectionsStr = props.getProperty(INITIAL_CONNECTIONS_KEY);
-        if (!Str.isNullOrEmpty(initialConnectionsStr)) {
-            builder.initialConnections(Integer.parseInt(initialConnectionsStr));
-        }
-
-        String maxConnectionsStr = props.getProperty(MAX_CONNECTIONS_KEY);
-        if (!Str.isNullOrEmpty(maxConnectionsStr)) {
-            builder.maxConnections(Integer.parseInt(maxConnectionsStr));
         }
 
         String exceptionConverterStr = props.getProperty(ConfigDefaults.EXCEPTION_CONVERTER_KEY);
@@ -219,8 +201,6 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         private String exceptionConverterStr = ConfigDefaults.DEFAULT_EXCEPTION_CONVERTER_CLASS;
         private ExceptionConverter exceptionConverter = null;
         private int transactionIsolationLevel = ConfigDefaults.DEFAULT_TRANSACTION_ISOLATION_LEVEL;
-        private int initialConnections = DEFAULT_INITIAL_CONNECTIONS;
-        private int maxConnections = DEFAULT_MAX_CONNECTIONS;
         private String typeConverterConfFiles = null;
         private String scalarResultSetHandlerBuilderStr = ConfigDefaults.DEFAULT_SCALAR_RESULT_SET_HANDLER_BUILDER;
         private ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder = null;
@@ -264,16 +244,6 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
 
         public Builder appName(String appName) {
             this.appName = appName;
-            return this;
-        }
-
-        public Builder initialConnections(int initialConnections) {
-            this.initialConnections = initialConnections;
-            return this;
-        }
-
-        public Builder maxConnections(int maxConnections) {
-            this.maxConnections = maxConnections;
             return this;
         }
 
@@ -334,7 +304,7 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
-        public TomcatJDBCDataSourceAdapter done() {
+        public PgSimpleDataSourceAdapter done() {
             if (this.exceptionConverter == null) {
                 if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
                     this.exceptionConverterStr = ConfigDefaults.DEFAULT_EXCEPTION_CONVERTER_CLASS;
@@ -353,11 +323,11 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
                 }
                 this.rowResultSetHandlerBuilder = (RowResultSetHandlerBuilder) ReflectionUtil.instantiateUsingNullConstructor(this.rowResultSetHandlerBuilderStr);
             }
-            return new TomcatJDBCDataSourceAdapter(this);
+            return new PgSimpleDataSourceAdapter(this);
         }
     }
 
-    private TomcatJDBCDataSourceAdapter() {
+    private PgSimpleDataSourceAdapter() {
         exceptionConverter = null;
         converterStore = null;
         ds = null;
@@ -366,37 +336,28 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         this.rowResultSetHandlerBuilder = null;
     }
 
-    private TomcatJDBCDataSourceAdapter(Builder builder) {
+    private PgSimpleDataSourceAdapter(Builder builder) {
+        ds = new PGSimpleDataSource();
         String url = "jdbc:postgresql://" + builder.hostname + ":" + builder.port + "/" + builder.database;
-        PoolProperties p = new PoolProperties();
-        p.setUrl(url);
-        p.setDriverClassName(org.postgresql.Driver.class.getName());
-        p.setUsername(builder.username);
-        p.setPassword(builder.password);
-        p.setInitialSize(builder.initialConnections);
-        p.setMaxActive(builder.maxConnections);
-
-        // PostgreSQL-specific properties
-        Properties props = new Properties();
-        props.setProperty(ConfigDefaults.APP_NAME_KEY, builder.appName);
-
-        p.setDbProperties(props);
-
+        try {
+            ds.setUrl(url);
+        } catch (SQLException e) {
+            throw new Cl4pgFailedConnectionException("Connection to URL " + url + " failed.", e);
+        }
+        ds.setUser(builder.username);
+        ds.setPassword(builder.password);
+        ds.setApplicationName(builder.appName);
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;
         converterStore = new TypeConverterStore(builder.typeConverterConfFiles);
         scalarResultSetHandlerBuilder = builder.scalarResultSetHandlerBuilder;
         rowResultSetHandlerBuilder = builder.rowResultSetHandlerBuilder;
-
-        org.apache.tomcat.jdbc.pool.DataSource tomcatDS = new org.apache.tomcat.jdbc.pool.DataSource();
-        tomcatDS.setPoolProperties(p);
-        ds = tomcatDS;
     }
 
     @Override
     public void close() {
-        ds.close();
+        // no-op
     }
 
     @Override
@@ -418,5 +379,4 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
     public RowResultSetHandlerBuilder getRowResultSetHandlerBuilder() {
         return rowResultSetHandlerBuilder;
     }
-
 }

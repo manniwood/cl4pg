@@ -23,8 +23,8 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.ds.pgpooling;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.PgPoolingDataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.PgPoolingDataSourceAdapter;
 import com.manniwood.cl4pg.v1.test.base.AbstractDeleteReturningTest;
 
 public class PgPoolingDeleteReturningTest extends AbstractDeleteReturningTest {

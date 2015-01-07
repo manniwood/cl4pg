@@ -29,6 +29,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.manniwood.cl4pg.v1.commands.*;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.resultsethandlers.RowResultSetHandlerBuilder;
+import com.manniwood.cl4pg.v1.resultsethandlers.ScalarResultSetHandlerBuilder;
 import org.postgresql.PGNotification;
 import org.postgresql.util.PSQLException;
 

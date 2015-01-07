@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1;
+package com.manniwood.cl4pg.v1.datasourceadapters;
 
 import java.io.Closeable;
 import java.sql.CallableStatement;
@@ -29,6 +29,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import com.manniwood.cl4pg.v1.PgSession;
+import com.manniwood.cl4pg.v1.resultsethandlers.RowResultSetHandlerBuilder;
+import com.manniwood.cl4pg.v1.resultsethandlers.ScalarResultSetHandlerBuilder;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 import org.postgresql.PGConnection;
 import org.postgresql.PGStatement;

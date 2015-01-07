@@ -23,7 +23,7 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.base;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
 import com.manniwood.cl4pg.v1.commands.*;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;

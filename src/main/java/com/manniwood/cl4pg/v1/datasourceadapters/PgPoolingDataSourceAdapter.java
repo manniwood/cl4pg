@@ -21,46 +21,56 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1;
+package com.manniwood.cl4pg.v1.datasourceadapters;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import com.manniwood.cl4pg.v1.util.*;
+import com.manniwood.cl4pg.v1.ConfigDefaults;
+import com.manniwood.cl4pg.v1.PgSession;
+import com.manniwood.cl4pg.v1.resultsethandlers.RowResultSetHandlerBuilder;
+import com.manniwood.cl4pg.v1.resultsethandlers.ScalarResultSetHandlerBuilder;
+import com.manniwood.cl4pg.v1.util.ReflectionUtil;
+import com.manniwood.cl4pg.v1.util.SqlCache;
+import com.manniwood.cl4pg.v1.util.TransactionIsolationLevelConverter;
 import org.postgresql.PGConnection;
 import org.postgresql.PGStatement;
-import org.postgresql.ds.PGSimpleDataSource;
+import org.postgresql.ds.PGPoolingDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
-import com.manniwood.cl4pg.v1.exceptions.Cl4pgReflectionException;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
+import com.manniwood.cl4pg.v1.util.Str;
 
 /**
- * PGSimpleDataSource implementation of DataSourceAdapter, with
- * PGSimpleDataSource-specific configuration, where appropriate. By default,
- * configures itself from cl4pg/PgSimpleDataSourceAdapter.properties found in
- * the classpath. Use this DataSource if you need each call to getConnection()
- * to return a brand new connection to PostgreSQL.
+ * PGPoolingDataSource implementation of DataSourceAdapter, with
+ * PGPoolingDataSource-specific configuration, where appropriate. By default,
+ * configures itself from cl4pg/PgPoolingDataSourceAdapter.properties found in
+ * the classpath. Use this DataSourceAdapter if you need rudimentary connection
+ * pooling.
  *
  * @author mwood
  *
  */
-public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
+public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
 
-    public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + PgSimpleDataSourceAdapter.class.getSimpleName() + ".properties";
+    public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + PgPoolingDataSourceAdapter.class.getSimpleName() + ".properties";
 
-    private final static Logger log = LoggerFactory.getLogger(PgSimpleDataSourceAdapter.class);
+    public static final int DEFAULT_INITIAL_CONNECTIONS = 5;
+    public static final int DEFAULT_MAX_CONNECTIONS = 20;
+
+    public static final String INITIAL_CONNECTIONS_KEY = "initialConnections";
+    public static final String MAX_CONNECTIONS_KEY = "maxConnections";
+
+    private static final Logger log = LoggerFactory.getLogger(PgPoolingDataSourceAdapter.class);
 
     private final SqlCache sqlCache = new SqlCache();
     private final ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder;
@@ -69,7 +79,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
     private final ExceptionConverter exceptionConverter;
     private final TypeConverterStore converterStore;
 
-    private final PGSimpleDataSource ds;
+    private final PGPoolingDataSource ds;
     private final int transactionIsolationLevel;
 
     @Override
@@ -83,7 +93,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         try {
             conn = ds.getConnection();
             conn.setTransactionIsolation(transactionIsolationLevel);
-            conn.setAutoCommit(false);  // XXX: make this configurable
+            conn.setAutoCommit(false);
         } catch (SQLException e) {
             throw new Cl4pgFailedConnectionException("Could not get connection.", e);
         }
@@ -110,19 +120,21 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         return (PGStatement) cstmt;
     }
 
-    public static PgSimpleDataSourceAdapter.Builder configure() {
-        return new PgSimpleDataSourceAdapter.Builder();
+    public static PgPoolingDataSourceAdapter.Builder configure() {
+        return new PgPoolingDataSourceAdapter.Builder();
     }
 
-    public static PgSimpleDataSourceAdapter buildFromDefaultConfFile() {
+    public static PgPoolingDataSourceAdapter buildFromDefaultConfFile() {
         return buildFromConfFile(DEFAULT_CONF_FILE);
     }
 
-    public static PgSimpleDataSourceAdapter buildFromConfFile(String path) {
+    public static PgPoolingDataSourceAdapter buildFromConfFile(String path) {
+        log.debug("Conf file: " + path);
         Properties props = new Properties();
-        InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
+        InputStream inStream = PgPoolingDataSourceAdapter.class.getClassLoader().getResourceAsStream(path);
         if (inStream == null) {
-            throw new Cl4pgConfFileException("Could not find conf file \"" + path + "\"");
+            throw new Cl4pgConfFileException("Could not find conf file (resource) \"" + path + "\" in classpath \"" + System.getProperty("java.class.path")
+                    + "\"");
         }
         try {
             props.load(inStream);
@@ -130,7 +142,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             throw new Cl4pgConfFileException("Could not read conf file \"" + path + "\"", e);
         }
 
-        Builder builder = new PgSimpleDataSourceAdapter.Builder();
+        Builder builder = new PgPoolingDataSourceAdapter.Builder();
 
         String hostname = props.getProperty(ConfigDefaults.HOSTNAME_KEY);
         if (!Str.isNullOrEmpty(hostname)) {
@@ -160,6 +172,16 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         String appName = props.getProperty(ConfigDefaults.APP_NAME_KEY);
         if (!Str.isNullOrEmpty(appName)) {
             builder.appName(appName);
+        }
+
+        String initialConnectionsStr = props.getProperty(INITIAL_CONNECTIONS_KEY);
+        if (!Str.isNullOrEmpty(initialConnectionsStr)) {
+            builder.initialConnections(Integer.parseInt(initialConnectionsStr));
+        }
+
+        String maxConnectionsStr = props.getProperty(MAX_CONNECTIONS_KEY);
+        if (!Str.isNullOrEmpty(maxConnectionsStr)) {
+            builder.maxConnections(Integer.parseInt(maxConnectionsStr));
         }
 
         String exceptionConverterStr = props.getProperty(ConfigDefaults.EXCEPTION_CONVERTER_KEY);
@@ -200,6 +222,8 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         private String exceptionConverterStr = ConfigDefaults.DEFAULT_EXCEPTION_CONVERTER_CLASS;
         private ExceptionConverter exceptionConverter = null;
         private int transactionIsolationLevel = ConfigDefaults.DEFAULT_TRANSACTION_ISOLATION_LEVEL;
+        private int initialConnections = DEFAULT_INITIAL_CONNECTIONS;
+        private int maxConnections = DEFAULT_MAX_CONNECTIONS;
         private String typeConverterConfFiles = null;
         private String scalarResultSetHandlerBuilderStr = ConfigDefaults.DEFAULT_SCALAR_RESULT_SET_HANDLER_BUILDER;
         private ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder = null;
@@ -243,6 +267,16 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
 
         public Builder appName(String appName) {
             this.appName = appName;
+            return this;
+        }
+
+        public Builder initialConnections(int initialConnections) {
+            this.initialConnections = initialConnections;
+            return this;
+        }
+
+        public Builder maxConnections(int maxConnections) {
+            this.maxConnections = maxConnections;
             return this;
         }
 
@@ -303,7 +337,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
-        public PgSimpleDataSourceAdapter done() {
+        public PgPoolingDataSourceAdapter done() {
             if (this.exceptionConverter == null) {
                 if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
                     this.exceptionConverterStr = ConfigDefaults.DEFAULT_EXCEPTION_CONVERTER_CLASS;
@@ -322,11 +356,11 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
                 }
                 this.rowResultSetHandlerBuilder = (RowResultSetHandlerBuilder) ReflectionUtil.instantiateUsingNullConstructor(this.rowResultSetHandlerBuilderStr);
             }
-            return new PgSimpleDataSourceAdapter(this);
+            return new PgPoolingDataSourceAdapter(this);
         }
     }
 
-    private PgSimpleDataSourceAdapter() {
+    private PgPoolingDataSourceAdapter() {
         exceptionConverter = null;
         converterStore = null;
         ds = null;
@@ -335,8 +369,8 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         this.rowResultSetHandlerBuilder = null;
     }
 
-    private PgSimpleDataSourceAdapter(Builder builder) {
-        ds = new PGSimpleDataSource();
+    private PgPoolingDataSourceAdapter(Builder builder) {
+        ds = new PGPoolingDataSource();
         String url = "jdbc:postgresql://" + builder.hostname + ":" + builder.port + "/" + builder.database;
         try {
             ds.setUrl(url);
@@ -346,6 +380,8 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         ds.setUser(builder.username);
         ds.setPassword(builder.password);
         ds.setApplicationName(builder.appName);
+        ds.setInitialConnections(builder.initialConnections);
+        ds.setMaxConnections(builder.maxConnections);
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;
@@ -356,7 +392,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
 
     @Override
     public void close() {
-        // no-op
+        ds.close();
     }
 
     @Override
@@ -378,4 +414,5 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
     public RowResultSetHandlerBuilder getRowResultSetHandlerBuilder() {
         return rowResultSetHandlerBuilder;
     }
+
 }

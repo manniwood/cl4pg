@@ -25,8 +25,8 @@ package com.manniwood.cl4pg.v1.test.ds.pgpooling;
 
 import org.testng.annotations.Test;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.PgPoolingDataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.PgPoolingDataSourceAdapter;
 import com.manniwood.cl4pg.v1.test.base.AbstractStoredProcTest;
 
 @Test

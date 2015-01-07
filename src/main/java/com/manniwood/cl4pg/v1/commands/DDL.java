@@ -29,7 +29,7 @@ import java.sql.PreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfigException;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
@@ -38,7 +38,7 @@ import com.manniwood.cl4pg.v1.util.Str;
 /**
  * Runs any SQL DDL command, such as create table, create index, alter table,
  * drop index, etc.
- * 
+ *
  * @author mwood
  *
  */

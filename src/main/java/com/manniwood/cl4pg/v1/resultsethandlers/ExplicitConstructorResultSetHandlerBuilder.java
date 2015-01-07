@@ -21,10 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1;
-
-import com.manniwood.cl4pg.v1.resultsethandlers.ExplicitConstructorListHandler;
-import com.manniwood.cl4pg.v1.resultsethandlers.ResultSetHandler;
+package com.manniwood.cl4pg.v1.resultsethandlers;
 
 public class ExplicitConstructorResultSetHandlerBuilder implements RowResultSetHandlerBuilder {
 

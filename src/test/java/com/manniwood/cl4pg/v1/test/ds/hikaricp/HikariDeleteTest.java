@@ -25,8 +25,8 @@ package com.manniwood.cl4pg.v1.test.ds.hikaricp;
 
 import org.testng.annotations.Test;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.HikariCpDataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.HikariCpDataSourceAdapter;
 import com.manniwood.cl4pg.v1.test.base.AbstractDeleteTest;
 
 @Test

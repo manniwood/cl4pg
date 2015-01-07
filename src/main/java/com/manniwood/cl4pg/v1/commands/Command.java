@@ -25,7 +25,7 @@ package com.manniwood.cl4pg.v1.commands;
 
 import java.sql.Connection;
 
-import com.manniwood.cl4pg.v1.DataSourceAdapter;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 import com.manniwood.cl4pg.v1.util.SqlCache;
 
@@ -34,7 +34,7 @@ import com.manniwood.cl4pg.v1.util.SqlCache;
  * associated with this command (such as open prepared statements or open files
  * for a copy command) can be correctly closed regardless of a commit or
  * rollback.
- * 
+ *
  * @author mwood
  *
  */
