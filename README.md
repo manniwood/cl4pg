@@ -305,7 +305,11 @@ select id,
 
 ```Java
 // Note we only bother correctly filling in the one attribute we need
-ImmutableUser findMe = new ImmutableUser("99999999-a4fa-49fc-b6b4-62eca118fbf7", null, null, 0);
+ImmutableUser findMe = new ImmutableUser(
+    "99999999-a4fa-49fc-b6b4-62eca118fbf7", 
+    null, 
+    null, 
+    0);
 
 ImmutableUser actualImmutable = pgSession.selectOne_(findMe,
                                  "sql/find_user_by_bean_id.sql",
@@ -329,7 +333,11 @@ select id,
 
 ```Java
 // Note we only bother correctly filling in the one attribute we need
-ImmutableUser findMe = new ImmutableUser("00000000-a4fa-49fc-b6b4-62eca118fbf7", null, null, 42);
+ImmutableUser findMe = new ImmutableUser(
+    "00000000-a4fa-49fc-b6b4-62eca118fbf7", 
+    null, 
+    null, 
+    42);
 
 ImmutableUser actualImmutable = pgSession.selectOne_(findMe,
                                  "sql/find_user_gt_emp_id_bean.sql",
@@ -374,7 +382,11 @@ We can insert a user like this:
 
 
 ```Java
-pgSession.insert_("sql/insert_user_variadic.sql", "00000000-a4fa-49fc-b6b4-62eca118fbf7", null, "password", 42);
+pgSession.insert_("sql/insert_user_variadic.sql", 
+    "00000000-a4fa-49fc-b6b4-62eca118fbf7", 
+    null, 
+    "password", 
+    42);
 pgSession.commit();  // don't forget!
 ```
 
@@ -399,7 +411,11 @@ We can a use a bean like this:
 
 
 ```Java
-ImmutableUser newUser = new ImmutableUser("99999999-a4fa-49fc-b6b4-62eca118fbf7", "Bob", "easypassword", 1);
+ImmutableUser newUser = new ImmutableUser(
+    "99999999-a4fa-49fc-b6b4-62eca118fbf7", 
+    "Bob", 
+    "easypassword", 
+    1);
 pgSession.insert_(newUser, "sql/insert_user.sql");
 pgSession.commit();  // don't forget!
 ```
