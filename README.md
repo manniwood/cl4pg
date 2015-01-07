@@ -11,7 +11,7 @@ and expostes key PostgreSQL functionality like listen/notify, and copy.
 ## Connect
 
 Let's assume you have a file in your classpath `cl4pg/PgSimpleDataSourceAdapter.properties`,
-(in 'src/main/resources' in your Java project if you are using the Maven project layout)
+(in `src/main/resources` in your Java project if you are using the Maven project layout)
 and let's assume it has the following contents:
 
 ```
@@ -63,7 +63,7 @@ pgSession.commit();  // yes! Cl4pg lets you manage your own transactions!
 Of course, Java lacks multiline string literals, so it's nicer to keep our
 SQL in standalone files. Let's assume we have a file named `sql/create_temp_users_table.sql`
 on our classpath
-(in 'src/main/resources' in your Java project if you are using the Maven project layout),
+(in `src/main/resources` in your Java project if you are using the Maven project layout),
 whose contents look like this:
 
 ```SQL
@@ -191,7 +191,7 @@ public class ImmutableUser {
 
 Let's also assume you have the following contents in a file named
 `sql/find_user_by_id.sql` in your classpath
-(in 'src/main/resources' in your Java project if you are using the Maven project layout):
+(in `src/main/resources` in your Java project if you are using the Maven project layout):
 
 ```SQL
 select id,
@@ -255,7 +255,7 @@ Let's say you want to return a list of users whose `employee_id`s are
 greater than 42.
 
 Let's assume a file named `sql/find_user_gt_emp_id.sql` in your classpath 
-(in 'src/main/resources' in your Java project if you are using the Maven project layout)
+(in `src/main/resources` in your Java project if you are using the Maven project layout)
 that has the following contents:
 
 ```SQL
@@ -316,7 +316,7 @@ pgSession.rollback();  // no need to commit
 Or, returning to our example of finding users whose `employee_id` is greater than 42:
 
 Let's assume a file named `sql/find_user_gt_emp_id_bean.sql` in your classpath 
-(in 'src/main/resources' in your Java project if you are using the Maven project layout)
+(in `src/main/resources` in your Java project if you are using the Maven project layout)
 
 ```SQL
 select id,
@@ -354,7 +354,7 @@ If an Object is first, followed by a String, the Object is a bean whose getters 
 fill in parameters.
 
 Let's assume this SQL file on the classpath
-(in 'src/main/resources' in your Java project if you are using the Maven project layout):
+(in `src/main/resources` in your Java project if you are using the Maven project layout):
 
 `sql/insert_user_variadic.sql`:
 
@@ -379,7 +379,7 @@ pgSession.commit();  // don't forget!
 ```
 
 If we assume this SQL file on the classpath
-(in 'src/main/resources' in your Java project if you are using the Maven project layout):
+(in `src/main/resources` in your Java project if you are using the Maven project layout):
 
 `sql/insert_user.sql`:
 
@@ -444,7 +444,7 @@ create table users (
 ```
 
 Let's assume a file named `sql/insert_user.sql` on the classpath
-(in 'src/main/resources' in your Java project if you are using the Maven project layout):
+(in `src/main/resources` in your Java project if you are using the Maven project layout):
 
 ```Java
 insert into users (
