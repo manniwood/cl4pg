@@ -58,6 +58,8 @@ public final class ConfigDefaults {
     public static final String DEFAULT_ROW_RESULT_SET_HANDLER_BUILDER = "com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorResultSetHandlerBuilder";
     public static final String SCALAR_RESULT_SET_HANDLER_BUILDER_KEY = "ScalarResultSetHandlerBuilder";
     public static final String ROW_RESULT_SET_HANDLER_BUILDER_KEY = "RowResultSetHandlerBuilder";
+    public static final String AUTO_COMMIT_KEY = "AutoCommit";
+    public static final boolean DEFAULT_AUTO_COMMIT = false;
 
     private ConfigDefaults() {
         // Utility class

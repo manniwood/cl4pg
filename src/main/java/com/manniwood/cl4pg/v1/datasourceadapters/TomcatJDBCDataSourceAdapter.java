@@ -78,6 +78,7 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
 
     private final org.apache.tomcat.jdbc.pool.DataSource ds;
     private final int transactionIsolationLevel;
+    private final boolean autoCommit;
 
     @Override
     public PgSession getSession() {
@@ -90,7 +91,7 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         try {
             conn = ds.getConnection();
             conn.setTransactionIsolation(transactionIsolationLevel);
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(autoCommit);
         } catch (SQLException e) {
             throw new Cl4pgFailedConnectionException("Could not get connection.", e);
         }
@@ -201,6 +202,11 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
             builder.transactionIsolationLevelName(transactionIsolationLevelStr);
         }
 
+        String autoCommitStr = props.getProperty(ConfigDefaults.AUTO_COMMIT_KEY);
+        if (!Str.isNullOrEmpty(autoCommitStr)) {
+            builder.autoCommit(autoCommitStr);
+        }
+
         String typeConverterConfFilesStr = props.getProperty(ConfigDefaults.TYPE_CONVERTER_CONF_FILES_KEY);
         if (!Str.isNullOrEmpty(typeConverterConfFilesStr)) {
             builder.typeConverterConfFiles(typeConverterConfFilesStr);
@@ -226,6 +232,7 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         private ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder = null;
         private String rowResultSetHandlerBuilderStr = ConfigDefaults.DEFAULT_ROW_RESULT_SET_HANDLER_BUILDER;
         private RowResultSetHandlerBuilder rowResultSetHandlerBuilder = null;
+        private boolean autoCommit = ConfigDefaults.DEFAULT_AUTO_COMMIT;
 
         public Builder() {
             // null constructor
@@ -334,6 +341,16 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
+        public Builder autoCommit(boolean autoCommit) {
+            this.autoCommit = autoCommit;
+            return this;
+        }
+
+        public Builder autoCommit(String autoCommitStr) {
+            this.autoCommit = Boolean.parseBoolean(autoCommitStr);
+            return this;
+        }
+
         public TomcatJDBCDataSourceAdapter done() {
             if (this.exceptionConverter == null) {
                 if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
@@ -362,8 +379,9 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         converterStore = null;
         ds = null;
         transactionIsolationLevel = -1;
-        this.scalarResultSetHandlerBuilder = null;
-        this.rowResultSetHandlerBuilder = null;
+        scalarResultSetHandlerBuilder = null;
+        rowResultSetHandlerBuilder = null;
+        autoCommit = false;
     }
 
     private TomcatJDBCDataSourceAdapter(Builder builder) {
@@ -388,6 +406,7 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
         converterStore = new TypeConverterStore(builder.typeConverterConfFiles);
         scalarResultSetHandlerBuilder = builder.scalarResultSetHandlerBuilder;
         rowResultSetHandlerBuilder = builder.rowResultSetHandlerBuilder;
+        autoCommit = builder.autoCommit;
 
         org.apache.tomcat.jdbc.pool.DataSource tomcatDS = new org.apache.tomcat.jdbc.pool.DataSource();
         tomcatDS.setPoolProperties(p);
@@ -418,5 +437,4 @@ public class TomcatJDBCDataSourceAdapter implements DataSourceAdapter {
     public RowResultSetHandlerBuilder getRowResultSetHandlerBuilder() {
         return rowResultSetHandlerBuilder;
     }
-
 }

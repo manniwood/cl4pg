@@ -120,7 +120,7 @@ Long count = pgSession.selectOneScalar("select count(*) from users");
 pgSession.rollback();  // no need to commit
 ```
 
-Simple things should be simple. Cl4pg determines the correct type converter 
+Simple things should be simple. Cl4pg determines the correct type converter
 based on the return type (`Long`, in this example) and
 converts the column "count( * )" to a Java Long object.
 
@@ -223,17 +223,17 @@ and are cast to the class given inside `#{}`. In our example, the
 string `#{java.util.UUID}` gets filled in with the UUID we provide
 as the first and only variadic arg, above.
 
-That is, under the covers, `#{}` becomes a `?` in a prepared statement, 
+That is, under the covers, `#{}` becomes a `?` in a prepared statement,
 and it gets filled in like so: `preparedStatement.setObject(1, theUUID)`.
 
 A more interesting example might have a SQL template with
 `where foo = #{java.lang.String} and bar = #{java.lang.Integer}`. If we
 provided the variadic args to `pgSession.selectOne_` as "Hello" and 42,
-under the covers, the SQL template would become `where foo = ? and bar = ?` 
-as a prepared statement, and that prepared statement would get filled in 
+under the covers, the SQL template would become `where foo = ? and bar = ?`
+as a prepared statement, and that prepared statement would get filled in
 with `pstmt.setString(1, "Hello")` followed by
 `pstmt.setInt(2, 42)`. Finally, if the last argument,
-was `null` instead of 42, the final prepared statement setter would 
+was `null` instead of 42, the final prepared statement setter would
 have ended up being `pstmt.setNull(2, Types.INTEGER)`.
 
 But that's just mapping the arguments going *in* to the SQL. What
@@ -242,9 +242,9 @@ instance of ImmutableUser?
 
 The second argument of `pgSession.selectOne_` is the return type, so
 Cl4pg knows what type of bean it is trying to return. It then looks
-at the return column types, in the order given, using 
+at the return column types, in the order given, using
 `ResultSetMetaData.getColumnClassName()`. So in our example,
-`id, name, password, employee_id` would correspond to 
+`id, name, password, employee_id` would correspond to
 UUID, String, String, Integer. We would therefore look for a constructor
 matching the signature `ImmutableUser(UUID, String, String, Integer)`,
 and use that constructor to build our ImmutableUser instance.
@@ -254,7 +254,7 @@ and use that constructor to build our ImmutableUser instance.
 Let's say you want to return a list of users whose `employee_id`s are
 greater than 42.
 
-Let's assume a file named `sql/find_user_gt_emp_id.sql` in your classpath 
+Let's assume a file named `sql/find_user_gt_emp_id.sql` in your classpath
 (in `src/main/resources` in your Java project if you are using the Maven project layout)
 that has the following contents:
 
@@ -286,12 +286,12 @@ in the correct spot in our SQL template.
 
 There may be other times when you have values you would like to get pulled out of
 a bean to fill in the parameters of our SQL template. This is possible to! Instead of using
-`pgSession.select("some SQL", SomeReturn.class, variadic args...)`, you would use 
+`pgSession.select("some SQL", SomeReturn.class, variadic args...)`, you would use
 `pgSession.select(SomeBean, "some SQL", SomeReturn.class)`. It's a nice calling convention:
 if you want to use variadic args, they go as the last arguments to `pgSession.select`, but
 if you want to use a bean, it is the first argument of `pgSession.select`.
 
-Your SQL template will need to change, too. Now, it will look like this (in a file 
+Your SQL template will need to change, too. Now, it will look like this (in a file
 `sql/find_user_by_bean_id.sql`):
 
 ```SQL
@@ -306,9 +306,9 @@ select id,
 ```Java
 // Note we only bother correctly filling in the one attribute we need
 ImmutableUser findMe = new ImmutableUser(
-    "99999999-a4fa-49fc-b6b4-62eca118fbf7", 
-    null, 
-    null, 
+    "99999999-a4fa-49fc-b6b4-62eca118fbf7",
+    null,
+    null,
     0);
 
 ImmutableUser actualImmutable = pgSession.selectOne_(findMe,
@@ -319,7 +319,7 @@ pgSession.rollback();  // no need to commit
 
 Or, returning to our example of finding users whose `employee_id` is greater than 42:
 
-Let's assume a file named `sql/find_user_gt_emp_id_bean.sql` in your classpath 
+Let's assume a file named `sql/find_user_gt_emp_id_bean.sql` in your classpath
 (in `src/main/resources` in your Java project if you are using the Maven project layout)
 
 ```SQL
@@ -334,9 +334,9 @@ select id,
 ```Java
 // Note we only bother correctly filling in the one attribute we need
 ImmutableUser findMe = new ImmutableUser(
-    "00000000-a4fa-49fc-b6b4-62eca118fbf7", 
-    null, 
-    null, 
+    "00000000-a4fa-49fc-b6b4-62eca118fbf7",
+    null,
+    null,
     42);
 
 ImmutableUser actualImmutable = pgSession.selectOne_(findMe,
@@ -382,10 +382,10 @@ We can insert a user like this:
 
 
 ```Java
-pgSession.insert_("sql/insert_user_variadic.sql", 
-    "00000000-a4fa-49fc-b6b4-62eca118fbf7", 
-    null, 
-    "password", 
+pgSession.insert_("sql/insert_user_variadic.sql",
+    "00000000-a4fa-49fc-b6b4-62eca118fbf7",
+    null,
+    "password",
     42);
 pgSession.commit();  // don't forget!
 ```
@@ -412,9 +412,9 @@ We can a use a bean like this:
 
 ```Java
 ImmutableUser newUser = new ImmutableUser(
-    "99999999-a4fa-49fc-b6b4-62eca118fbf7", 
-    "Bob", 
-    "easypassword", 
+    "99999999-a4fa-49fc-b6b4-62eca118fbf7",
+    "Bob",
+    "easypassword",
     1);
 pgSession.insert_(newUser, "sql/insert_user.sql");
 pgSession.commit();  // don't forget!
@@ -478,14 +478,63 @@ Let's assume we want to throw the following exception every time we try to
 create a user that already exists:
 
 ```Java
+import org.postgresql.util.ServerErrorMessage;
+
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
+
 public class UserAlreadyExistsException extends Cl4pgPgSqlException {
-    // the rest of the class omitted; important thing is to extend Cl4pgPgSqlException
+
+    private static final long serialVersionUID = 1L;
+
+    public UserAlreadyExistsException() {
+    }
+
+    public UserAlreadyExistsException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public UserAlreadyExistsException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public UserAlreadyExistsException(String message) {
+        super(message);
+    }
+
+    public UserAlreadyExistsException(Throwable cause) {
+        super(cause);
+    }
+
+    public UserAlreadyExistsException(ServerErrorMessage sem) {
+        super(sem);
+    }
+
+    public UserAlreadyExistsException(ServerErrorMessage sem, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(sem, message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public UserAlreadyExistsException(ServerErrorMessage sem, String message, Throwable cause) {
+        super(sem, message, cause);
+    }
+
+    public UserAlreadyExistsException(ServerErrorMessage sem, String message) {
+        super(sem, message);
+    }
+
+    public UserAlreadyExistsException(ServerErrorMessage sem, Throwable cause) {
+        super(sem, cause);
+    }
 }
 ```
 
 Now let's assume the following exception converter:
 
 ```Java
+import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgPgSqlException;
+import com.manniwood.cl4pg.v1.test.exceptions.UserAlreadyExistsException;
+
 public class TestExceptionConverter implements ExceptionConverter {
     @Override
     public Cl4pgException convert(Cl4pgPgSqlException e) {
@@ -511,12 +560,16 @@ ExceptionConverter=com.something.exceptionmappers.TestExceptionConverter
 And now, this piece of code should work as expected:
 
 ```Java
-User expected = createExpectedUser();
-pgSession.insert_(expected, "sql/insert_user.sql");
+ImmutableUser newUser = new ImmutableUser(
+    "99999999-a4fa-49fc-b6b4-62eca118fbf7",
+    "Bob",
+    "easypassword",
+    1);
+pgSession.insert_(newUser, "sql/insert_user.sql");
 pgSession.commit();
 boolean correctlyCaughtException = false;
 try {
-    pgSession.insert_(expected, "sql/insert_user.sql");
+    pgSession.insert_(newUser, "sql/insert_user.sql");
     pgSession.commit();
 } catch (UserAlreadyExistsException e) {
     log.info("Cannot insert user twice!");
@@ -537,6 +590,10 @@ handles more "exceptional" exceptions.
 to be written
 
 ## Stored Procedures
+
+to be written
+
+## Opening and Closing Sessions
 
 to be written
 

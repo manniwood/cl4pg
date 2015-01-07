@@ -1,9 +1,8 @@
 
 -------- v1.0.x
 
-- Rename Cl4pgPgSqlException; pgPg is hard on the eyes
-
-- Make autocommit configurable
+- Document how to use pgSession in try/catch checkout/return
+from within, let's say, a webapp using connection pooling.
 
 - Write documentation in docs/more
 
