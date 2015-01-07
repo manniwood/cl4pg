@@ -71,19 +71,19 @@ create temporary table users (
     employee_id int);
 ```
 
-Then, we would just use the `F` version of PgSession's ddl method:
+Then, we would just use the `_` version of PgSession's ddl method:
 
 ```Java
-pgSession.ddlF("sql/create_temp_users_table.sql");
+pgSession.ddl_("sql/create_temp_users_table.sql");
 pgSession.commit();
 ```
 
 > As a general rule of thumb, for every method that takes a string literal
-containing SQL, PgSesion will have a corresponding `F` method that instead
+containing SQL, PgSesion will have a corresponding `_` method that instead
 treats the string literal as a .sql file to be loaded from the classpath.
 
 > Please also note that Cl4pg actually only loads files from the classpath once,
-and then caches them in memory forever more, so subsequent `F` methods
+and then caches them in memory forever more, so subsequent `_` methods
 using the same files fetch them from memory, not disk.
 
 ## Load
@@ -201,7 +201,7 @@ select id,
 You could then search for any particular user by ID like so:
 
 ```Java
-ImmutableUser user = pgSession.selectOneF("sql/find_user_by_id.sql",
+ImmutableUser user = pgSession.selectOne_("sql/find_user_by_id.sql",
                          ImmutableUser.class,
                          UUID.fromString("99999999-a4fa-49fc-b6b4-62eca118fbf7"));
 pgSession.rollback();  // no need to commit
@@ -209,7 +209,7 @@ pgSession.rollback();  // no need to commit
 
 Cl4pg does a few things for us here.
 
-`pgSession.selectOneF`'s first argument is the sql file on our classpath.
+`pgSession.selectOne_`'s first argument is the sql file on our classpath.
 
 The second argument is the return type.
 
@@ -224,7 +224,7 @@ and it gets filled in like so: `preparedStatement.setObject(1, theUUID)`.
 
 A more interesting example might have a SQL template with
 `where foo = #{java.lang.String} and bar = #{java.lang.Integer}`. If we
-provided the variadic args to `pgSession.selectOneF` as "Hello" and 42,
+provided the variadic args to `pgSession.selectOne_` as "Hello" and 42,
 under the covers, the SQL template would become `where foo = ? and bar = ?` 
 as a prepared statement, and that prepared statement would get filled in 
 with `pstmt.setString(1, "Hello")` followed by
@@ -236,7 +236,7 @@ But that's just mapping the arguments going *in* to the SQL. What
 about the rows coming *out* of the SQL? How do those create an
 instance of ImmutableUser?
 
-The second argument of `pgSession.selectOneF` is the return type, so
+The second argument of `pgSession.selectOne_` is the return type, so
 Cl4pg knows what type of bean it is trying to return. It then looks
 at the return column types, in the order given, using 
 `ResultSetMetaData.getColumnClassName()`. So in our example,
@@ -266,7 +266,7 @@ You could select a list of users whose `employee_id`s are greater than
 42 like so:
 
 ```Java
-List<ImmutableUser> users = pgSession.selectF("sql/find_user_gt_emp_id.sql",
+List<ImmutableUser> users = pgSession.select_("sql/find_user_gt_emp_id.sql",
                          ImmutableUser.class,
                          42);
 pgSession.rollback();  // no need to commit
@@ -276,7 +276,7 @@ pgSession.rollback();  // no need to commit
 
 So far, we have shown the utility of selecting our ImmutableUser by variadic args.
 If we only have an ID for a user, we can just hand that ID to `pgSession.select` or
-`pgSession.selectF` as a variadic arg, and Cl4pg will fill in `#{java.util.UUID}`
+`pgSession.select_` as a variadic arg, and Cl4pg will fill in `#{java.util.UUID}`
 in the correct spot in our SQL template.
 
 There may be other times when you have values you would like to get pulled out of
@@ -302,7 +302,7 @@ select id,
 // Note we only bother correctly filling in the one attribute we need
 ImmutableUser findMe = new ImmutableUser("99999999-a4fa-49fc-b6b4-62eca118fbf7", null, null, 0);
 
-ImmutableUser actualImmutable = pgSession.selectOneF(findMe,
+ImmutableUser actualImmutable = pgSession.selectOne_(findMe,
                                  "sql/find_user_by_bean_id.sql",
                                  ImmutableUser.class);
 pgSession.rollback();  // no need to commit
@@ -325,7 +325,7 @@ select id,
 // Note we only bother correctly filling in the one attribute we need
 ImmutableUser findMe = new ImmutableUser("00000000-a4fa-49fc-b6b4-62eca118fbf7", null, null, 42);
 
-ImmutableUser actualImmutable = pgSession.selectOneF(findMe,
+ImmutableUser actualImmutable = pgSession.selectOne_(findMe,
                                  "sql/find_user_gt_emp_id_bean.sql",
                                  ImmutableUser.class);
 pgSession.rollback();  // no need to commit
@@ -341,7 +341,7 @@ objects. [Details here.](docs/more/select.md)
 Cl4pg's `insert` method names and signatures follow the same conventions as `select`:
 
 - If the method is named `insert`, the SQL is assumed to be right in the string, whereas
-if the method is named `insertF`, the SQL is assumed to be a file in the classpath with that name.
+if the method is named `insert_`, the SQL is assumed to be a file in the classpath with that name.
 
 - If the String comes first in the `insert` method, it is assumed that variadic args come next.
 If an Object is first, followed by a String, the Object is a bean whose getters will be used to
@@ -367,7 +367,7 @@ We can insert a user like this:
 
 
 ```Java
-pgSession.insertF("sql/insert_user_variadic.sql", "00000000-a4fa-49fc-b6b4-62eca118fbf7", null, "password", 42);
+pgSession.insert_("sql/insert_user_variadic.sql", "00000000-a4fa-49fc-b6b4-62eca118fbf7", null, "password", 42);
 pgSession.commit();  // don't forget!
 ```
 
@@ -392,7 +392,7 @@ We can a use a bean like this:
 
 ```Java
 ImmutableUser newUser = new ImmutableUser("99999999-a4fa-49fc-b6b4-62eca118fbf7", "Bob", "easypassword", 1);
-pgSession.insertF(newUser, "sql/insert_user.sql");
+pgSession.insert_(newUser, "sql/insert_user.sql");
 pgSession.commit();  // don't forget!
 ```
 
@@ -488,11 +488,11 @@ And now, this piece of code should work as expected:
 
 ```Java
 User expected = createExpectedUser();
-pgSession.insertF(expected, "sql/insert_user.sql");
+pgSession.insert_(expected, "sql/insert_user.sql");
 pgSession.commit();
 boolean correctlyCaughtException = false;
 try {
-    pgSession.insertF(expected, "sql/insert_user.sql");
+    pgSession.insert_(expected, "sql/insert_user.sql");
     pgSession.commit();
 } catch (UserAlreadyExistsException e) {
     log.info("Cannot insert user twice!");

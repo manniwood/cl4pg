@@ -61,8 +61,8 @@ public abstract class AbstractCopyTest {
 
         pgSession = adapter.getSession();
 
-        pgSession.ddlF("sql/create_temp_users_table.sql");
-        pgSession.ddlF("sql/create_temp_dup_users_table.sql");
+        pgSession.ddl_("sql/create_temp_users_table.sql");
+        pgSession.ddl_("sql/create_temp_dup_users_table.sql");
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
@@ -80,7 +80,7 @@ public abstract class AbstractCopyTest {
                                           AbstractPgSessionTest.EMPLOYEE_ID_3));
 
         for (ImmutableUser u : usersToLoad) {
-            pgSession.<ImmutableUser>insertF(u, "sql/insert_user.sql");
+            pgSession.<ImmutableUser>insert_(u, "sql/insert_user.sql");
         }pgSession.copyOut("copy users to stdout", "/tmp/the_users_file.copy");
         pgSession.commit();
     }

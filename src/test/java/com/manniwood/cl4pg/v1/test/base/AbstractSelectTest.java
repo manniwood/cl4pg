@@ -80,11 +80,11 @@ public abstract class AbstractSelectTest {
 
         pgSession = adapter.getSession();
 
-        pgSession.ddlF("sql/create_temp_users_table.sql");
+        pgSession.ddl_("sql/create_temp_users_table.sql");
         pgSession.commit();
 
-        pgSession.insertF("sql/insert_user_variadic.sql", expected.getId(), expected.getName(), expected.getPassword(), expected.getEmployeeId());
-        pgSession.insertF(userWithNulls, "sql/insert_user.sql");
+        pgSession.insert_("sql/insert_user_variadic.sql", expected.getId(), expected.getName(), expected.getPassword(), expected.getEmployeeId());
+        pgSession.insert_(userWithNulls, "sql/insert_user.sql");
         pgSession.commit();
     }
 
@@ -127,9 +127,9 @@ public abstract class AbstractSelectTest {
 
     @Test(priority = 2)
     public void testGuessConstructorListHandler() {
-        List<ImmutableUser> users = pgSession.selectF("sql/select_user_guess_setters.sql",
-                                                      ImmutableUser.class,
-                                                      UUID.fromString(AbstractPgSessionTest.TEST_ID));
+        List<ImmutableUser> users = pgSession.select_("sql/select_user_guess_setters.sql",
+                ImmutableUser.class,
+                UUID.fromString(AbstractPgSessionTest.TEST_ID));
         pgSession.rollback();
         ImmutableUser actualImmutable = users.get(0);
 
@@ -138,9 +138,9 @@ public abstract class AbstractSelectTest {
 
     @Test(priority = 3)
     public void testGuessConstructorListHandlerOne() {
-        ImmutableUser actualImmutable = pgSession.selectOneF("sql/select_user_guess_setters.sql",
-                                                             ImmutableUser.class,
-                                                             UUID.fromString(AbstractPgSessionTest.TEST_ID));
+        ImmutableUser actualImmutable = pgSession.selectOne_("sql/select_user_guess_setters.sql",
+                ImmutableUser.class,
+                UUID.fromString(AbstractPgSessionTest.TEST_ID));
         pgSession.rollback();
 
         Assert.assertTrue(Users.equals(actualImmutable, expected), "users must match");
@@ -191,9 +191,9 @@ public abstract class AbstractSelectTest {
 
     @Test(priority = 7)
     public void testGuessConstructorListHandlerBeanArg() {
-        List<ImmutableUser> users = pgSession.selectF(expected,
-                                                      "sql/select_user_guess_setters_bean_param.sql",
-                                                      ImmutableUser.class);
+        List<ImmutableUser> users = pgSession.select_(expected,
+                "sql/select_user_guess_setters_bean_param.sql",
+                ImmutableUser.class);
         pgSession.rollback();
         ImmutableUser actualImmutable = users.get(0);
 
@@ -202,9 +202,9 @@ public abstract class AbstractSelectTest {
 
     @Test(priority = 8)
     public void testGuessConstructorListHandlerBeanArgOne() {
-        ImmutableUser actualImmutable = pgSession.selectOneF(expected,
-                                                             "sql/select_user_guess_setters_bean_param.sql",
-                                                             ImmutableUser.class);
+        ImmutableUser actualImmutable = pgSession.selectOne_(expected,
+                "sql/select_user_guess_setters_bean_param.sql",
+                ImmutableUser.class);
         pgSession.rollback();
 
         Assert.assertTrue(Users.equals(actualImmutable, expected), "users must match");

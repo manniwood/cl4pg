@@ -97,7 +97,7 @@ public abstract class AbstractPgSessionTest {
         adapter = configureDataSourceAdapter();
         pgSession = adapter.getSession();
 
-        pgSession.ddlF("sql/create_temp_users_table.sql");
+        pgSession.ddl_("sql/create_temp_users_table.sql");
         pgSession.commit();
     }
 
@@ -132,7 +132,7 @@ public abstract class AbstractPgSessionTest {
     public void testInsertAndSelectOneUsingBeans() {
 
         User expected = createExpectedUser();
-        pgSession.insertF(expected, "sql/insert_user.sql");
+        pgSession.insert_(expected, "sql/insert_user.sql");
         pgSession.commit();
 
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
@@ -197,15 +197,15 @@ public abstract class AbstractPgSessionTest {
     @Test(priority = 3)
     public void testExceptions() {
         pgSession.ddl("drop table users");
-        pgSession.ddlF("sql/create_temp_constrained_users_table.sql");
+        pgSession.ddl_("sql/create_temp_constrained_users_table.sql");
         pgSession.commit();
 
         User expected = createExpectedUser();
-        pgSession.insertF(expected, "sql/insert_user.sql");
+        pgSession.insert_(expected, "sql/insert_user.sql");
         pgSession.commit();
         boolean correctlyCaughtException = false;
         try {
-            pgSession.insertF(expected, "sql/insert_user.sql");
+            pgSession.insert_(expected, "sql/insert_user.sql");
             pgSession.commit();
         } catch (UserAlreadyExistsException e) {
             log.info("Cannot insert user twice!");
@@ -215,7 +215,7 @@ public abstract class AbstractPgSessionTest {
 
         // put the original tmp users table back
         pgSession.ddl("drop table users");
-        pgSession.ddlF("sql/create_temp_users_table.sql");
+        pgSession.ddl_("sql/create_temp_users_table.sql");
         pgSession.commit();
         Assert.assertTrue(correctlyCaughtException, "Had to catch custom exception");
     }
