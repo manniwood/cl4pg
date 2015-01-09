@@ -71,7 +71,7 @@ public class InsertV implements Command {
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
         if (Str.isNullOrEmpty(sql)) {
-            sql = sqlCache.slurpFileFromClasspath(filename);
+            sql = sqlCache.get(filename);
         }
 
         BasicParserListener basicParserListener = new BasicParserListener();

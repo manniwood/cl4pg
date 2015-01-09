@@ -65,7 +65,7 @@ public class CopyFileIn implements Command {
                         TypeConverterStore converterStore,
                         SqlCache sqlCache,
                         DataSourceAdapter dataSourceAdapter) throws Exception {
-        String theSql = sql == null ? sqlCache.slurpFileFromClasspath(filename) : sql;
+        String theSql = sql == null ? sqlCache.get(filename) : sql;
         PGConnection pgConn = dataSourceAdapter.unwrapPgConnection(connection);
         CopyManager copyManager = (pgConn).getCopyAPI();
         fileReader = new FileReader(copyFile);

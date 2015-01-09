@@ -74,6 +74,17 @@ create temporary table users (
     employee_id int);
 ```
 
+And let's assume we have a file named `cl4pg/SqlCache.txt` in our classpath whose contents
+look like this:
+
+```
+###########################################################
+## Any file listed in here gets cached by Cl4pg on startup.
+## Cl4pg will expect the file to be on the classpath.
+###########################################################
+sql/create_temp_users_table.sql
+```
+
 Then, we would just use the `c` (stands for "cached") version of PgSession's ddl method:
 
 ```Java
@@ -81,13 +92,13 @@ pgSession.cDdl("sql/create_temp_users_table.sql");
 pgSession.commit();
 ```
 
-> As a general rule of thumb, for every method that takes a string literal
+As a general rule of thumb, for every method that takes a string literal
 containing SQL, PgSesion will have a corresponding `c` method that instead
 treats the string literal as a .sql file that was loaded to cache from the classpath.
 
-> Please also note that Cl4pg actually only loads files from the classpath once,
-and then caches them in memory forever more, so subsequent `c` methods
-using the same files fetch them from memory, not disk.
+Cl4pg loads files from the classpath once, on startup,
+into an unmodifiable map, allowing multiple threads to read
+from the cache without issue.
 
 ## Load
 
