@@ -6,6 +6,8 @@ or setters directly rather than using hacky bytecode injection
 tricks to set the attributes directly instead (makes setters
 for compound attributes impossible).
 
+- Document how beans need no special markup.
+
 - Document how to use pgSession in try/catch checkout/return
 from within, let's say, a webapp using connection pooling.
 
