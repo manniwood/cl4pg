@@ -74,19 +74,19 @@ create temporary table users (
     employee_id int);
 ```
 
-Then, we would just use the `_` version of PgSession's ddl method:
+Then, we would just use the `c` (stands for "cached") version of PgSession's ddl method:
 
 ```Java
-pgSession.ddl_("sql/create_temp_users_table.sql");
+pgSession.cDdl("sql/create_temp_users_table.sql");
 pgSession.commit();
 ```
 
 > As a general rule of thumb, for every method that takes a string literal
-containing SQL, PgSesion will have a corresponding `_` method that instead
-treats the string literal as a .sql file to be loaded from the classpath.
+containing SQL, PgSesion will have a corresponding `c` method that instead
+treats the string literal as a .sql file that was loaded to cache from the classpath.
 
 > Please also note that Cl4pg actually only loads files from the classpath once,
-and then caches them in memory forever more, so subsequent `_` methods
+and then caches them in memory forever more, so subsequent `c` methods
 using the same files fetch them from memory, not disk.
 
 ## Load
@@ -205,7 +205,7 @@ select id,
 You could then search for any particular user by ID like so:
 
 ```Java
-ImmutableUser user = pgSession.selectOne_("sql/find_user_by_id.sql",
+ImmutableUser user = pgSession.cSelectOne("sql/find_user_by_id.sql",
                          ImmutableUser.class,
                          UUID.fromString("99999999-a4fa-49fc-b6b4-62eca118fbf7"));
 pgSession.rollback();  // no need to commit
@@ -271,7 +271,7 @@ You could select a list of users whose `employee_id`s are greater than
 42 like so:
 
 ```Java
-List<ImmutableUser> users = pgSession.select_("sql/find_user_gt_emp_id.sql",
+List<ImmutableUser> users = pgSession.cSelect("sql/find_user_gt_emp_id.sql",
                          ImmutableUser.class,
                          42);
 pgSession.rollback();  // no need to commit
@@ -311,7 +311,7 @@ ImmutableUser findMe = new ImmutableUser(
     null,
     0);
 
-ImmutableUser actualImmutable = pgSession.selectOne_(findMe,
+ImmutableUser actualImmutable = pgSession.cSelectOne(findMe,
                                  "sql/find_user_by_bean_id.sql",
                                  ImmutableUser.class);
 pgSession.rollback();  // no need to commit
@@ -339,7 +339,7 @@ ImmutableUser findMe = new ImmutableUser(
     null,
     42);
 
-ImmutableUser actualImmutable = pgSession.selectOne_(findMe,
+ImmutableUser actualImmutable = pgSession.cSelectOne(findMe,
                                  "sql/find_user_gt_emp_id_bean.sql",
                                  ImmutableUser.class);
 pgSession.rollback();  // no need to commit
@@ -382,7 +382,7 @@ We can insert a user like this:
 
 
 ```Java
-pgSession.insert_("sql/insert_user_variadic.sql",
+pgSession.cInsert("sql/insert_user_variadic.sql",
     "00000000-a4fa-49fc-b6b4-62eca118fbf7",
     null,
     "password",
@@ -416,7 +416,7 @@ ImmutableUser newUser = new ImmutableUser(
     "Bob",
     "easypassword",
     1);
-pgSession.insert_(newUser, "sql/insert_user.sql");
+pgSession.cInsert(newUser, "sql/insert_user.sql");
 pgSession.commit();  // don't forget!
 ```
 
@@ -565,11 +565,11 @@ ImmutableUser newUser = new ImmutableUser(
     "Bob",
     "easypassword",
     1);
-pgSession.insert_(newUser, "sql/insert_user.sql");
+pgSession.cInsert(newUser, "sql/insert_user.sql");
 pgSession.commit();
 boolean correctlyCaughtException = false;
 try {
-    pgSession.insert_(newUser, "sql/insert_user.sql");
+    pgSession.cInsert(newUser, "sql/insert_user.sql");
     pgSession.commit();
 } catch (UserAlreadyExistsException e) {
     log.info("Cannot insert user twice!");

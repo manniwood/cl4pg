@@ -147,7 +147,7 @@ public class PgSession implements Closeable {
      *
      * @param file
      */
-    public void ddl_(String file) {
+    public void cDdl(String file) {
         run(DDL.config().file(file).done());
     }
 
@@ -164,7 +164,7 @@ public class PgSession implements Closeable {
     /**
      * Convenience method that calls a Copy Command
      */
-    public void copyOut_(String file, String outFile) {
+    public void cCopyOut(String file, String outFile) {
         run(CopyFileOut.config()
                 .copyFile(outFile)
                 .file(file)
@@ -185,7 +185,7 @@ public class PgSession implements Closeable {
     /**
      * Convenience method that calls a Copy Command
      */
-    public void copyIn_(String file, String inFile) {
+    public void cCopyIn(String file, String inFile) {
         run(CopyFileIn.config()
                 .copyFile(inFile)
                 .file(file)
@@ -208,7 +208,7 @@ public class PgSession implements Closeable {
      * Convenience method that calls an Insert Command using a bean argument and
      * a file in the classpath.
      */
-    public <A> void insert_(A arg,
+    public <A> void cInsert(A arg,
                             String file) {
         run(Insert.<A> usingBeanArg()
                 .file(file)
@@ -232,7 +232,7 @@ public class PgSession implements Closeable {
      * Convenience method that calls an Insert Command using variadic args and a
      * file in the classpath.
      */
-    public void insert_(String file,
+    public void cInsert(String file,
                         Object... args) {
         run(Insert.usingVariadicArgs()
                 .file(file)
@@ -245,7 +245,7 @@ public class PgSession implements Closeable {
      * file in the classpath, which uses the names of the returned columns to
      * guess the constructor for the returned beans.
      */
-    public <R> List<R> select_(String file,
+    public <R> List<R> cSelect(String file,
                                Class<R> returnClass,
                                Object... args) {
 
@@ -263,7 +263,7 @@ public class PgSession implements Closeable {
      * file in the classpath, which uses the names of the returned columns to
      * guess the constructor for the returned beans.
      */
-    public <R, A> List<R> select_(A arg,
+    public <R, A> List<R> cSelect(A arg,
                                   String file,
                                   Class<R> returnClass) {
 
@@ -282,10 +282,10 @@ public class PgSession implements Closeable {
      * guess the constructor for the returned beans, and returns the first row
      * of the result set.
      */
-    public <R> R selectOne_(String file,
+    public <R> R cSelectOne(String file,
                             Class<R> returnClass,
                             Object... args) {
-        List<R> list = select_(file, returnClass, args);
+        List<R> list = cSelect(file, returnClass, args);
         if (Cllctn.isNullOrEmpty(list)) {
             return null;
         }
@@ -298,10 +298,10 @@ public class PgSession implements Closeable {
      * guess the constructor for the returned beans, and returns the first row
      * of the result set.
      */
-    public <R, A> R selectOne_(A arg,
+    public <R, A> R cSelectOne(A arg,
                                String file,
                                Class<R> returnClass) {
-        List<R> list = select_(arg, file, returnClass);
+        List<R> list = cSelect(arg, file, returnClass);
         if (Cllctn.isNullOrEmpty(list)) {
             return null;
         }
@@ -382,7 +382,7 @@ public class PgSession implements Closeable {
      * @param file
      * @return
      */
-    public <R> List<R> selectScalar_(String file,
+    public <R> List<R> cSelectScalar(String file,
                                      Object... args) {
         ResultSetHandler<R> handler = scalarResultSetHandlerBuilder.build();
         run(Select.<R> usingVariadicArgs()
@@ -402,9 +402,9 @@ public class PgSession implements Closeable {
      * @param file
      * @return
      */
-    public <R> R selectOneScalar_(String file,
+    public <R> R cSelectOneScalar(String file,
                                   Object... args) {
-        List<R> list = selectScalar_(file, args);
+        List<R> list = cSelectScalar(file, args);
         if (Cllctn.isNullOrEmpty(list)) {
             return null;
         }
