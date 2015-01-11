@@ -97,7 +97,7 @@ public abstract class AbstractPgSessionTest {
         adapter = configureDataSourceAdapter();
         pgSession = adapter.getSession();
 
-        pgSession.cDdl("sql/create_temp_users_table.sql");
+        pgSession.ddl("sql/create_temp_users_table.sql");
         pgSession.commit();
     }
 
@@ -124,7 +124,7 @@ public abstract class AbstractPgSessionTest {
      */
     @BeforeMethod
     public void truncateTableUsers() {
-        pgSession.ddl("truncate table users");
+        pgSession.qDdl("truncate table users");
         pgSession.commit();
     }
 
@@ -132,7 +132,7 @@ public abstract class AbstractPgSessionTest {
     public void testInsertAndSelectOneUsingBeans() {
 
         User expected = createExpectedUser();
-        pgSession.cInsert(expected, "sql/insert_user.sql");
+        pgSession.insert(expected, "sql/insert_user.sql");
         pgSession.commit();
 
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
@@ -196,16 +196,16 @@ public abstract class AbstractPgSessionTest {
 
     @Test(priority = 3)
     public void testExceptions() {
-        pgSession.ddl("drop table users");
-        pgSession.cDdl("sql/create_temp_constrained_users_table.sql");
+        pgSession.qDdl("drop table users");
+        pgSession.ddl("sql/create_temp_constrained_users_table.sql");
         pgSession.commit();
 
         User expected = createExpectedUser();
-        pgSession.cInsert(expected, "sql/insert_user.sql");
+        pgSession.insert(expected, "sql/insert_user.sql");
         pgSession.commit();
         boolean correctlyCaughtException = false;
         try {
-            pgSession.cInsert(expected, "sql/insert_user.sql");
+            pgSession.insert(expected, "sql/insert_user.sql");
             pgSession.commit();
         } catch (UserAlreadyExistsException e) {
             log.info("Cannot insert user twice!");
@@ -214,8 +214,8 @@ public abstract class AbstractPgSessionTest {
         }
 
         // put the original tmp users table back
-        pgSession.ddl("drop table users");
-        pgSession.cDdl("sql/create_temp_users_table.sql");
+        pgSession.qDdl("drop table users");
+        pgSession.ddl("sql/create_temp_users_table.sql");
         pgSession.commit();
         Assert.assertTrue(correctlyCaughtException, "Had to catch custom exception");
     }
@@ -237,7 +237,7 @@ public abstract class AbstractPgSessionTest {
          * transaction is aborted, commands ignored until end of transaction
          * block
          */
-        Integer count = pgSession.selectOneScalar("select 1");
+        Integer count = pgSession.qSelectOneScalar("select 1");
         Assert.assertEquals(count.intValue(),
                             1,
                             "Statement needs to return 1");
@@ -245,7 +245,7 @@ public abstract class AbstractPgSessionTest {
 
     @Test(priority = 5)
     public void testApplicationNameIsSet() {
-        String actualAppName = pgSession.selectOne(
+        String actualAppName = pgSession.qSelectOne(
                 "select application_name from pg_stat_activity where application_name = #{java.lang.String}",
                 String.class,
                 ConfigDefaults.DEFAULT_APP_NAME);

@@ -61,8 +61,8 @@ public abstract class AbstractCopyTest {
 
         pgSession = adapter.getSession();
 
-        pgSession.cDdl("sql/create_temp_users_table.sql");
-        pgSession.cDdl("sql/create_temp_dup_users_table.sql");
+        pgSession.ddl("sql/create_temp_users_table.sql");
+        pgSession.ddl("sql/create_temp_dup_users_table.sql");
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
@@ -80,8 +80,8 @@ public abstract class AbstractCopyTest {
                                           AbstractPgSessionTest.EMPLOYEE_ID_3));
 
         for (ImmutableUser u : usersToLoad) {
-            pgSession.<ImmutableUser>cInsert(u, "sql/insert_user.sql");
-        }pgSession.copyOut("copy users to stdout", "/tmp/the_users_file.copy");
+            pgSession.<ImmutableUser>insert(u, "sql/insert_user.sql");
+        }pgSession.qCopyOut("copy users to stdout", "/tmp/the_users_file.copy");
         pgSession.commit();
     }
 
@@ -95,15 +95,15 @@ public abstract class AbstractCopyTest {
 
     @Test(priority = 0)
     public void testCopy() {
-        pgSession.copyOut("copy users to stdout", AbstractPgSessionTest.TEST_COPY_FILE);
+        pgSession.qCopyOut("copy users to stdout", AbstractPgSessionTest.TEST_COPY_FILE);
         // can safely roll back, because file has already been created
         pgSession.rollback();
 
-        pgSession.copyIn("copy dup_users from stdin", AbstractPgSessionTest.TEST_COPY_FILE);
+        pgSession.qCopyIn("copy dup_users from stdin", AbstractPgSessionTest.TEST_COPY_FILE);
         pgSession.commit();
 
         // Let's use sql to do the checking for us
-        Long count = pgSession.selectOneScalar("select count(*) from (select * from users except select * from dup_users) as q");
+        Long count = pgSession.qSelectOneScalar("select count(*) from (select * from users except select * from dup_users) as q");
 
         Assert.assertEquals(count.longValue(),
                             0L,

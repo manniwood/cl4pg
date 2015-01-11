@@ -88,6 +88,21 @@ public class PgSession implements Closeable {
     }
 
     /**
+     * Finishes this session, closing the underlying database connection.
+     * (Closing the underlying database connection could mean actually closing
+     * it, or just returning it to the DataSourceAdapter's connection pool; the
+     * exact behaviour is left up to the DataSourceAdaper implementation.)
+     */
+    @Override
+    public void close() {
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            throw new Cl4pgFailedRollbackException("Could not close databse connection. Possible leaked resource!", e);
+        }
+    }
+
+    /**
      * Runs a Command, automatically rolling back and throwing a Cl4pgException
      * (or one of its children) in the event of an error, and automatically
      * closing any resources (such as open files for the Copy Command, or open
@@ -110,379 +125,6 @@ public class PgSession implements Closeable {
                                                               + command.getSQL(),
                                                       e);
             }
-        }
-    }
-
-    /**
-     * Convenience method that calls a Notify Command.
-     *
-     * @param channel
-     * @param payload
-     */
-    public void pgNotify(String channel,
-                         String payload) {
-        run(Notify.config().channel(channel).payload(payload).done());
-    }
-
-    /**
-     * Convenience method that calls a Listen Command.
-     *
-     * @param channel
-     */
-    public void pgListen(String channel) {
-        run(new Listen(channel));
-    }
-
-    /**
-     * Convenience method that calls a DDL Command.
-     *
-     * @param sql
-     */
-    public void ddl(String sql) {
-        run(DDL.config().sql(sql).done());
-    }
-
-    /**
-     * Convenience method that calls a DDL Command from a file in the classpath.
-     *
-     * @param file
-     */
-    public void cDdl(String file) {
-        run(DDL.config().file(file).done());
-    }
-
-    /**
-     * Convenience method that calls a Copy Command
-     */
-    public void copyOut(String sql, String outFile) {
-        run(CopyFileOut.config()
-                .copyFile(outFile)
-                .sql(sql)
-                .done());
-    }
-
-    /**
-     * Convenience method that calls a Copy Command
-     */
-    public void cCopyOut(String file, String outFile) {
-        run(CopyFileOut.config()
-                .copyFile(outFile)
-                .file(file)
-                .done());
-    }
-
-
-    /**
-     * Convenience method that calls a Copy Command
-     */
-    public void copyIn(String sql, String inFile) {
-        run(CopyFileIn.config()
-                .copyFile(inFile)
-                .sql(sql)
-                .done());
-    }
-
-    /**
-     * Convenience method that calls a Copy Command
-     */
-    public void cCopyIn(String file, String inFile) {
-        run(CopyFileIn.config()
-                .copyFile(inFile)
-                .file(file)
-                .done());
-    }
-
-    /**
-     * Convenience method that calls an Insert Command using a bean argument and
-     * a file in the classpath.
-     */
-    public <A> void insert(A arg,
-                           String sql) {
-        run(Insert.<A> usingBeanArg()
-                .sql(sql)
-                .arg(arg)
-                .done());
-    }
-
-    /**
-     * Convenience method that calls an Insert Command using a bean argument and
-     * a file in the classpath.
-     */
-    public <A> void cInsert(A arg,
-                            String file) {
-        run(Insert.<A> usingBeanArg()
-                .file(file)
-                .arg(arg)
-                .done());
-    }
-
-    /**
-     * Convenience method that calls an Insert Command using variadic args and a
-     * file in the classpath.
-     */
-    public void insert(String sql,
-                       Object... args) {
-        run(Insert.usingVariadicArgs()
-                .sql(sql)
-                .args(args)
-                .done());
-    }
-
-    /**
-     * Convenience method that calls an Insert Command using variadic args and a
-     * file in the classpath.
-     */
-    public void cInsert(String file,
-                        Object... args) {
-        run(Insert.usingVariadicArgs()
-                .file(file)
-                .args(args)
-                .done());
-    }
-
-    /**
-     * Convenience method that calls a Select Command using variadic args and a
-     * file in the classpath, which uses the names of the returned columns to
-     * guess the constructor for the returned beans.
-     */
-    public <R> List<R> cSelect(String file,
-                               Class<R> returnClass,
-                               Object... args) {
-
-        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
-        run(Select.<R> usingVariadicArgs()
-                .file(file)
-                .args(args)
-                .resultSetHandler(handler)
-                .done());
-        return handler.getList();
-    }
-
-    /**
-     * Convenience method that calls a Select Command using variadic args and a
-     * file in the classpath, which uses the names of the returned columns to
-     * guess the constructor for the returned beans.
-     */
-    public <R, A> List<R> cSelect(A arg,
-                                  String file,
-                                  Class<R> returnClass) {
-
-        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
-        run(Select.<A, R> usingBeanArg()
-                .file(file)
-                .arg(arg)
-                .resultSetHandler(handler)
-                .done());
-        return handler.getList();
-    }
-
-    /**
-     * Convenience method that calls a Select Command using variadic args and a
-     * file in the classpath, which uses the names of the returned columns to
-     * guess the constructor for the returned beans, and returns the first row
-     * of the result set.
-     */
-    public <R> R cSelectOne(String file,
-                            Class<R> returnClass,
-                            Object... args) {
-        List<R> list = cSelect(file, returnClass, args);
-        if (Cllctn.isNullOrEmpty(list)) {
-            return null;
-        }
-        return list.get(0);
-    }
-
-    /**
-     * Convenience method that calls a Select Command using variadic args and a
-     * file in the classpath, which uses the names of the returned columns to
-     * guess the constructor for the returned beans, and returns the first row
-     * of the result set.
-     */
-    public <R, A> R cSelectOne(A arg,
-                               String file,
-                               Class<R> returnClass) {
-        List<R> list = cSelect(arg, file, returnClass);
-        if (Cllctn.isNullOrEmpty(list)) {
-            return null;
-        }
-        return list.get(0);
-    }
-
-    /**
-     * Convenience method that calls a Select Command using variadic args, which
-     * uses the names of the returned columns to guess the constructor for the
-     * returned beans.
-     */
-    public <R> List<R> select(String sql,
-                              Class<R> returnClass,
-                              Object... args) {
-
-        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
-        run(Select.<R> usingVariadicArgs()
-                .sql(sql)
-                .args(args)
-                .resultSetHandler(handler)
-                .done());
-        return handler.getList();
-    }
-
-    /**
-     * Convenience method that calls a Select Command using variadic args, which
-     * uses the names of the returned columns to guess the constructor for the
-     * returned beans.
-     */
-    public <R, A> List<R> select(A arg,
-                                 String sql,
-                                 Class<R> returnClass) {
-
-        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
-        run(Select.<A, R> usingBeanArg()
-                .sql(sql)
-                .arg(arg)
-                .resultSetHandler(handler)
-                .done());
-        return handler.getList();
-    }
-
-    /**
-     * Convenience method that calls a Select Command using variadic args, which
-     * uses the names of the returned columns to guess the constructor for the
-     * returned beans, and returns the first row of the result set.
-     */
-    public <R> R selectOne(String sql,
-                           Class<R> returnClass,
-                           Object... args) {
-        List<R> list = select(sql, returnClass, args);
-        if (Cllctn.isNullOrEmpty(list)) {
-            return null;
-        }
-        return list.get(0);
-    }
-
-    /**
-     * Convenience method that calls a Select Command using variadic args, which
-     * uses the names of the returned columns to guess the constructor for the
-     * returned beans, and returns the first row of the result set.
-     */
-    public <R, A> R selectOne(A arg,
-                              String sql,
-                              Class<R> returnClass) {
-        List<R> list = select(arg, sql, returnClass);
-        if (Cllctn.isNullOrEmpty(list)) {
-            return null;
-        }
-        return list.get(0);
-    }
-
-    /**
-     * Convenience method to call a Select Command using variadic args and a
-     * file in the classpath, which uses the type of the single returned column
-     * to return a list of scalar objects (Integer, String, etc).
-     *
-     * @param file
-     * @return
-     */
-    public <R> List<R> cSelectScalar(String file,
-                                     Object... args) {
-        ResultSetHandler<R> handler = scalarResultSetHandlerBuilder.build();
-        run(Select.<R> usingVariadicArgs()
-                .file(file)
-                .args(args)
-                .resultSetHandler(handler)
-                .done());
-        return handler.getList();
-    }
-
-    /**
-     * Convenience method to call a Select Command using variadic args and a
-     * file in the classpath, which uses the type of the single returned column
-     * to return a single (first column, first row) scalar object (Integer,
-     * String, etc). Good for sql queries such as "select * from foo".
-     *
-     * @param file
-     * @return
-     */
-    public <R> R cSelectOneScalar(String file,
-                                  Object... args) {
-        List<R> list = cSelectScalar(file, args);
-        if (Cllctn.isNullOrEmpty(list)) {
-            return null;
-        }
-        return list.get(0);
-    }
-
-    /**
-     * Convenience method to call a Select Command using variadic args, which
-     * uses the type of the single returned column to return a list of scalar
-     * objects (Integer, String, etc).
-     *
-     * @param sql
-     * @return
-     */
-    public <R> List<R> selectScalar(String sql,
-                                    Object... args) {
-        ResultSetHandler<R> handler = scalarResultSetHandlerBuilder.build();
-        run(Select.<R> usingVariadicArgs()
-                .sql(sql)
-                .args(args)
-                .resultSetHandler(handler)
-                .done());
-        return handler.getList();
-    }
-
-    /**
-     * Convenience method to call a Select Command using variadic args, which
-     * uses the type of the single returned column to return a single (first
-     * column, first row) scalar object (Integer, String, etc). Good for sql
-     * queries such as "select * from foo".
-     *
-     * @param sql
-     * @return
-     */
-    public <R> R selectOneScalar(String sql,
-                                 Object... args) {
-        List<R> list = selectScalar(sql, args);
-        if (Cllctn.isNullOrEmpty(list)) {
-            return null;
-        }
-        return list.get(0);
-    }
-
-    /**
-     * Convenience method that calls a GetNotifications Command.
-     */
-    public PGNotification[] getNotifications() {
-        GetNotifications getNotifications = new GetNotifications();
-        run(getNotifications);
-        return getNotifications.getNotifications();
-    }
-
-    /**
-     * Convenience method that calls a Commit Command.
-     */
-    public void commit() {
-        run(new Commit(conn));
-    }
-
-    /**
-     * Convenience method that calls a Rollback Command.
-     */
-    public void rollback() {
-        run(new Rollback(conn));
-    }
-
-    /**
-     * Finishes this session, closing the underlying database connection.
-     * (Closing the underlying database connection could mean actually closing
-     * it, or just returning it to the DataSourceAdapter's connection pool; the
-     * exact behaviour is left up to the DataSourceAdaper implementation.)
-     */
-    @Override
-    public void close() {
-        try {
-            conn.close();
-        } catch (SQLException e) {
-            throw new Cl4pgFailedRollbackException("Could not close databse connection. Possible leaked resource!", e);
         }
     }
 
@@ -510,8 +152,8 @@ public class PgSession implements Closeable {
         if (e instanceof PSQLException) {
             PSQLException psqle = (PSQLException) e;
             Cl4pgPgSqlException pe = new Cl4pgPgSqlException(psqle.getServerErrorMessage(),
-                                                             "ROLLED BACK. Exception while trying to run this sql statement:\n" + sql,
-                                                             e);
+                    "ROLLED BACK. Exception while trying to run this sql statement:\n" + sql,
+                    e);
             return exceptionConverter.convert(pe);
         } else if (e instanceof SQLException) {
             return new Cl4pgSqlException("ROLLED BACK. Exception while trying to run this sql statement:\n" + sql, e);
@@ -519,4 +161,363 @@ public class PgSession implements Closeable {
             return new Cl4pgException("ROLLED BACK. Exception while trying to run this sql statement:\n" + sql, e);
         }
     }
+
+    /**
+     * Convenience method that calls a Commit Command.
+     */
+    public void commit() {
+        run(new Commit(conn));
+    }
+
+    /**
+     * Convenience method that calls a Rollback Command.
+     */
+    public void rollback() {
+        run(new Rollback(conn));
+    }
+
+    /**
+     * Convenience method that calls a Notify Command.
+     *
+     * @param channel
+     * @param payload
+     */
+    public void pgNotify(String channel,
+                         String payload) {
+        run(Notify.config().channel(channel).payload(payload).done());
+    }
+
+    /**
+     * Convenience method that calls a Listen Command.
+     *
+     * @param channel
+     */
+    public void pgListen(String channel) {
+        run(new Listen(channel));
+    }
+
+    /**
+     * Convenience method that calls a GetNotifications Command.
+     */
+    public PGNotification[] getNotifications() {
+        GetNotifications getNotifications = new GetNotifications();
+        run(getNotifications);
+        return getNotifications.getNotifications();
+    }
+
+    /**
+     * Convenience method that calls a Copy Command
+     */
+    public void qCopyOut(String sql, String outFile) {
+        run(CopyFileOut.config()
+                .copyFile(outFile)
+                .sql(sql)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls a Copy Command
+     */
+    public void copyOut(String file, String outFile) {
+        run(CopyFileOut.config()
+                .copyFile(outFile)
+                .file(file)
+                .done());
+    }
+
+
+    /**
+     * Convenience method that calls a Copy Command
+     */
+    public void qCopyIn(String sql, String inFile) {
+        run(CopyFileIn.config()
+                .copyFile(inFile)
+                .sql(sql)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls a Copy Command
+     */
+    public void copyIn(String file, String inFile) {
+        run(CopyFileIn.config()
+                .copyFile(inFile)
+                .file(file)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls a DDL Command.
+     *
+     * @param sql
+     */
+    public void qDdl(String sql) {
+        run(DDL.config().sql(sql).done());
+    }
+
+    /**
+     * Convenience method that calls a DDL Command from a file in the classpath.
+     *
+     * @param file
+     */
+    public void ddl(String file) {
+        run(DDL.config().file(file).done());
+    }
+
+    /**
+     * Convenience method that calls an Insert Command using a bean argument and
+     * a file in the classpath.
+     */
+    public <A> void qInsert(A arg,
+                            String sql) {
+        run(Insert.<A> usingBeanArg()
+                .sql(sql)
+                .arg(arg)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls an Insert Command using a bean argument and
+     * a file in the classpath.
+     */
+    public <A> void insert(A arg,
+                           String file) {
+        run(Insert.<A> usingBeanArg()
+                .file(file)
+                .arg(arg)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls an Insert Command using variadic args and a
+     * file in the classpath.
+     */
+    public void qInsert(String sql,
+                        Object... args) {
+        run(Insert.usingVariadicArgs()
+                .sql(sql)
+                .args(args)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls an Insert Command using variadic args and a
+     * file in the classpath.
+     */
+    public void insert(String file,
+                       Object... args) {
+        run(Insert.usingVariadicArgs()
+                .file(file)
+                .args(args)
+                .done());
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans.
+     */
+    public <R> List<R> qSelect(String sql,
+                               Class<R> returnClass,
+                               Object... args) {
+
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
+        run(Select.<R> usingVariadicArgs()
+                .sql(sql)
+                .args(args)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans.
+     */
+    public <R, A> List<R> qSelect(A arg,
+                                  String sql,
+                                  Class<R> returnClass) {
+
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
+        run(Select.<A, R> usingBeanArg()
+                .sql(sql)
+                .arg(arg)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans, and returns the first row of the result set.
+     */
+    public <R> R qSelectOne(String sql,
+                            Class<R> returnClass,
+                            Object... args) {
+        List<R> list = qSelect(sql, returnClass, args);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans, and returns the first row of the result set.
+     */
+    public <R, A> R qSelectOne(A arg,
+                               String sql,
+                               Class<R> returnClass) {
+        List<R> list = qSelect(arg, sql, returnClass);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * Convenience method to call a Select Command using variadic args, which
+     * uses the type of the single returned column to return a list of scalar
+     * objects (Integer, String, etc).
+     *
+     * @param sql
+     * @return
+     */
+    public <R> List<R> qSelectScalar(String sql,
+                                     Object... args) {
+        ResultSetHandler<R> handler = scalarResultSetHandlerBuilder.build();
+        run(Select.<R> usingVariadicArgs()
+                .sql(sql)
+                .args(args)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method to call a Select Command using variadic args, which
+     * uses the type of the single returned column to return a single (first
+     * column, first row) scalar object (Integer, String, etc). Good for sql
+     * queries such as "select * from foo".
+     *
+     * @param sql
+     * @return
+     */
+    public <R> R qSelectOneScalar(String sql,
+                                  Object... args) {
+        List<R> list = qSelectScalar(sql, args);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args and a
+     * file in the classpath, which uses the names of the returned columns to
+     * guess the constructor for the returned beans.
+     */
+    public <R> List<R> select(String file,
+                              Class<R> returnClass,
+                              Object... args) {
+
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
+        run(Select.<R> usingVariadicArgs()
+                .file(file)
+                .args(args)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args and a
+     * file in the classpath, which uses the names of the returned columns to
+     * guess the constructor for the returned beans.
+     */
+    public <R, A> List<R> select(A arg,
+                                 String file,
+                                 Class<R> returnClass) {
+
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
+        run(Select.<A, R> usingBeanArg()
+                .file(file)
+                .arg(arg)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args and a
+     * file in the classpath, which uses the names of the returned columns to
+     * guess the constructor for the returned beans, and returns the first row
+     * of the result set.
+     */
+    public <R> R selectOne(String file,
+                           Class<R> returnClass,
+                           Object... args) {
+        List<R> list = select(file, returnClass, args);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * Convenience method that calls a Select Command using variadic args and a
+     * file in the classpath, which uses the names of the returned columns to
+     * guess the constructor for the returned beans, and returns the first row
+     * of the result set.
+     */
+    public <R, A> R selectOne(A arg,
+                              String file,
+                              Class<R> returnClass) {
+        List<R> list = select(arg, file, returnClass);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * Convenience method to call a Select Command using variadic args and a
+     * file in the classpath, which uses the type of the single returned column
+     * to return a list of scalar objects (Integer, String, etc).
+     *
+     * @param file
+     * @return
+     */
+    public <R> List<R> selectScalar(String file,
+                                    Object... args) {
+        ResultSetHandler<R> handler = scalarResultSetHandlerBuilder.build();
+        run(Select.<R> usingVariadicArgs()
+                .file(file)
+                .args(args)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method to call a Select Command using variadic args and a
+     * file in the classpath, which uses the type of the single returned column
+     * to return a single (first column, first row) scalar object (Integer,
+     * String, etc). Good for sql queries such as "select * from foo".
+     *
+     * @param file
+     * @return
+     */
+    public <R> R selectOneScalar(String file,
+                                 Object... args) {
+        List<R> list = selectScalar(file, args);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
 }

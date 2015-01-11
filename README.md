@@ -52,7 +52,7 @@ PgSession pgSession = adapter.getSession();
 Let's create a users table.
 
 ```Java
-pgSession.ddl("create temporary table users ( "
+pgSession.qDdl("create temporary table users ( "
         + "id uuid, "
         + "name text, "
         + "password text, "
@@ -85,20 +85,27 @@ look like this:
 sql/create_temp_users_table.sql
 ```
 
-Then, we would just use the `c` (stands for "cached") version of PgSession's ddl method:
+Then, we would just use this version of PgSession's ddl method:
 
 ```Java
-pgSession.cDdl("sql/create_temp_users_table.sql");
+pgSession.ddl("sql/create_temp_users_table.sql");
 pgSession.commit();
 ```
 
-As a general rule of thumb, for every method that takes a string literal
-containing SQL, PgSesion will have a corresponding `c` method that instead
-treats the string literal as a .sql file that was loaded to cache from the classpath.
+### `q` versus non-`q` naming convention
 
-Cl4pg loads files from the classpath once, on startup,
+Most methods in cl4pg have a corresponding `q` method. So, for instance, the
+`select` method has a corresponding `qSelect` method, the `insert` method has
+a corresponding `qInsert` method, etc. The `q` in the `q` methods stands for
+"quick", and is used for quick one-offs were the string literal argument is
+a SQL statement. The non-`q` methods, which will presumably get more use on
+larger projects with more complex sql statements, treat the string literal as
+the name of a file on the classpath containing a SQL statement.
+
+When using SQL files that get loaded from the classpath, cl4pg loads files 
+from the classpath once, on startup,
 into an unmodifiable map, allowing multiple threads to read
-from the cache without issue.
+from the cache of loaded SQL files without contention or slowdown.
 
 ## Load
 
@@ -113,7 +120,7 @@ Let's assume we have the following PostgreSQL copy file named /tmp/users.copy
 We could load our users table from that file like so:
 
 ```Java
-pgSession.copyIn("copy users from stdin", "/tmp/users.copy");
+pgSession.qCopyIn("copy users from stdin", "/tmp/users.copy");
 pgSesion.commit();
 ```
 
@@ -127,7 +134,7 @@ with cl4pg.
 Let's select a count of how many users we have.
 
 ```Java
-Long count = pgSession.selectOneScalar("select count(*) from users");
+Long count = pgSession.qSelectOneScalar("select count(*) from users");
 pgSession.rollback();  // no need to commit
 ```
 
@@ -213,10 +220,22 @@ select id,
  where id = #{java.util.UUID}
 ```
 
+And let's assume we have a file named `cl4pg/SqlCache.txt` in our classpath whose contents
+now look like this (adding to the cache file from our previous example):
+
+```
+###########################################################
+## Any file listed in here gets cached by cl4pg on startup.
+## cl4pg will expect the file to be on the classpath.
+###########################################################
+sql/create_temp_users_table.sql
+sql/find_user_by_id.sql
+```
+
 You could then search for any particular user by ID like so:
 
 ```Java
-ImmutableUser user = pgSession.cSelectOne("sql/find_user_by_id.sql",
+ImmutableUser user = pgSession.selectOne("sql/find_user_by_id.sql",
                          ImmutableUser.class,
                          UUID.fromString("99999999-a4fa-49fc-b6b4-62eca118fbf7"));
 pgSession.rollback();  // no need to commit
@@ -239,7 +258,7 @@ and it gets filled in like so: `preparedStatement.setObject(1, theUUID)`.
 
 A more interesting example might have a SQL template with
 `where foo = #{java.lang.String} and bar = #{java.lang.Integer}`. If we
-provided the variadic args to `pgSession.selectOne_` as "Hello" and 42,
+provided the variadic args to `pgSession.selectOne` as "Hello" and 42,
 under the covers, the SQL template would become `where foo = ? and bar = ?`
 as a prepared statement, and that prepared statement would get filled in
 with `pstmt.setString(1, "Hello")` followed by
@@ -251,7 +270,7 @@ But that's just mapping the arguments going *in* to the SQL. What
 about the rows coming *out* of the SQL? How do those create an
 instance of ImmutableUser?
 
-The second argument of `pgSession.selectOne_` is the return type, so
+The second argument of `pgSession.selectOne` is the return type, so
 cl4pg knows what type of bean it is trying to return. It then looks
 at the return column types, in the order given, using
 `ResultSetMetaData.getColumnClassName()`. So in our example,
@@ -278,11 +297,24 @@ select id,
  where employee_id > #{java.lang.Integer}
 ```
 
+And let's assume we have a file named `cl4pg/SqlCache.txt` in our classpath whose contents
+now look like this (adding to the cache file from our previous example):
+
+```
+###########################################################
+## Any file listed in here gets cached by cl4pg on startup.
+## cl4pg will expect the file to be on the classpath.
+###########################################################
+sql/create_temp_users_table.sql
+sql/find_user_by_id.sql
+sql/find_user_gt_emp_id.sql
+```
+
 You could select a list of users whose `employee_id`s are greater than
 42 like so:
 
 ```Java
-List<ImmutableUser> users = pgSession.cSelect("sql/find_user_gt_emp_id.sql",
+List<ImmutableUser> users = pgSession.select("sql/find_user_gt_emp_id.sql",
                          ImmutableUser.class,
                          42);
 pgSession.rollback();  // no need to commit
@@ -314,6 +346,21 @@ select id,
  where id = #{getId}
 ```
 
+Our `cl4pg/SqlCache.txt` file now looks like this:
+
+```
+###########################################################
+## Any file listed in here gets cached by cl4pg on startup.
+## cl4pg will expect the file to be on the classpath.
+###########################################################
+sql/create_temp_users_table.sql
+sql/find_user_by_id.sql
+sql/find_user_gt_emp_id.sql
+sql/find_user_by_bean_id.sql
+```
+
+Our java call:
+
 ```Java
 // Note we only bother correctly filling in the one attribute we need
 ImmutableUser findMe = new ImmutableUser(
@@ -322,7 +369,7 @@ ImmutableUser findMe = new ImmutableUser(
     null,
     0);
 
-ImmutableUser actualImmutable = pgSession.cSelectOne(findMe,
+ImmutableUser actualImmutable = pgSession.selectOne(findMe,
                                  "sql/find_user_by_bean_id.sql",
                                  ImmutableUser.class);
 pgSession.rollback();  // no need to commit
@@ -342,6 +389,22 @@ select id,
  where employee_id > #{getEmployeeId}
 ```
 
+Our `cl4pg/SqlCache.txt` file now looks like this:
+
+```
+###########################################################
+## Any file listed in here gets cached by cl4pg on startup.
+## cl4pg will expect the file to be on the classpath.
+###########################################################
+sql/create_temp_users_table.sql
+sql/find_user_by_id.sql
+sql/find_user_gt_emp_id.sql
+sql/find_user_by_bean_id.sql
+sql/find_user_gt_emp_id_bean.sql
+```
+
+Our Java call:
+
 ```Java
 // Note we only bother correctly filling in the one attribute we need
 ImmutableUser findMe = new ImmutableUser(
@@ -350,7 +413,7 @@ ImmutableUser findMe = new ImmutableUser(
     null,
     42);
 
-ImmutableUser actualImmutable = pgSession.cSelectOne(findMe,
+ImmutableUser actualImmutable = pgSession.selectOne(findMe,
                                  "sql/find_user_gt_emp_id_bean.sql",
                                  ImmutableUser.class);
 pgSession.rollback();  // no need to commit
@@ -359,16 +422,18 @@ pgSession.rollback();  // no need to commit
 ### Using Setters Instead of Constructors, and More!
 
 There are many more ways to select data from cl4pg and map it to your Java
-objects. [Details here.](docs/more/select.md)
+objects. For instance, you do not have to use immutable beans: You can use
+beans with null constructors and build them using setter methods instead!
+[Details here.](docs/more/select.md)
 
 ## Insert
 
 Cl4pg's `insert` method names and signatures follow the same conventions as `select`:
 
-- If the method is named `insert`, the SQL is assumed to be right in the string, whereas
-if the method is named `insert_`, the SQL is assumed to be a file in the classpath with that name.
+- If the method is named `qInsert`, the SQL is assumed to be right in the string, whereas
+if the method is named `insert`, the SQL is assumed to be a file in the classpath with that name.
 
-- If the String comes first in the `insert` method, it is assumed that variadic args come next.
+- If the String comes first in the `insert`/`qInsert` method, it is assumed that variadic args come next.
 If an Object is first, followed by a String, the Object is a bean whose getters will be used to
 fill in parameters.
 
@@ -389,11 +454,26 @@ values (#{java.util.UUID},
         #{java.lang.Integer})
 ```
 
+Our `cl4pg/SqlCache.txt` file now looks like this:
+
+```
+###########################################################
+## Any file listed in here gets cached by cl4pg on startup.
+## cl4pg will expect the file to be on the classpath.
+###########################################################
+sql/create_temp_users_table.sql
+sql/find_user_by_id.sql
+sql/find_user_gt_emp_id.sql
+sql/find_user_by_bean_id.sql
+sql/find_user_gt_emp_id_bean.sql
+sql/insert_user_variadic.sql
+```
+
 We can insert a user like this:
 
 
 ```Java
-pgSession.cInsert("sql/insert_user_variadic.sql",
+pgSession.insert("sql/insert_user_variadic.sql",
     "00000000-a4fa-49fc-b6b4-62eca118fbf7",
     null,
     "password",
@@ -418,6 +498,22 @@ values (#{getId},
         #{getEmployeeId})
 ```
 
+Our `cl4pg/SqlCache.txt` file now looks like this:
+
+```
+###########################################################
+## Any file listed in here gets cached by cl4pg on startup.
+## cl4pg will expect the file to be on the classpath.
+###########################################################
+sql/create_temp_users_table.sql
+sql/find_user_by_id.sql
+sql/find_user_gt_emp_id.sql
+sql/find_user_by_bean_id.sql
+sql/find_user_gt_emp_id_bean.sql
+sql/insert_user_variadic.sql
+sql/insert_user.sql
+```
+
 We can a use a bean like this:
 
 
@@ -427,18 +523,18 @@ ImmutableUser newUser = new ImmutableUser(
     "Bob",
     "easypassword",
     1);
-pgSession.cInsert(newUser, "sql/insert_user.sql");
+pgSession.insert(newUser, "sql/insert_user.sql");
 pgSession.commit();  // don't forget!
 ```
 
 ## Exception Handling
 
-Whenever an exception is encountered, cl4pg automatically does a rollback, and throws
+Whenever an exception is encountered, cl4pg *automatically does a rollback*, and throws
 a `Cl4pgException`, or a subclass of `Cl4pgException`, which is an unchecked exception.
 
 [Find out why Cl4pgException is unchecked.](docs/philosophy/exceptions.md)
 
-The original exception can always be accessed using `getCause()`.
+The original, underlying exception can always be accessed using `getCause()`.
 
 Furthermore, if the underlying exception was a `PSQLException`, it will get wrapped in a
 `Cl4pgPgSqlException`, which will have many useful access methods such as `getTable()`
@@ -470,9 +566,9 @@ create table users (
     employee_id int constraint users_employee_id_uniq not null);
 ```
 
-Let's assume a file named `sql/insert_user.sql` on the classpath
-(in `src/main/resources` in your Java project if you are using the Maven project layout):
-
+Let's assume a file named `sql/insert_user.sql` on the classpath and listed 
+in your `cl4pg/SqlCache.txt` file:
+ 
 ```Java
 insert into users (
     id,  -- UUID
@@ -576,11 +672,11 @@ ImmutableUser newUser = new ImmutableUser(
     "Bob",
     "easypassword",
     1);
-pgSession.cInsert(newUser, "sql/insert_user.sql");
+pgSession.insert(newUser, "sql/insert_user.sql");
 pgSession.commit();
 boolean correctlyCaughtException = false;
 try {
-    pgSession.cInsert(newUser, "sql/insert_user.sql");
+    pgSession.insert(newUser, "sql/insert_user.sql");
     pgSession.commit();
 } catch (UserAlreadyExistsException e) {
     log.info("Cannot insert user twice!");

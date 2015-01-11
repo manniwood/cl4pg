@@ -80,11 +80,11 @@ public abstract class AbstractSelectTest {
 
         pgSession = adapter.getSession();
 
-        pgSession.cDdl("sql/create_temp_users_table.sql");
+        pgSession.ddl("sql/create_temp_users_table.sql");
         pgSession.commit();
 
-        pgSession.cInsert("sql/insert_user_variadic.sql", expected.getId(), expected.getName(), expected.getPassword(), expected.getEmployeeId());
-        pgSession.cInsert(userWithNulls, "sql/insert_user.sql");
+        pgSession.insert("sql/insert_user_variadic.sql", expected.getId(), expected.getName(), expected.getPassword(), expected.getEmployeeId());
+        pgSession.insert(userWithNulls, "sql/insert_user.sql");
         pgSession.commit();
     }
 
@@ -127,7 +127,7 @@ public abstract class AbstractSelectTest {
 
     @Test(priority = 2)
     public void testGuessConstructorListHandler() {
-        List<ImmutableUser> users = pgSession.cSelect("sql/select_user_guess_setters.sql",
+        List<ImmutableUser> users = pgSession.select("sql/select_user_guess_setters.sql",
                 ImmutableUser.class,
                 UUID.fromString(AbstractPgSessionTest.TEST_ID));
         pgSession.rollback();
@@ -138,7 +138,7 @@ public abstract class AbstractSelectTest {
 
     @Test(priority = 3)
     public void testGuessConstructorListHandlerOne() {
-        ImmutableUser actualImmutable = pgSession.cSelectOne("sql/select_user_guess_setters.sql",
+        ImmutableUser actualImmutable = pgSession.selectOne("sql/select_user_guess_setters.sql",
                 ImmutableUser.class,
                 UUID.fromString(AbstractPgSessionTest.TEST_ID));
         pgSession.rollback();
@@ -191,7 +191,7 @@ public abstract class AbstractSelectTest {
 
     @Test(priority = 7)
     public void testGuessConstructorListHandlerBeanArg() {
-        List<ImmutableUser> users = pgSession.cSelect(expected,
+        List<ImmutableUser> users = pgSession.select(expected,
                 "sql/select_user_guess_setters_bean_param.sql",
                 ImmutableUser.class);
         pgSession.rollback();
@@ -202,7 +202,7 @@ public abstract class AbstractSelectTest {
 
     @Test(priority = 8)
     public void testGuessConstructorListHandlerBeanArgOne() {
-        ImmutableUser actualImmutable = pgSession.cSelectOne(expected,
+        ImmutableUser actualImmutable = pgSession.selectOne(expected,
                 "sql/select_user_guess_setters_bean_param.sql",
                 ImmutableUser.class);
         pgSession.rollback();

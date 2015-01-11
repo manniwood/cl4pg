@@ -1,10 +1,6 @@
 
 -------- v1.0.x
 
-- have "quick" queries with literal sql start with q, seeing as
-they will be the less-often used form; remove the leading c from
-the ones using the cached sql files.
-
 - Document why reflection is used to call constructors
 or setters directly rather than using hacky bytecode injection
 tricks to set the attributes directly instead (makes setters
