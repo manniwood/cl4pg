@@ -1,9 +1,9 @@
-# Cl4pg: The Convenience Library for PostgreSQL
+# cl4pg: The Convenience Library for PostgreSQL
 
 ## Why?
 
 For people who need the reverse of a classic ORM. Instead of abstracting
-away what makes PostgreSQL unique, Cl4pg lets you code directly in SQL,
+away what makes PostgreSQL unique, cl4pg lets you code directly in SQL,
 and expostes key PostgreSQL functionality like listen/notify, and copy.
 
 [More](docs/philosophy/why.md)
@@ -57,7 +57,7 @@ pgSession.ddl("create temporary table users ( "
         + "name text, "
         + "password text, "
         + "employee_id int) ");
-pgSession.commit();  // yes! Cl4pg lets you manage your own transactions!
+pgSession.commit();  // yes! cl4pg lets you manage your own transactions!
 ```
 
 Of course, Java lacks multiline string literals, so it's nicer to keep our
@@ -79,8 +79,8 @@ look like this:
 
 ```
 ###########################################################
-## Any file listed in here gets cached by Cl4pg on startup.
-## Cl4pg will expect the file to be on the classpath.
+## Any file listed in here gets cached by cl4pg on startup.
+## cl4pg will expect the file to be on the classpath.
 ###########################################################
 sql/create_temp_users_table.sql
 ```
@@ -118,7 +118,7 @@ pgSesion.commit();
 ```
 
 PosgtreSQL's proprietary copy format is a first-class citizen
-with Cl4pg.
+with cl4pg.
 
 ## Select
 
@@ -252,7 +252,7 @@ about the rows coming *out* of the SQL? How do those create an
 instance of ImmutableUser?
 
 The second argument of `pgSession.selectOne_` is the return type, so
-Cl4pg knows what type of bean it is trying to return. It then looks
+cl4pg knows what type of bean it is trying to return. It then looks
 at the return column types, in the order given, using
 `ResultSetMetaData.getColumnClassName()`. So in our example,
 `id, name, password, employee_id` would correspond to
@@ -292,7 +292,7 @@ pgSession.rollback();  // no need to commit
 
 So far, we have shown the utility of selecting our ImmutableUser by variadic args.
 If we only have an ID for a user, we can just hand that ID to `pgSession.select` or
-`pgSession.select_` as a variadic arg, and Cl4pg will fill in `#{java.util.UUID}`
+`pgSession.select_` as a variadic arg, and cl4pg will fill in `#{java.util.UUID}`
 in the correct spot in our SQL template.
 
 There may be other times when you have values you would like to get pulled out of
@@ -358,7 +358,7 @@ pgSession.rollback();  // no need to commit
 
 ### Using Setters Instead of Constructors, and More!
 
-There are many more ways to select data from Cl4pg and map it to your Java
+There are many more ways to select data from cl4pg and map it to your Java
 objects. [Details here.](docs/more/select.md)
 
 ## Insert
@@ -433,7 +433,7 @@ pgSession.commit();  // don't forget!
 
 ## Exception Handling
 
-Whenever an exception is encountered, Cl4pg automatically does a rollback, and throws
+Whenever an exception is encountered, cl4pg automatically does a rollback, and throws
 a `Cl4pgException`, or a subclass of `Cl4pgException`, which is an unchecked exception.
 
 [Find out why Cl4pgException is unchecked.](docs/philosophy/exceptions.md)
