@@ -243,7 +243,7 @@ pgSession.rollback();  // no need to commit
 
 Cl4pg does a few things for us here.
 
-`pgSession.selectOne_`'s first argument is the sql file on our classpath.
+`pgSession.selectOne`'s first argument is the sql file on our classpath.
 
 The second argument is the return type.
 

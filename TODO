@@ -1,6 +1,8 @@
 
 -------- v1.0.x
 
+- Document how to build and run test cases
+
 - Document why reflection is used to call constructors
 or setters directly rather than using hacky bytecode injection
 tricks to set the attributes directly instead (makes setters
