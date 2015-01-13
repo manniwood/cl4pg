@@ -694,7 +694,36 @@ handles more "exceptional" exceptions.
 
 ## Listen/Notify
 
-to be written
+Listen/Notify are first-class citizens with cl4pg.
+
+One session decides to listen for notifications:
+
+```Java
+pgSession1.pgListen("listening_place");
+pgSession1.commit();
+```
+
+Another session decides to send some notifications:
+
+```Java
+pgSession2.pgNotify("listening_place", "Hello, world!");
+pgSession2.pgNotify("listening_place", "Lalalalala!");
+pgSession2.commit();
+```
+
+And our first session decides to check for messages:
+
+```Java
+// the PGNotificaton type is provided by the PostgreSQL JDBC driver
+PGNotification[] notifications = pgSession1.getNotifications();
+pgSession1.commit();
+for (PGNotification notification : notifications) {
+    log.info("notification name {}, parameter: {}, pid: {}", 
+        notification.getName(), 
+        notification.getParameter(), 
+        notification.getPID());
+}
+```
 
 ## Stored Procedures
 
@@ -702,8 +731,38 @@ to be written
 
 ## Opening and Closing Sessions
 
-to be written
+For some applications, it will suffice to get one session, hold
+it open for the duration of the application, and close it at the end:
 
+```Java
+DataSourceAdapter adapter = PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
+PgSession pgSession = adapter.getSession();
+// do stuff
+pgSession.close();
+```
+
+For other applications, such as web apps, you will use one of the
+data source adapters that uses a connection pool, such as
+`HikariCpDataSourceAdapter` or `TomcatJDBCDataSourceAdapter`.
+(Feel free to use PgPoolingDataSourceAdapter as well, seeing as
+it conveniently wraps the PostgreSQL JDBC driver's `PGPoolingDataSource`.
+Just bear in mind that it is not a very sophisticated connection pool.)
+
+For this sort of adapter, your usage will look more like this:
+
+```Java
+// This will happen once at application startup
+DataSourceAdapter adapter = HikariCpDataSourceAdapter.buildFromDefaultConfFile();
+
+// This will be a typical use:
+
+// Get a session from the connection pool
+try (PgSession pgSession = adapter.getSession()) {
+    // do stuff
+    pgSession.commit();  // Unless you have enabled autocommit
+} // Java 7 automatically calls "finally { pgSession.close(); }",
+// returning pgSession to the connection pool.
+```
 
 
 
