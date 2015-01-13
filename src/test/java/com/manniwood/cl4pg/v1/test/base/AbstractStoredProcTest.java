@@ -60,12 +60,12 @@ public abstract class AbstractStoredProcTest {
 
         pgSession = adapter.getSession();
 
-        pgSession.run(DDL.config().file("sql/create_temp_users_table.sql").done());
-        pgSession.run(DDL.config().file("sql/create_swap_func.sql").done());
-        pgSession.run(DDL.config().file("sql/create_add_to_first.sql").done());
-        pgSession.run(DDL.config().file("sql/create_add_to_last.sql").done());
-        pgSession.run(DDL.config().file("sql/create_add_and_return.sql").done());
-        pgSession.run(DDL.config().file("sql/create_get_user_by_id_func.sql").done());
+        pgSession.ddl("sql/create_temp_users_table.sql");
+        pgSession.ddl("sql/create_swap_func.sql");
+        pgSession.ddl("sql/create_add_to_first.sql");
+        pgSession.ddl("sql/create_add_to_last.sql");
+        pgSession.ddl("sql/create_add_and_return.sql");
+        pgSession.ddl("sql/create_get_user_by_id_func.sql");
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
@@ -83,10 +83,7 @@ public abstract class AbstractStoredProcTest {
                                           AbstractPgSessionTest.EMPLOYEE_ID_3));
 
         for (ImmutableUser u : usersToLoad) {
-            pgSession.run(Insert.<ImmutableUser> usingBeanArg()
-                    .file("sql/insert_user.sql")
-                    .arg(u)
-                    .done());
+            pgSession.insert(u, "sql/insert_user.sql");
         }
         pgSession.commit();
 
@@ -96,11 +93,11 @@ public abstract class AbstractStoredProcTest {
 
     @AfterClass
     public void tearDown() {
-        pgSession.run(DDL.config().file("sql/drop_swap_func.sql").done());
-        pgSession.run(DDL.config().file("sql/drop_add_to_first.sql").done());
-        pgSession.run(DDL.config().file("sql/drop_add_to_last.sql").done());
-        pgSession.run(DDL.config().file("sql/drop_add_and_return.sql").done());
-        pgSession.run(DDL.config().file("sql/drop_get_user_by_id_func.sql").done());
+        pgSession.ddl("sql/drop_swap_func.sql");
+        pgSession.ddl("sql/drop_add_to_first.sql");
+        pgSession.ddl("sql/drop_add_to_last.sql");
+        pgSession.ddl("sql/drop_add_and_return.sql");
+        pgSession.ddl("sql/drop_get_user_by_id_func.sql");
         pgSession.commit();
         pgSession.close();
         adapter.close();
@@ -172,14 +169,12 @@ public abstract class AbstractStoredProcTest {
 
     @Test(priority = 3)
     public void testAddAndReturnV() {
-        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.<Integer> usingVariadicArgs()
-                .sql("select add_and_return from add_and_return(#{java.lang.Integer}, #{java.lang.Integer})")
-                .args(1, 2)
-                .resultSetHandler(handler)
-                .done());
-        Integer sum = handler.getList().get(0);
-        Assert.assertEquals(sum.longValue(),
+        Integer sum = pgSession.qSelectOneScalar(
+                "select add_and_return from add_and_return(#{java.lang.Integer}, #{java.lang.Integer})",
+                1,
+                2);
+
+        Assert.assertEquals(sum.intValue(),
                             3,
                             "Stored proc needs to return 3");
     }
@@ -191,14 +186,11 @@ public abstract class AbstractStoredProcTest {
         addends.setFirst(2);
         addends.setSecond(3);
 
-        GuessScalarListHandler<Integer> handler = new GuessScalarListHandler<Integer>();
-        pgSession.run(Select.<TwoInts, Integer> usingBeanArg()
-                .sql("select add_and_return from add_and_return(#{getFirst}, #{getSecond})")
-                .arg(addends)
-                .resultSetHandler(handler)
-                .done());
-        Integer sum = handler.getList().get(0);
-        Assert.assertEquals(sum.longValue(),
+        Integer sum2 = pgSession.qSelectOneScalar(
+                addends,
+                "select add_and_return from add_and_return(#{getFirst}, #{getSecond})");
+
+        Assert.assertEquals(sum2.intValue(),
                             5,
                             "Stored proc needs to return 3");
     }

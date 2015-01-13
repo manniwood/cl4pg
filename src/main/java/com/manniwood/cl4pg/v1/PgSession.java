@@ -397,6 +397,44 @@ public class PgSession implements Closeable {
         return handler.getList();
     }
 
+
+    /**
+     * Convenience method to call a Select Command using variadic args, which
+     * uses the type of the single returned column to return a list of scalar
+     * objects (Integer, String, etc).
+     *
+     * @param sql
+     * @return
+     */
+    public <R, A> List<R> qSelectScalar(A arg,
+                                        String sql) {
+        ResultSetHandler<R> handler = scalarResultSetHandlerBuilder.build();
+        run(Select.<A, R> usingBeanArg()
+                .sql(sql)
+                .arg(arg)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method to call a Select Command using variadic args, which
+     * uses the type of the single returned column to return a single (first
+     * column, first row) scalar object (Integer, String, etc). Good for sql
+     * queries such as "select * from foo".
+     *
+     * @param sql
+     * @return
+     */
+    public <R, A> R qSelectOneScalar(A arg,
+                                     String sql) {
+        List<R> list = qSelectScalar(arg, sql);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
     /**
      * Convenience method to call a Select Command using variadic args, which
      * uses the type of the single returned column to return a single (first
