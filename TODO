@@ -1,6 +1,17 @@
 
 -------- v1.0.x
 
+- Write .procInOut
+- Write .qProcInOut
+- Write .procRefCursor
+- Write .qProcRefCursor
+- Write .procRefCursorOne
+- Write .qProcRefCursorOne
+- Write .procRefCursorScalar
+- Write .qProcRefCursorScalar
+- Write .procRefCursorOneScalar
+- Write .qProcRefCursorOneScalar
+
 - Document how to build and run test cases
 
 - Document why reflection is used to call constructors
