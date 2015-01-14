@@ -47,7 +47,7 @@ import com.manniwood.cl4pg.v1.util.Str;
  * @author mwood
  *
  */
-public class SelectB<A, R> implements Command {
+public class SelectB<R, A> implements Command {
 
     private final static Logger log = LoggerFactory.getLogger(SelectB.class);
 
@@ -57,7 +57,7 @@ public class SelectB<A, R> implements Command {
     private final A arg;
     private PreparedStatement pstmt;
 
-    private SelectB(Builder<A, R> builder) {
+    private SelectB(Builder<R, A> builder) {
         this.sql = builder.sql;
         this.filename = builder.filename;
         this.resultSetHandler = builder.resultSetHandler;
@@ -104,11 +104,11 @@ public class SelectB<A, R> implements Command {
         }
     }
 
-    public static <A, R> Builder<A, R> config() {
-        return new Builder<A, R>();
+    public static <R, A> Builder<R, A> config() {
+        return new Builder<R, A>();
     }
 
-    public static class Builder<A, R> {
+    public static class Builder<R, A> {
         private String sql;
         private String filename;
         private ResultSetHandler<R> resultSetHandler;
@@ -118,34 +118,34 @@ public class SelectB<A, R> implements Command {
             // null constructor
         }
 
-        public Builder<A, R> sql(String sql) {
+        public Builder<R, A> sql(String sql) {
             this.sql = sql;
             return this;
         }
 
-        public Builder<A, R> file(String filename) {
+        public Builder<R, A> file(String filename) {
             this.filename = filename;
             return this;
         }
 
-        public Builder<A, R> resultSetHandler(ResultSetHandler<R> resultSetHandler) {
+        public Builder<R, A> resultSetHandler(ResultSetHandler<R> resultSetHandler) {
             this.resultSetHandler = resultSetHandler;
             return this;
         }
 
-        public Builder<A, R> arg(A arg) {
+        public Builder<R, A> arg(A arg) {
             this.arg = arg;
             return this;
         }
 
-        public SelectB<A, R> done() {
+        public SelectB<R, A> done() {
             if (Str.isNullOrEmpty(sql) && Str.isNullOrEmpty(filename)) {
                 throw new Cl4pgConfigException("SQL string or file must be specified.");
             }
             if (resultSetHandler == null) {
                 throw new Cl4pgConfigException("A result set handler must be specified.");
             }
-            return new SelectB<A, R>(this);
+            return new SelectB<R, A>(this);
         }
     }
 

@@ -213,7 +213,7 @@ public abstract class AbstractSelectTest {
     @Test(priority = 9)
     public void testExplicitConstructorListHandlerBeanArg() {
         ExplicitConstructorListHandler<ImmutableUser> handler = new ExplicitConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(Select.<User, ImmutableUser> usingBeanArg()
+        pgSession.run(Select.<ImmutableUser, User> usingBeanArg()
                 .file("sql/select_user_use_constructor_bean_param.sql")
                 .arg(expected)
                 .resultSetHandler(handler)

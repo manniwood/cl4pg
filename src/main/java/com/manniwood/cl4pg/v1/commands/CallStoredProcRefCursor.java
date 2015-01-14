@@ -40,8 +40,8 @@ public class CallStoredProcRefCursor {
         return new CallStoredProcRefCursorV.Builder<R>();
     }
 
-    public static <A, R> CallStoredProcRefCursorB.Builder<A, R> usingBeanArg() {
-        return new CallStoredProcRefCursorB.Builder<A, R>();
+    public static <R, A> CallStoredProcRefCursorB.Builder<R, A> usingBeanArg() {
+        return new CallStoredProcRefCursorB.Builder<R, A>();
     }
 
 }

@@ -247,14 +247,11 @@ public abstract class AbstractStoredProcTest {
                                                    AbstractPgSessionTest.USERNAME_3,
                                                    AbstractPgSessionTest.PASSWORD_3,
                                                    AbstractPgSessionTest.EMPLOYEE_ID_3);
-        GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(CallStoredProcRefCursor.<ImmutableUser, ImmutableUser> usingBeanArg()
-                .sql("{ #{refcursor} = call get_user_by_id(#{getId}) }")
-                .arg(expected)
-                .resultSetHandler(handler)
-                .done());
+        ImmutableUser actual = pgSession.qProcSelectOne(
+                expected,
+                "{ #{refcursor} = call get_user_by_id(#{getId}) }",
+                ImmutableUser.class);
         pgSession.rollback();
-        ImmutableUser actual = handler.getList().get(0);
         Assert.assertEquals(actual, expected, "Found user needs to match.");
     }
 
@@ -264,14 +261,10 @@ public abstract class AbstractStoredProcTest {
                                                    AbstractPgSessionTest.USERNAME_3,
                                                    AbstractPgSessionTest.PASSWORD_3,
                                                    AbstractPgSessionTest.EMPLOYEE_ID_3);
-        GuessConstructorListHandler<ImmutableUser> handler = new GuessConstructorListHandler<ImmutableUser>(ImmutableUser.class);
-        pgSession.run(CallStoredProcRefCursor.<ImmutableUser> usingVariadicArgs()
-                .sql("{ #{refcursor} = call get_user_by_id(#{java.util.UUID}) }")
-                .args(expected.getId())
-                .resultSetHandler(handler)
-                .done());
-        pgSession.rollback();
-        ImmutableUser actual = handler.getList().get(0);
+        ImmutableUser actual = pgSession.qProcSelectOne(
+                "{ #{refcursor} = call get_user_by_id(#{java.util.UUID}) }",
+                ImmutableUser.class,
+                expected.getId());
         Assert.assertEquals(actual, expected, "Found user needs to match.");
     }
 }

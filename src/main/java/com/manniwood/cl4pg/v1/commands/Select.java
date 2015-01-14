@@ -39,7 +39,7 @@ public class Select {
         return new SelectV.Builder<R>();
     }
 
-    public static <A, R> SelectB.Builder<A, R> usingBeanArg() {
-        return new SelectB.Builder<A, R>();
+    public static <R, A> SelectB.Builder<R, A> usingBeanArg() {
+        return new SelectB.Builder<R, A>();
     }
 }

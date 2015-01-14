@@ -91,14 +91,14 @@ public class PgSession implements Closeable {
      * Finishes this session, closing the underlying database connection.
      * (Closing the underlying database connection could mean actually closing
      * it, or just returning it to the DataSourceAdapter's connection pool; the
-     * exact behaviour is left up to the DataSourceAdaper implementation.)
+     * exact behaviour is left up to the DataSourceAdapter implementation.)
      */
     @Override
     public void close() {
         try {
             conn.close();
         } catch (SQLException e) {
-            throw new Cl4pgFailedRollbackException("Could not close databse connection. Possible leaked resource!", e);
+            throw new Cl4pgFailedRollbackException("Could not close database connection. Possible leaked resource!", e);
         }
     }
 
@@ -206,7 +206,7 @@ public class PgSession implements Closeable {
     }
 
     /**
-     * Convenience method that calls a Copy Command
+     * Convenience method that calls a CopyFileOut Command
      */
     public void qCopyOut(String sql, String outFile) {
         run(CopyFileOut.config()
@@ -216,7 +216,7 @@ public class PgSession implements Closeable {
     }
 
     /**
-     * Convenience method that calls a Copy Command
+     * Convenience method that calls a CopyFileOut Command
      */
     public void copyOut(String file, String outFile) {
         run(CopyFileOut.config()
@@ -227,7 +227,7 @@ public class PgSession implements Closeable {
 
 
     /**
-     * Convenience method that calls a Copy Command
+     * Convenience method that calls a CopyFileIn Command
      */
     public void qCopyIn(String sql, String inFile) {
         run(CopyFileIn.config()
@@ -237,7 +237,7 @@ public class PgSession implements Closeable {
     }
 
     /**
-     * Convenience method that calls a Copy Command
+     * Convenience method that calls a CopyFileIn Command
      */
     public void copyIn(String file, String inFile) {
         run(CopyFileIn.config()
@@ -265,8 +265,7 @@ public class PgSession implements Closeable {
     }
 
     /**
-     * Convenience method that calls an Insert Command using a bean argument and
-     * a file in the classpath.
+     * Convenience method that calls an Insert Command using a bean argument.
      */
     public <A> void qInsert(A arg,
                             String sql) {
@@ -289,8 +288,7 @@ public class PgSession implements Closeable {
     }
 
     /**
-     * Convenience method that calls an Insert Command using variadic args and a
-     * file in the classpath.
+     * Convenience method that calls an Insert Command using variadic args.
      */
     public void qInsert(String sql,
                         Object... args) {
@@ -331,7 +329,7 @@ public class PgSession implements Closeable {
     }
 
     /**
-     * Convenience method that calls a Select Command using variadic args, which
+     * Convenience method that calls a Select Command using a bean to populate the args, which
      * uses the names of the returned columns to guess the constructor for the
      * returned beans.
      */
@@ -340,7 +338,7 @@ public class PgSession implements Closeable {
                                   Class<R> returnClass) {
 
         ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
-        run(Select.<A, R> usingBeanArg()
+        run(Select.<R, A> usingBeanArg()
                 .sql(sql)
                 .arg(arg)
                 .resultSetHandler(handler)
@@ -364,7 +362,7 @@ public class PgSession implements Closeable {
     }
 
     /**
-     * Convenience method that calls a Select Command using variadic args, which
+     * Convenience method that calls a Select Command using a bean to populate the args, which
      * uses the names of the returned columns to guess the constructor for the
      * returned beans, and returns the first row of the result set.
      */
@@ -399,7 +397,7 @@ public class PgSession implements Closeable {
 
 
     /**
-     * Convenience method to call a Select Command using variadic args, which
+     * Convenience method to call a Select Command using a bean to populate the args, which
      * uses the type of the single returned column to return a list of scalar
      * objects (Integer, String, etc).
      *
@@ -409,7 +407,7 @@ public class PgSession implements Closeable {
     public <R, A> List<R> qSelectScalar(A arg,
                                         String sql) {
         ResultSetHandler<R> handler = scalarResultSetHandlerBuilder.build();
-        run(Select.<A, R> usingBeanArg()
+        run(Select.<R, A> usingBeanArg()
                 .sql(sql)
                 .arg(arg)
                 .resultSetHandler(handler)
@@ -418,7 +416,7 @@ public class PgSession implements Closeable {
     }
 
     /**
-     * Convenience method to call a Select Command using variadic args, which
+     * Convenience method to call a Select Command using a bean to populate the args, which
      * uses the type of the single returned column to return a single (first
      * column, first row) scalar object (Integer, String, etc). Good for sql
      * queries such as "select * from foo".
@@ -472,7 +470,7 @@ public class PgSession implements Closeable {
     }
 
     /**
-     * Convenience method that calls a Select Command using variadic args and a
+     * Convenience method that calls a Select Command using a bean to populate the args and a
      * file in the classpath, which uses the names of the returned columns to
      * guess the constructor for the returned beans.
      */
@@ -481,7 +479,7 @@ public class PgSession implements Closeable {
                                  Class<R> returnClass) {
 
         ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
-        run(Select.<A, R> usingBeanArg()
+        run(Select.<R, A> usingBeanArg()
                 .file(file)
                 .arg(arg)
                 .resultSetHandler(handler)
@@ -506,7 +504,7 @@ public class PgSession implements Closeable {
     }
 
     /**
-     * Convenience method that calls a Select Command using variadic args and a
+     * Convenience method that calls a Select Command using a bean to set the args and a
      * file in the classpath, which uses the names of the returned columns to
      * guess the constructor for the returned beans, and returns the first row
      * of the result set.
@@ -587,5 +585,72 @@ public class PgSession implements Closeable {
                 .done());
     }
 
+
+    /**
+     * Convenience method that calls a CallStoredProcRefCursor Command using variadic args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans.
+     */
+    public <R> List<R> qProcSelect(String sql,
+                               Class<R> returnClass,
+                               Object... args) {
+
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
+        run(CallStoredProcRefCursor.<R> usingVariadicArgs()
+                .sql(sql)
+                .args(args)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method that calls a CallStoredProcRefCursor Command using an
+     * argument bean to populate the arguments, and which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans.
+     */
+    public <R, A> List<R> qProcSelect(A arg,
+                                  String sql,
+                                  Class<R> returnClass) {
+
+        ResultSetHandler<R> handler = rowResultSetHandlerBuilder.build(returnClass);
+        run(CallStoredProcRefCursor.<R, A> usingBeanArg()
+                .sql(sql)
+                .arg(arg)
+                .resultSetHandler(handler)
+                .done());
+        return handler.getList();
+    }
+
+    /**
+     * Convenience method that calls a CallStoredProcRefCursor Command using variadic args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans, and returns the first row of the result set.
+     */
+    public <R> R qProcSelectOne(String sql,
+                            Class<R> returnClass,
+                            Object... args) {
+        List<R> list = qProcSelect(sql, returnClass, args);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * Convenience method that calls a CallStoredProcRefCursor Command using a bean to set the SQL args, which
+     * uses the names of the returned columns to guess the constructor for the
+     * returned beans, and returns the first row of the result set.
+     */
+    public <R, A> R qProcSelectOne(A arg,
+                               String sql,
+                               Class<R> returnClass) {
+        List<R> list = qProcSelect(arg, sql, returnClass);
+        if (Cllctn.isNullOrEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
 
 }

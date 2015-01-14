@@ -1,16 +1,14 @@
 
 -------- v1.0.x
 
-- Write .procInOut
-- Write .qProcInOut
-- Write .procRefCursor
-- Write .qProcRefCursor
-- Write .procRefCursorOne
-- Write .qProcRefCursorOne
-- Write .procRefCursorScalar
-- Write .qProcRefCursorScalar
-- Write .procRefCursorOneScalar
-- Write .qProcRefCursorOneScalar
+- Write .procSelect
+- Write .qProcSelect
+- Write .procSelectOne
+- Write .qProcSelectOne
+- Write .procSelectScalar
+- Write .qProcSelectScalar
+- Write .procSelectOneScalar
+- Write .qProcSelectOneScalar
 
 - Document how to build and run test cases
 
