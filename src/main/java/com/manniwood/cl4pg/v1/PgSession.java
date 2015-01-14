@@ -558,4 +558,34 @@ public class PgSession implements Closeable {
         return list.get(0);
     }
 
+    /**
+     * Convenience method that calls a StoredProcInOut Command using a single
+     * bean argument and a file in the classpath. The names of the getters and
+     * setters for bean A are used to perform IN and OUT duties for the parameters
+     * of the stored procedure.
+     */
+    public <A> void procInOut(A a,
+                              String file) {
+        run(CallStoredProcInOut.<A> config()
+                .file(file)
+                .arg(a)
+                .done());
+    }
+
+
+    /**
+     * Convenience method that calls a StoredProcInOut Command using a single
+     * bean argument and a SQL string. The names of the getters and
+     * setters for bean A are used to perform IN and OUT duties for the parameters
+     * of the stored procedure.
+     */
+    public <A> void qProcInOut(A a,
+                              String sql) {
+        run(CallStoredProcInOut.<A> config()
+                .sql(sql)
+                .arg(a)
+                .done());
+    }
+
+
 }
