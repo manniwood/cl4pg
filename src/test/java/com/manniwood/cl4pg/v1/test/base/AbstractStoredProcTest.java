@@ -66,6 +66,7 @@ public abstract class AbstractStoredProcTest {
         pgSession.ddl("sql/create_add_to_last.sql");
         pgSession.ddl("sql/create_add_and_return.sql");
         pgSession.ddl("sql/create_get_user_by_id_func.sql");
+        pgSession.ddl("sql/create_get_user_by_gt_emp_id_func.sql");
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
@@ -98,6 +99,7 @@ public abstract class AbstractStoredProcTest {
         pgSession.ddl("sql/drop_add_to_last.sql");
         pgSession.ddl("sql/drop_add_and_return.sql");
         pgSession.ddl("sql/drop_get_user_by_id_func.sql");
+        pgSession.qDdl("drop function get_user_by_gt_emp_id(a_employee_id integer);");
         pgSession.commit();
         pgSession.close();
         adapter.close();
@@ -265,6 +267,20 @@ public abstract class AbstractStoredProcTest {
                 "{ #{refcursor} = call get_user_by_id(#{java.util.UUID}) }",
                 ImmutableUser.class,
                 expected.getId());
+        pgSession.rollback();
         Assert.assertEquals(actual, expected, "Found user needs to match.");
     }
+
+    @Test(priority = 10)
+    public void testRefCursorProcVList() {
+        List<ImmutableUser> users = pgSession.qProcSelect(
+                "{ #{refcursor} = call get_user_by_gt_emp_id(#{java.lang.Integer}) }",
+                ImmutableUser.class,
+                1);
+        pgSession.rollback();
+        Assert.assertTrue(users.size() == 2);
+    }
+
+    // TODO: select list
+    // TODO: select list of scalar?
 }

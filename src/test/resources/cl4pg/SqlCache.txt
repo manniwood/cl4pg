@@ -50,6 +50,7 @@ sql/create_temp_constrained_users_table.sql
 sql/delete_user_bean.sql
 sql/create_temp_dup_users_table.sql
 sql/insert_user.sql
+sql/create_get_user_by_gt_emp_id_func.sql
 
   # intentional blank lines for testing
 

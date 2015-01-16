@@ -103,6 +103,10 @@ public class SqlCache {
     }
 
     public String get(String path) {
-        return cache.get(path);
+        String sql = cache.get(path);
+        if (sql == null) {
+            throw new Cl4pgFileNotFoundException("File \"" + path + "\" not found in classpath. Did you add it to cl4pg/SqlCache.txt?");
+        }
+        return sql;
     }
 }

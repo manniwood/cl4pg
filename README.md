@@ -727,7 +727,211 @@ for (PGNotification notification : notifications) {
 
 ## Stored Procedures
 
-to be written
+Let's say you have the following stored procedure which swaps the values of
+its arguments:
+
+```sql
+create or replace function swap_them(inout first int, inout second int)
+immutable
+as
+$body$
+declare
+    tmp int;
+begin
+    tmp := first;
+    first := second;
+    second := tmp;
+end;
+$body$
+language plpgsql;
+```
+
+You could make a Java bean with two attribues and swap them by calling
+the stored procedure like so.
+
+Here is our bean,
+
+```Java
+public class TwoInts {
+    private int first;
+    private int second;
+    public int getFirst() {
+        return first;
+    }
+    public void setFirst(int first) {
+        this.first = first;
+    }
+    public int getSecond() {
+        return second;
+    }
+    public void setSecond(int second) {
+        this.second = second;
+    }
+}
+```
+
+and here is how we can swap its attributes:
+
+
+```Java
+TwoInts actual = new TwoInts();
+actual.setFirst(1);
+actual.setSecond(2);
+
+pgSession.qProcInOut(
+    actual, 
+    "{ call swap_them( #{getFirst/setFirst}, #{getSecond/setSecond} ) }");
+pgSession.rollback();
+```
+
+As you can see, for inout params, our SQL string literal lists the bean's getter
+and setter methods separated by a slash, so that cl4pg can figure out how to
+use the bean for the in and out capabilities of inout parameters.
+
+Let's say you have this stored procedure defined:
+
+```sql
+create or replace function add_to_first(inout first int, in second int)
+immutable
+as
+$body$
+begin
+    first := first + second;
+end;
+$body$
+language plpgsql;
+```
+
+You would call this stored procedure like so:
+
+```Java
+pgSession.qProcInOut(actual, "{ call add_to_first( #{getFirst/setFirst}, #{getSecond} ) }");
+pgSession.rollback();
+```
+
+Here, only the first argument of the stored procedure is an inout; the second is just an in,
+so in the second `#{}`, we only need to tell cl4pg about the bean's getter method for
+feeding the in parameter.
+
+Let's say this stored procedure is defined:
+
+```sql
+create or replace function add_and_return(first int, second int)
+returns int
+immutable
+as
+$body$
+begin
+    return first + second;
+end;
+$body$
+language plpgsql;
+```
+
+Here, you can use a regular select, either like so:
+
+```Java
+Integer sum = pgSession.qSelectOneScalar(
+        "select add_and_return from add_and_return(#{java.lang.Integer}, #{java.lang.Integer})",
+        1,
+        2);
+```
+
+or like so:
+
+```Java
+TwoInts addends = new TwoInts();
+addends.setFirst(2);
+addends.setSecond(3);
+
+Integer sum2 = pgSession.qSelectOneScalar(
+        addends,
+        "select add_and_return from add_and_return(#{getFirst}, #{getSecond})");
+```
+
+Finally, there is handling for stored procedures that return result sets.
+
+Let's say you have the following stored procedure defined:
+
+```sql
+create or replace function get_user_by_id(a_id uuid)
+returns refcursor
+as
+$body$
+declare
+    mycurs refcursor;
+begin
+    open mycurs for
+    select id, 
+           name, 
+           password, 
+           employee_id
+      from users
+     where id = a_id;
+
+    return mycurs;
+end;
+$body$ language plpgsql;
+```
+
+You could call the stored procedure either like so:
+
+```Java
+ImmutableUser actual = pgSession.qProcSelectOne(
+        expected,
+        "{ #{refcursor} = call get_user_by_id(#{getId}) }",
+        ImmutableUser.class);
+pgSession.rollback();
+```
+
+or like so:
+
+```Java
+ImmutableUser actual = pgSession.qProcSelectOne(
+        "{ #{refcursor} = call get_user_by_id(#{java.util.UUID}) }",
+        ImmutableUser.class,
+        expected.getId());
+pgSession.rollback();
+```
+
+Notice the special `#{refcursor}` notation that has to be the first
+variable in the SQL string; it tells cl4pg to get a ResultSet from
+the function call and process it.
+
+Naturally, we can return lists of things. Assume the following stored
+procedure:
+
+```Java
+create or replace function get_user_by_gt_emp_id(a_employee_id integer)
+returns refcursor
+as
+$body$
+declare
+    mycurs refcursor;
+begin
+    open mycurs for
+    select id,
+           name,
+           password,
+           employee_id
+      from users
+     where employee_id > a_employee_id;
+
+    return mycurs;
+end;
+$body$ language plpgsql;
+```
+
+You would get a list of `ImmutableUser`s by calling this stored
+procedure like so:
+
+```Java
+List<ImmutableUser> users = pgSession.qProcSelect(
+        "{ #{refcursor} = call get_user_by_gt_emp_id(#{java.lang.Integer}) }",
+        ImmutableUser.class,
+        1);
+pgSession.rollback();
+```
 
 ## Opening and Closing Sessions
 
