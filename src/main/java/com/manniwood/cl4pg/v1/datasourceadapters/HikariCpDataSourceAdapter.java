@@ -80,8 +80,6 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
     private final TypeConverterStore converterStore;
 
     private final HikariDataSource ds;
-    private final int transactionIsolationLevel;
-    private final boolean autoCommit;
 
     @Override
     public PgSession getSession() {
@@ -93,8 +91,8 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         Connection conn = null;
         try {
             conn = ds.getConnection();
-            conn.setTransactionIsolation(transactionIsolationLevel);
-            conn.setAutoCommit(autoCommit);
+            // HikariCP should have done this for us: conn.setTransactionIsolation(transactionIsolationLevel);
+            // HikariCP should have done this for us: conn.setAutoCommit(autoCommit);
         } catch (SQLException e) {
             throw new Cl4pgFailedConnectionException("Could not get connection.", e);
         }
@@ -383,10 +381,8 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         exceptionConverter = null;
         converterStore = null;
         ds = null;
-        transactionIsolationLevel = -1;
         scalarResultSetHandlerBuilder = null;
         rowResultSetHandlerBuilder = null;
-        autoCommit = false;
     }
 
     private HikariCpDataSourceAdapter(Builder builder) {
@@ -399,6 +395,25 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         config.setPassword(builder.password);
         config.setMinimumIdle(builder.initialConnections);
         config.setMaximumPoolSize(builder.maxConnections);
+        config.setAutoCommit(builder.autoCommit);
+        config.setTransactionIsolation(TransactionIsolationLevelConverter.convert(builder.transactionIsolationLevel));
+
+        // TODO:
+        /*
+        config.setConnectionCustomizerClassName();
+        config.setConnectionInitSql();
+        config.setConnectionTestQuery();
+        config.setConnectionTimeout();
+        config.setIdleTimeout();
+        config.setInitializationFailFast();
+        config.setIsolateInternalQueries();
+        config.setJdbc4ConnectionTest();
+        config.setLeakDetectionThreshold();
+        config.setMaxLifetime();
+        config.setMetricsTrackerClassName();
+        config.setPoolName();
+        config.setReadOnly();
+        config.setRegisterMbeans(); */
 
         // PostgreSQL-specific properties
         Properties props = new Properties();
@@ -406,12 +421,10 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         config.setDataSourceProperties(props);
 
         log.info("Application Name: {}", builder.appName);
-        transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;
         converterStore = new TypeConverterStore(builder.typeConverterConfFiles);
         scalarResultSetHandlerBuilder = builder.scalarResultSetHandlerBuilder;
         rowResultSetHandlerBuilder = builder.rowResultSetHandlerBuilder;
-        autoCommit = builder.autoCommit;
 
         ds = new HikariDataSource(config);
     }

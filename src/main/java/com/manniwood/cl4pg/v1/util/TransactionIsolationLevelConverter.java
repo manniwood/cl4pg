@@ -71,4 +71,18 @@ public class TransactionIsolationLevelConverter {
         }
         throw new Cl4pgIllegalTransactionIsolationLevelException("\"" + name + "\" is not a legal transaction isolation level");
     }
+
+    public static String convert(int number) {
+        if (number == Connection.TRANSACTION_READ_UNCOMMITTED) {
+            return "TRANSACTION_READ_UNCOMMITTED";
+        } else if (number == Connection.TRANSACTION_READ_COMMITTED) {
+            return "TRANSACTION_READ_COMMITTED";
+        } else if (number == Connection.TRANSACTION_REPEATABLE_READ) {
+            return "TRANSACTION_REPEATABLE_READ";
+        } else if (number == Connection.TRANSACTION_SERIALIZABLE) {
+            return "TRANSACTION_SERIALIZABLE";
+        } else {
+            throw new Cl4pgIllegalTransactionIsolationLevelException("\"" + number + "\" is not a legal integer for a transaction isolation level");
+        }
+    }
 }
