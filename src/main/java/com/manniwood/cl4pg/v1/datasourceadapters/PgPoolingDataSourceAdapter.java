@@ -400,6 +400,28 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
         ds.setApplicationName(builder.appName);
         ds.setInitialConnections(builder.initialConnections);
         ds.setMaxConnections(builder.maxConnections);
+
+        // TODO
+        /*
+        ds.setBinaryTransfer();
+        ds.setBinaryTransferDisable();
+        ds.setBinaryTransferEnable();
+        ds.setCompatible();
+        ds.setDisableColumnSanitiser();
+        ds.setLoginTimeout();
+        ds.setLogLevel();
+        ds.setLogWriter();
+        ds.setPrepareThreshold();
+        ds.setProtocolVersion();
+        ds.setReceiveBufferSize();
+        ds.setSendBufferSize();
+        ds.setSocketTimeout();
+        ds.setSsl();
+        ds.setSslfactory();
+        ds.setStringType();
+        ds.setTcpKeepAlive();
+        ds.setUnknownLength(); */
+
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;
