@@ -1,6 +1,9 @@
 
 -------- v1.0.x
 
+- Ensure adapter-specific config settings are
+working and documented
+
 - Write .procSelect
 - Write .qProcSelect
 - Write .procSelectOne
