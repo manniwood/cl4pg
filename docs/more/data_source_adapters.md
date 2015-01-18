@@ -73,30 +73,30 @@ port                          | 5432                      |
 database                      | postgres                  | 
 user                          | postgres                  | 
 password                      | postgres                  | 
-ApplicationName               | cl4pg                     | Shows up in the `application_name` <br>
+ApplicationName               | cl4pg                     | Shows up in the `application_name` 
                               |                           | column of `pg_stat_activity`
-ExceptionConverter            | com.manniwood.<br>        |
-                              | cl4pg.v1.<br>             |
-                              | exceptionconverters.<br>  |
+ExceptionConverter            | com.manniwood.        |
+                              | cl4pg.v1.             |
+                              | exceptionconverters.  |
                               | DefaultExceptionConverter |
-TransactionIsolationLevel     | read committed            | Other valid values are<br>
-                              |                           | read uncommitted<br>
-                              |                           | repeatable read<br>
-                              |                           | serializable<br>
-                              |                           | though please note that <br>
-                              |                           | read uncommitted<br>
-                              |                           | doesn't actually work for <br>
+TransactionIsolationLevel     | read committed            | Other valid values are
+                              |                           | read uncommitted
+                              |                           | repeatable read
+                              |                           | serializable
+                              |                           | though please note that 
+                              |                           | read uncommitted
+                              |                           | doesn't actually work for 
                               |                           | PostgreSQL
 AutoCommit                    | false                     |
-ScalarResultSetHandlerBuilder | com.manniwood.<br>        |
-                              | cl4pg.v1.<br>             |
-                              | resultsethandlers.<br>    |
-                              | GuessScalarResult-<br>    |
+ScalarResultSetHandlerBuilder | com.manniwood.        |
+                              | cl4pg.v1.             |
+                              | resultsethandlers.    |
+                              | GuessScalarResult-    |
                               | SetHandlerBuilder         | 
-RowResultSetHandlerBuilder    | com.manniwood.<br>        |
-                              | cl4pg.v1.<br>             |
-                              | resultsethandlers.<br>    |
-                              | GuessConstructorResult-<br> |
+RowResultSetHandlerBuilder    | com.manniwood.        |
+                              | cl4pg.v1.             |
+                              | resultsethandlers.    |
+                              | GuessConstructorResult- |
                               | SetHandlerBuilder         |
 
 
