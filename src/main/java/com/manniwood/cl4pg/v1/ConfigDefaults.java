@@ -27,7 +27,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 
 /**
- * Configuration defaults for Cl4Pg.
+ * Configuration defaults for Cl4Pg. Note that many of them are taken from org.postgresql.ds.common.BaseDataSource.
  *
  * @author mwood
  *
@@ -77,6 +77,22 @@ public final class ConfigDefaults {
     public static final int DEFAULT_LOG_LEVEL = 0;
     public static final String LOG_WRITER_KEY = "logWriter";
     public static final PrintWriter DEFAULT_LOG_WRITER = null;
+    public static final String PREPARE_THRESHOLD_KEY = "prepareThreshold";
+    public static final int DEFAULT_PREPARE_THRESHOLD = 5;
+    public static final String PROTOCOL_VERSION_KEY = "protocolVersion";
+    public static final int DEFAULT_PROTOCOL_VERSION = 0;
+    public static final String RECEIVE_BUFFER_SIZE_KEY = "receiveBufferSize";
+    public static final int DEFAULT_RECEIVE_BUFFER_SIZE = -1;
+    public static final String SEND_BUFFER_SIZE_KEY = "sendBufferSize";
+    public static final int DEFAULT_SEND_BUFFER_SIZE = -1;
+    public static final String STRING_TYPE_KEY = "stringType";
+    public static final String DEFAULT_STRING_TYPE = null;
+    public static final String SSL_KEY = "ssl";
+    public static final boolean DEFAULT_SSL = false;
+    public static final String SSL_FACTORY_KEY = "sslFactory";
+    public static final String DEFAULT_SSL_FACTORY = null;
+    public static final String SOCKET_TIMEOUT_KEY = "socketTimeout";
+    public static final int DEFAULT_SOCKET_TIMEOOUT = 0;
 
     private ConfigDefaults() {
         // Utility class

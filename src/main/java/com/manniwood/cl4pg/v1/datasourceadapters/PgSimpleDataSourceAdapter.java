@@ -233,6 +233,14 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         private int loginTimeout = ConfigDefaults.DEFAULT_LOGIN_TIMEOUT;
         private int logLevel = ConfigDefaults.DEFAULT_LOG_LEVEL;
         private PrintWriter logWriter = ConfigDefaults.DEFAULT_LOG_WRITER;
+        private int prepareThreshold = ConfigDefaults.DEFAULT_PREPARE_THRESHOLD;
+        private int protocolVersion = ConfigDefaults.DEFAULT_PROTOCOL_VERSION;
+        private  int receiveBufferSize = ConfigDefaults.DEFAULT_RECEIVE_BUFFER_SIZE;
+        private int sendBufferSize = ConfigDefaults.DEFAULT_SEND_BUFFER_SIZE;
+        private String stringType = ConfigDefaults.DEFAULT_STRING_TYPE;
+        private boolean ssl = ConfigDefaults.DEFAULT_SSL;
+        private String sslFactory = ConfigDefaults.DEFAULT_SSL_FACTORY;
+        private int socketTimeout = ConfigDefaults.DEFAULT_SOCKET_TIMEOOUT;
 
         public Builder() {
             // null constructor
@@ -390,7 +398,53 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             this.logWriter = logWriter;
             return this;
         }
-        // TODO: make version of this that takes a string and instantiates the correct printwriter?
+        // THOUGHT: make version of this that takes a string and instantiates the correct printwriter?
+        // Would have to have a null constructor, though.
+
+        public Builder prepareThreshold(int prepareThreshold) {
+            this.prepareThreshold = prepareThreshold;
+            return this;
+        }
+
+        public Builder protocolVersion(int protocolVersion) {
+            this.protocolVersion = protocolVersion;
+            return this;
+        }
+
+        public Builder receiveBufferSize(int receiveBufferSize) {
+            this.receiveBufferSize = receiveBufferSize;
+            return this;
+        }
+
+        public Builder sendBufferSize(int sendBufferSize) {
+            this.sendBufferSize = sendBufferSize;
+            return this;
+        }
+
+        public Builder stringType(String stringType) {
+            this.stringType = stringType;
+            return this;
+        }
+
+        public Builder ssl(boolean ssl) {
+            this.ssl = ssl;
+            return this;
+        }
+
+        public Builder ssl(String ssl) {
+            this.ssl = Boolean.parseBoolean(ssl);
+            return this;
+        }
+
+        public Builder sslFactory(String sslFactory) {
+            this.sslFactory = sslFactory;
+            return this;
+        }
+
+        public Builder socketTimeout(int socketTimeout) {
+            this.socketTimeout = socketTimeout;
+            return this;
+        }
 
         public PgSimpleDataSourceAdapter done() {
             if (this.exceptionConverter == null) {
@@ -448,22 +502,22 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         } catch (SQLException e) {
             throw new Cl4pgFailedConnectionException("Connection to URL " + url + " failed while trying to set login timeout to <<TODO: APPEND LOGIN TIMEOUT>>", e);
         }
-        ds.setLogLevel(builder.logLevel);  // TODO
+        ds.setLogLevel(builder.logLevel);
         try {
-            ds.setLogWriter(builder.logWriter);  // PrintWriter TODO
+            ds.setLogWriter(builder.logWriter);
         } catch (SQLException e) {
             throw new Cl4pgFailedConnectionException("Connection to URL " + url + " failed while trying to set log writer <<TODO: APPEND LOGIN TIMEOUT>>", e);
         }
-        ds.setPrepareThreshold(builder.PrepareThreshold);  // TODO
-        ds.setProtocolVersion(builder.ProtocolVersion);  // TODO
-        ds.setReceiveBufferSize(builder.receiveBufferSize);  // TODO
-        ds.setSendBufferSize(builder.sendBufferSize);  // TODO
-        ds.setStringType(builder.stringType);  // TODO
-        ds.setSsl(builder.ssl);  // TODO
-        ds.setSslfactory(builder.sslFactory);  // TODO
-        ds.setSocketTimeout(builder.socketTimeout);  // TODO
-        ds.setTcpKeepAlive(builder.tcpKeepAlive);  // TODO
-        ds.setUnknownLength(builder.unknownLength);  // TODO
+        ds.setPrepareThreshold(builder.prepareThreshold);
+        ds.setProtocolVersion(builder.protocolVersion);
+        ds.setReceiveBufferSize(builder.receiveBufferSize);
+        ds.setSendBufferSize(builder.sendBufferSize);
+        ds.setStringType(builder.stringType);
+        ds.setSsl(builder.ssl);
+        ds.setSslfactory(builder.sslFactory);
+        ds.setSocketTimeout(builder.socketTimeout);
+        ds.setTcpKeepAlive(builder.tcpKeepAlive);  // TODO false
+        ds.setUnknownLength(builder.unknownLength);  // TODO Integer.MAX_VALUE
 
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
