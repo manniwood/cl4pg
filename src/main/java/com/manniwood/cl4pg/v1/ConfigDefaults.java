@@ -23,6 +23,7 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1;
 
+import java.io.PrintWriter;
 import java.sql.Connection;
 
 /**
@@ -60,6 +61,22 @@ public final class ConfigDefaults {
     public static final String ROW_RESULT_SET_HANDLER_BUILDER_KEY = "RowResultSetHandlerBuilder";
     public static final String AUTO_COMMIT_KEY = "AutoCommit";
     public static final boolean DEFAULT_AUTO_COMMIT = false;
+    public static final String BINARY_TRANSFER_KEY = "binaryTransfer";
+    public static final boolean DEFAULT_BINARY_TRANSFER = false;
+    public static final String BINARY_TRANSFER_ENABLE_KEY = "binaryTransferEnable";
+    public static final String DEFAULT_BINARY_TRANSFER_ENABLE = null;
+    public static final String BINARY_TRANSFER_DISABLE_KEY = "binaryTransferDisable";
+    public static final String DEFAULT_BINARY_TRANSFER_DISABLE = null;
+    public static final String COMPATIBLE_KEY = "compatible";
+    public static final String DEFAULT_COMPATIBLE = null;
+    public static final String DISABLE_COLUMN_SANITIZER_KEY = "disableColumnSanitizer";
+    public static final boolean DEFAULT_DISABLE_COLUMN_SANITIZER = false;
+    public static final String LOGIN_TIMEOUT_KEY = "loginTimeout";
+    public static final int DEFAULT_LOGIN_TIMEOUT = 0;
+    public static final String LOG_LEVEL_KEY = "logLevel";
+    public static final int DEFAULT_LOG_LEVEL = 0;
+    public static final String LOG_WRITER_KEY = "logWriter";
+    public static final PrintWriter DEFAULT_LOG_WRITER = null;
 
     private ConfigDefaults() {
         // Utility class

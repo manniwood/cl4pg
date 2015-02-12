@@ -1,0 +1,121 @@
+./jdbc2/AbstractJdbc2Connection.java:        String connectionLogLevel = info.getProperty("loglevel");
+./jdbc2/AbstractJdbc2Connection.java:            prepareThreshold = Integer.parseInt(info.getProperty("prepareThreshold", "5"));
+./jdbc2/AbstractJdbc2Connection.java:            binaryTransfer = Boolean.valueOf(info.getProperty("binaryTransfer", "true")).booleanValue();
+./jdbc2/AbstractJdbc2Connection.java:        this.compatible = info.getProperty("compatible", Driver.MAJORVERSION + "." + Driver.MINORVERSION);
+./jdbc2/AbstractJdbc2Connection.java:        if (Boolean.valueOf(info.getProperty("readOnly", "false")))
+./jdbc2/AbstractJdbc2Connection.java:        binaryOids.addAll(getOidSet(info.getProperty("binaryTransferEnable", "")));
+./jdbc2/AbstractJdbc2Connection.java:        binaryOids.removeAll(getOidSet(info.getProperty("binaryTransferDisable", "")));
+./jdbc2/AbstractJdbc2Connection.java:        String stringType = info.getProperty("stringtype");
+./jdbc2/AbstractJdbc2Connection.java:        String strLength = info.getProperty("unknownLength");
+./jdbc2/AbstractJdbc2Connection.java:        if (Boolean.valueOf(info.getProperty("logUnclosedConnections")).booleanValue()) {
+./jdbc2/AbstractJdbc2Connection.java:        this.disableColumnSanitiser = Boolean.valueOf(info.getProperty(""
+./jdbc2/AbstractJdbc2Connection.java:                String className = info.getProperty(propertyName);
+./test/jdbc2/ANTTest.java:        String url = System.getProperty("database");
+./test/jdbc2/ANTTest.java:        String usr = System.getProperty("username");
+./test/jdbc2/ANTTest.java:        String psw = System.getProperty("password");
+./test/jdbc2/DriverTest.java:        assertEquals(url, dbName, p.getProperty("PGDBNAME"));
+./test/jdbc2/DriverTest.java:        assertEquals(url, hosts, p.getProperty("PGHOST"));
+./test/jdbc2/DriverTest.java:        assertEquals(url, ports, p.getProperty("PGPORT"));
+./test/jdbc4/ConnectionTest.java:        assertEquals("my app", _conn.getClientInfo().getProperty("ApplicationName"));
+./test/jdbc4/ConnectionTest.java:        assertEquals("my app", _conn.getClientInfo().getProperty("ApplicationName"));
+./test/ssl/SslTest.java:    String certdir = prop.getProperty("certdir");
+./test/ssl/SslTest.java:    String sconnstr = prop.getProperty(param);
+./test/ssl/SslTest.java:    String sprefix = prop.getProperty(param + "prefix");
+./test/ssl/SslTestSuite.java:    if (prop.getProperty(param,"").equals(""))
+./test/ssl/SslTestSuite.java:      prop.load(new FileInputStream(System.getProperty("ssltest.properties")));
+./test/TestUtil.java:        return System.getProperty("server", "localhost");
+./test/TestUtil.java:        return Integer.parseInt(System.getProperty("port", System.getProperty("def_pgport")));
+./test/TestUtil.java:        return Integer.parseInt(System.getProperty("preparethreshold", "5"));
+./test/TestUtil.java:        return Integer.parseInt(System.getProperty("protocolVersion", "0"));
+./test/TestUtil.java:        return System.getProperty("database");
+./test/TestUtil.java:        return System.getProperty("username");
+./test/TestUtil.java:        return System.getProperty("password");
+./test/TestUtil.java:        return Integer.parseInt(System.getProperty("loglevel", "0"));
+./test/TestUtil.java:        return System.getProperty("binaryTransfer");
+./test/TestUtil.java:		return Integer.parseInt(System.getProperty("sendBufferSize", "-1"));
+./test/TestUtil.java:		return Integer.parseInt(System.getProperty("receiveBufferSize","-1"));
+./test/TestUtil.java:        String jvm = java.lang.System.getProperty("java.version");
+./core/v3/QueryExecutorImpl.java:        if (info.getProperty("allowEncodingChanges") != null) {
+./core/v3/QueryExecutorImpl.java:            this.allowEncodingChanges = Boolean.valueOf(info.getProperty("allowEncodingChanges")).booleanValue();
+./core/v3/ConnectionFactoryImpl.java:        String sslmode = info.getProperty("sslmode");
+./core/v3/ConnectionFactoryImpl.java:          requireSSL = trySSL  = (info.getProperty("ssl") != null);
+./core/v3/ConnectionFactoryImpl.java:        boolean requireTCPKeepAlive = (Boolean.valueOf(info.getProperty("tcpKeepAlive")).booleanValue());
+./core/v3/ConnectionFactoryImpl.java:            String socketTimeoutProperty = info.getProperty("socketTimeout", "0");
+./core/v3/ConnectionFactoryImpl.java:            String receiveBufferSizeProperty = info.getProperty("receiveBufferSize", "-1");
+./core/v3/ConnectionFactoryImpl.java:            String sendBufferSizeProperty = info.getProperty("sendBufferSize", "-1");
+./core/v3/ConnectionFactoryImpl.java:        String password = info.getProperty("password");
+./core/v3/ConnectionFactoryImpl.java:                            info.getProperty("jaasApplicationName"),
+./core/v3/ConnectionFactoryImpl.java:                            info.getProperty("kerberosServerName"),
+./core/v3/ConnectionFactoryImpl.java:                            Boolean.valueOf(info.getProperty("useSpnego")).booleanValue());
+./core/v3/ConnectionFactoryImpl.java:        String appName = info.getProperty("ApplicationName");
+./core/v2/ConnectionFactoryImpl.java:        String sslmode = info.getProperty("sslmode");
+./core/v2/ConnectionFactoryImpl.java:          requireSSL = trySSL  = (info.getProperty("ssl") != null);
+./core/v2/ConnectionFactoryImpl.java:        boolean requireTCPKeepAlive = (Boolean.valueOf(info.getProperty("tcpKeepAlive")).booleanValue());
+./core/v2/ConnectionFactoryImpl.java:            String socketTimeoutProperty = info.getProperty("socketTimeout", "0");
+./core/v2/ConnectionFactoryImpl.java:            doAuthentication(newStream, user, info.getProperty("password"), logger);
+./core/v2/ConnectionFactoryImpl.java:            String charSet = info.getProperty("charSet");
+./core/v2/ConnectionFactoryImpl.java:        String appName = info.getProperty("ApplicationName");
+./core/ConnectionFactory.java:        String protoName = info.getProperty("protocolVersion");
+./Driver.java:                String driverLogLevel = defaultProperties.getProperty("loglevel");
+./Driver.java:            merged.setProperty("user", System.getProperty("user.name"));
+./Driver.java:                String propValue = info.getProperty(propName);
+./Driver.java:     * The getPropertyInfo method is intended to allow a generic GUI
+./Driver.java:     * to iterate through several calls to getPropertyInfo
+./Driver.java:     * @see java.sql.Driver#getPropertyInfo
+./Driver.java:    public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException
+./Driver.java:            props[i] = new DriverPropertyInfo(name, copy.getProperty(name));
+./Driver.java:        String[] hosts = props.getProperty("PGHOST").split(",");
+./Driver.java:        String[] ports = props.getProperty("PGPORT").split(",");
+./Driver.java:        return props.getProperty("user", "");
+./Driver.java:        return props.getProperty("PGDBNAME", "");
+./Driver.java:        String timeout = props.getProperty("loginTimeout");
+./jdbc4/AbstractJdbc4Connection.java:            String appName = info.getProperty("ApplicationName");
+./jdbc4/AbstractJdbc4Connection.java:                String value = properties.getProperty(name);
+./jdbc4/AbstractJdbc4Connection.java:        return _clientInfo.getProperty(name);
+./ssl/jdbc3/AbstractJdbc3MakeSSL.java:        String classname = info.getProperty("sslfactory");
+./ssl/jdbc3/AbstractJdbc3MakeSSL.java:            Object[] args = {info.getProperty("sslfactoryarg")};
+./ssl/jdbc4/AbstractJdbc4MakeSSL.java:        String sslmode = info.getProperty("sslmode");
+./ssl/jdbc4/AbstractJdbc4MakeSSL.java:        String classname = info.getProperty("sslfactory");
+./ssl/jdbc4/AbstractJdbc4MakeSSL.java:                factory = (SSLSocketFactory)instantiate(classname, info, true, info.getProperty("sslfactoryarg"));
+./ssl/jdbc4/AbstractJdbc4MakeSSL.java:        String sslhostnameverifier = info.getProperty("sslhostnameverifier");
+./ssl/jdbc4/LibPQFactory.java:        sslmode = info.getProperty("sslmode");
+./ssl/jdbc4/LibPQFactory.java:        String pathsep = System.getProperty("file.separator");
+./ssl/jdbc4/LibPQFactory.java:        if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
+./ssl/jdbc4/LibPQFactory.java:          defaultdir = System.getProperty("user.home")+pathsep+".postgresql"+pathsep;
+./ssl/jdbc4/LibPQFactory.java:        String sslcertfile = info.getProperty("sslcert");
+./ssl/jdbc4/LibPQFactory.java:        String sslkeyfile = info.getProperty("sslkey");
+./ssl/jdbc4/LibPQFactory.java:        String sslpasswordcallback = info.getProperty("sslpasswordcallback");
+./ssl/jdbc4/LibPQFactory.java:          cbh = new ConsoleCallbackHandler(info.getProperty("sslpassword"));
+./ssl/jdbc4/LibPQFactory.java:          String sslrootcertfile = info.getProperty("sslrootcert");
+./ds/common/BaseDataSource.java:     	serverName = p.getProperty("PGHOST", "localhost");
+./ds/common/BaseDataSource.java:     	portNumber = Integer.parseInt(p.getProperty("PGPORT", "0"));
+./ds/common/BaseDataSource.java:     	databaseName = p.getProperty("PGDBNAME");
+./ds/common/BaseDataSource.java:     	loginTimeout = Integer.parseInt(p.getProperty("loginTimeout", "0"));
+./ds/common/BaseDataSource.java:     	socketTimeout = Integer.parseInt(p.getProperty("socketTimeout", "0"));
+./ds/common/BaseDataSource.java:     	prepareThreshold = Integer.parseInt(p.getProperty("prepareThreshold", "5"));
+./ds/common/BaseDataSource.java:     	unknownLength = Integer.parseInt(p.getProperty("unknownLength", "0"));
+./ds/common/BaseDataSource.java:     	logLevel = Integer.parseInt(p.getProperty("loglevel", "0"));
+./ds/common/BaseDataSource.java:     	protocolVersion = Integer.parseInt(p.getProperty("protocolVersion", "0"));
+./ds/common/BaseDataSource.java:     	ssl = Boolean.parseBoolean(p.getProperty("ssl"));
+./ds/common/BaseDataSource.java:     	sslfactory = p.getProperty("sslfactory");
+./ds/common/BaseDataSource.java:     	receiveBufferSize = Integer.parseInt(p.getProperty("receiveBufferSize", "-1"));
+./ds/common/BaseDataSource.java:     	sendBufferSize = Integer.parseInt(p.getProperty("sendBufferSize", "-1"));
+./ds/common/BaseDataSource.java:     	tcpKeepAlive = Boolean.parseBoolean(p.getProperty("tcpKeepAlive"));
+./ds/common/BaseDataSource.java:     	compatible = p.getProperty("compatible");
+./ds/common/BaseDataSource.java:     	applicationName = p.getProperty("ApplicationName");
+./ds/common/BaseDataSource.java:        stringType = p.getProperty("stringtype");
+./ds/common/BaseDataSource.java:     	binaryTransfer = Boolean.parseBoolean(p.getProperty("binaryTransfer"));
+./ds/common/BaseDataSource.java:     	disableColumnSanitiser = Boolean.parseBoolean(p.getProperty("disableColumnSanitiser"));
+./ds/common/PGObjectFactory.java:        String name = getProperty(ref, "dataSourceName");
+./ds/common/PGObjectFactory.java:        String min = getProperty(ref, "initialConnections");
+./ds/common/PGObjectFactory.java:        String max = getProperty(ref, "maxConnections");
+./ds/common/PGObjectFactory.java:        ds.setDatabaseName(getProperty(ref, "databaseName"));
+./ds/common/PGObjectFactory.java:        ds.setPassword(getProperty(ref, "password"));
+./ds/common/PGObjectFactory.java:        String port = getProperty(ref, "portNumber");
+./ds/common/PGObjectFactory.java:        ds.setServerName(getProperty(ref, "serverName"));
+./ds/common/PGObjectFactory.java:        ds.setUser(getProperty(ref, "user"));
+./ds/common/PGObjectFactory.java:        String prepareThreshold = getProperty(ref, "prepareThreshold");
+./ds/common/PGObjectFactory.java:        String binaryTransfer = getProperty(ref, "binaryTransfer");
+./ds/common/PGObjectFactory.java:        String binaryTransferEnable = getProperty(ref, "binaryTransferEnable");
+./ds/common/PGObjectFactory.java:        String binaryTransferDisable = getProperty(ref, "binaryTransferDisable");
+./ds/common/PGObjectFactory.java:    protected String getProperty(Reference ref, String s)

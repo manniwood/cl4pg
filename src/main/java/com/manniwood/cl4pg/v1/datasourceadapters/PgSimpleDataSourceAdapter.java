@@ -25,6 +25,7 @@ package com.manniwood.cl4pg.v1.datasourceadapters;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -86,6 +87,17 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             conn = ds.getConnection();
             conn.setTransactionIsolation(transactionIsolationLevel);
             conn.setAutoCommit(autoCommit);
+
+            // conn.setCatalog("String catalog");  // Not supported by PostgreSQL
+            // conn.setClientInfo(null);  // Covered by more direct connection setters that we are already using
+            conn.setHoldability(0);  // TODO
+            // conn.setNetworkTimeout(null, 0); // Not implemented by PostgreSQL
+            conn.setReadOnly(false);  // TODO
+            // conn.setSchema("String schema");  // Not implemented by PostgreSQL
+            conn.setTypeMap(null);  // Map<String, Class<?>> TODO
+
+            // PGConnection pgConn = (PGConnection) conn;
+            // pgConn.setPrepareThreshold(0);  // Already gets set in data source
         } catch (SQLException e) {
             throw new Cl4pgFailedConnectionException("Could not get connection.", e);
         }
@@ -213,6 +225,14 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         private String rowResultSetHandlerBuilderStr = ConfigDefaults.DEFAULT_ROW_RESULT_SET_HANDLER_BUILDER;
         private RowResultSetHandlerBuilder rowResultSetHandlerBuilder = null;
         private boolean autoCommit = ConfigDefaults.DEFAULT_AUTO_COMMIT;
+        private boolean binaryTransfer = ConfigDefaults.DEFAULT_BINARY_TRANSFER;
+        private String binaryTransferEnable = ConfigDefaults.DEFAULT_BINARY_TRANSFER_ENABLE;
+        private String binaryTransferDisable = ConfigDefaults.DEFAULT_BINARY_TRANSFER_DISABLE;
+        private String compatible = ConfigDefaults.DEFAULT_COMPATIBLE;
+        private boolean disableColumnSanitiser = ConfigDefaults.DEFAULT_DISABLE_COLUMN_SANITIZER;
+        private int loginTimeout = ConfigDefaults.DEFAULT_LOGIN_TIMEOUT;
+        private int logLevel = ConfigDefaults.DEFAULT_LOG_LEVEL;
+        private PrintWriter logWriter = ConfigDefaults.DEFAULT_LOG_WRITER;
 
         public Builder() {
             // null constructor
@@ -321,6 +341,57 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
+        public Builder binaryTransfer(boolean binaryTransfer) {
+            this.binaryTransfer = binaryTransfer;
+            return this;
+        }
+
+        public Builder binaryTransfer(String binaryTransfer) {
+            this.binaryTransfer = Boolean.parseBoolean(binaryTransfer);
+            return this;
+        }
+
+        public Builder binaryTransferEnable(String binaryTransferEnable) {
+            this.binaryTransferEnable = binaryTransferEnable;
+            return this;
+        }
+
+        public Builder binaryTransferDisable(String binaryTransferDisable) {
+            this.binaryTransferDisable = binaryTransferDisable;
+            return this;
+        }
+
+        public Builder compatible(String compatible) {
+            this.compatible = compatible;
+            return this;
+        }
+
+        public Builder disableColumnSanitizer(boolean disableColumnSanitizer) {
+            this.disableColumnSanitiser = disableColumnSanitizer;
+            return this;
+        }
+
+        public Builder disableColumnSanitizer(String disableColumnSanitizer) {
+            this.disableColumnSanitiser = Boolean.parseBoolean(disableColumnSanitizer);
+            return this;
+        }
+
+        public Builder loginTimeout(int loginTimeout) {
+            this.loginTimeout = loginTimeout;
+            return this;
+        }
+
+        public Builder logLevel(int logLevel) {
+            this.logLevel = logLevel;
+            return this;
+        }
+
+        public Builder logWriter(PrintWriter logWriter) {
+            this.logWriter = logWriter;
+            return this;
+        }
+        // TODO: make version of this that takes a string and instantiates the correct printwriter?
+
         public PgSimpleDataSourceAdapter done() {
             if (this.exceptionConverter == null) {
                 if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
@@ -365,6 +436,35 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         ds.setUser(builder.username);
         ds.setPassword(builder.password);
         ds.setApplicationName(builder.appName);
+
+        // Most defaults are listed in org.postgresql.ds.common.BaseDataSource
+        ds.setBinaryTransfer(builder.binaryTransfer);
+        ds.setBinaryTransferEnable(builder.binaryTransferEnable);
+        ds.setBinaryTransferDisable(builder.binaryTransferDisable);
+        ds.setCompatible(builder.compatible);
+        ds.setDisableColumnSanitiser(builder.disableColumnSanitiser);
+        try {
+            ds.setLoginTimeout(builder.loginTimeout);
+        } catch (SQLException e) {
+            throw new Cl4pgFailedConnectionException("Connection to URL " + url + " failed while trying to set login timeout to <<TODO: APPEND LOGIN TIMEOUT>>", e);
+        }
+        ds.setLogLevel(builder.logLevel);  // TODO
+        try {
+            ds.setLogWriter(builder.logWriter);  // PrintWriter TODO
+        } catch (SQLException e) {
+            throw new Cl4pgFailedConnectionException("Connection to URL " + url + " failed while trying to set log writer <<TODO: APPEND LOGIN TIMEOUT>>", e);
+        }
+        ds.setPrepareThreshold(builder.PrepareThreshold);  // TODO
+        ds.setProtocolVersion(builder.ProtocolVersion);  // TODO
+        ds.setReceiveBufferSize(builder.receiveBufferSize);  // TODO
+        ds.setSendBufferSize(builder.sendBufferSize);  // TODO
+        ds.setStringType(builder.stringType);  // TODO
+        ds.setSsl(builder.ssl);  // TODO
+        ds.setSslfactory(builder.sslFactory);  // TODO
+        ds.setSocketTimeout(builder.socketTimeout);  // TODO
+        ds.setTcpKeepAlive(builder.tcpKeepAlive);  // TODO
+        ds.setUnknownLength(builder.unknownLength);  // TODO
+
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
         exceptionConverter = builder.exceptionConverter;

@@ -1,6 +1,8 @@
 
 -------- v1.0.x
 
+- Make dependent on 9.4 version of pg driver
+
 - Ensure adapter-specific config settings are
 working and documented
 
@@ -12,8 +14,6 @@ working and documented
 - Write .qProcSelectScalar
 - Write .procSelectOneScalar
 - Write .qProcSelectOneScalar
-
-- Document how to build and run test cases
 
 - Document why reflection is used to call constructors
 or setters directly rather than using hacky bytecode injection
