@@ -74,6 +74,8 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
     private final PGSimpleDataSource ds;
     private final int transactionIsolationLevel;
     private final boolean autoCommit;
+    private final boolean readOnly;
+    private final int holdability;
 
     @Override
     public PgSession getSession() {
@@ -132,6 +134,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         return buildFromConfFile(DEFAULT_CONF_FILE);
     }
 
+    // TODO: add all extra props here
     public static PgSimpleDataSourceAdapter buildFromConfFile(String path) {
         Properties props = new Properties();
         InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
@@ -206,6 +209,8 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             builder.typeConverterConfFiles(typeConverterConfFilesStr);
         }
 
+        // TODO: start here
+
         return builder.done();
     }
 
@@ -243,6 +248,8 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         private int socketTimeout = ConfigDefaults.DEFAULT_SOCKET_TIMEOOUT;
         private boolean tcpKeepAlive = ConfigDefaults.DEFAULT_TCP_KEEP_ALIVE;
         private int unknownLength = ConfigDefaults.DEFAULT_UNKNOWN_LENGTH;
+        private boolean readOnly = ConfigDefaults.DEFAULT_READ_ONLY;
+        private int holdability = ConfigDefaults.DEFAULT_HOLDABILITY;
 
         public Builder() {
             // null constructor
@@ -492,6 +499,26 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
+        public Builder readOnly(boolean readOnly) {
+            this.readOnly = readOnly;
+            return this;
+        }
+
+        public Builder readOnly(String readOnly) {
+            this.readOnly = Boolean.parseBoolean(readOnly);
+            return this;
+        }
+
+        public Builder holdability(int holdability) {
+            this.holdability = holdability;
+            return this;
+        }
+
+        public Builder holdability(String holdability) {
+            this.holdability = Integer.parseInt(holdability);
+            return this;
+        }
+
         public PgSimpleDataSourceAdapter done() {
             if (this.exceptionConverter == null) {
                 if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
@@ -523,8 +550,16 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         scalarResultSetHandlerBuilder = null;
         rowResultSetHandlerBuilder = null;
         autoCommit = false;
+        readOnly = false;
+        holdability = -1;
     }
 
+    // NOTE that https://jdbc.postgresql.org/documentation/94/connect.html#connection-parameters shows that
+    // you can pass more parameters to Postgres' JDBC driver using DriverManager to get connections
+    // instead of using DataSource to get connections. However, using DriverManager to get connections
+    // precludes the use of connection pooling!
+    // TODO: explain this in docs. For instance, kerberosServerName can only be set using DriverManager.getConnection,
+    // not using DataSource.getConnection(). Lame.
     private PgSimpleDataSourceAdapter(Builder builder) {
         ds = new PGSimpleDataSource();
         String url = "jdbc:postgresql://" + builder.hostname + ":" + builder.port + "/" + builder.database;
@@ -572,6 +607,9 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         scalarResultSetHandlerBuilder = builder.scalarResultSetHandlerBuilder;
         rowResultSetHandlerBuilder = builder.rowResultSetHandlerBuilder;
         autoCommit = builder.autoCommit;
+        readOnly = builder.readOnly;
+        holdability = builder.holdability;
+
     }
 
     @Override

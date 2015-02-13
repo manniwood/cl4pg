@@ -25,9 +25,13 @@ package com.manniwood.cl4pg.v1;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.ResultSet;
 
 /**
- * Configuration defaults for Cl4Pg. Note that many of them are taken from org.postgresql.ds.common.BaseDataSource.
+ * Configuration defaults for Cl4Pg. Note that many of them are taken from org.postgresql.ds.common.BaseDataSource. The
+ * textual names try to match the exact property names that are used in the PostgreSQL driver; so, even though
+ * most of the names follow the example of camel case with the first character in lowercase, oddly-named
+ * property names such as AutoCommit or ApplicationName have been preserved.
  *
  * @author mwood
  *
@@ -85,7 +89,7 @@ public final class ConfigDefaults {
     public static final int DEFAULT_RECEIVE_BUFFER_SIZE = -1;
     public static final String SEND_BUFFER_SIZE_KEY = "sendBufferSize";
     public static final int DEFAULT_SEND_BUFFER_SIZE = -1;
-    public static final String STRING_TYPE_KEY = "stringType";
+    public static final String STRING_TYPE_KEY = "stringtype";
     public static final String DEFAULT_STRING_TYPE = null;
     public static final String SSL_KEY = "ssl";
     public static final boolean DEFAULT_SSL = false;
@@ -97,6 +101,10 @@ public final class ConfigDefaults {
     public static final boolean DEFAULT_TCP_KEEP_ALIVE = false;
     public static final String UNKNOWN_LENGTH_KEY = "unknownLength";
     public static final int DEFAULT_UNKNOWN_LENGTH = Integer.MAX_VALUE;
+    public static final String READ_ONLY_KEY = "readOnly";
+    public static final boolean DEFAULT_READ_ONLY = false;
+    public static final String HOLDABILITY_KEY = "holdability";
+    public static final int DEFAULT_HOLDABILITY = ResultSet.CLOSE_CURSORS_AT_COMMIT;
 
     private ConfigDefaults() {
         // Utility class
