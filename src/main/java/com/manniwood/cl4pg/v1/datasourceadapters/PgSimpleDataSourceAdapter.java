@@ -92,11 +92,11 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
 
             // conn.setCatalog("String catalog");  // Not supported by PostgreSQL
             // conn.setClientInfo(null);  // Covered by more direct connection setters that we are already using
-            conn.setHoldability(0);  // TODO
+            conn.setHoldability(holdability);
             // conn.setNetworkTimeout(null, 0); // Not implemented by PostgreSQL
-            conn.setReadOnly(false);  // TODO
+            conn.setReadOnly(readOnly);
             // conn.setSchema("String schema");  // Not implemented by PostgreSQL
-            conn.setTypeMap(null);  // Map<String, Class<?>> TODO
+            // conn.setTypeMap(null);  // Map<String, Class<?>> TODO
 
             // PGConnection pgConn = (PGConnection) conn;
             // pgConn.setPrepareThreshold(0);  // Already gets set in data source
@@ -134,7 +134,6 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         return buildFromConfFile(DEFAULT_CONF_FILE);
     }
 
-    // TODO: add all extra props here
     public static PgSimpleDataSourceAdapter buildFromConfFile(String path) {
         Properties props = new Properties();
         InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
@@ -149,67 +148,162 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
 
         Builder builder = new PgSimpleDataSourceAdapter.Builder();
 
-        String hostname = props.getProperty(ConfigDefaults.HOSTNAME_KEY);
+        String hostname = PropsUtil.getPropFromAll(props, ConfigDefaults.HOSTNAME_KEY);
         if (!Str.isNullOrEmpty(hostname)) {
             builder.hostname(hostname);
         }
 
-        String portStr = props.getProperty(ConfigDefaults.PORT_KEY);
+        String portStr = PropsUtil.getPropFromAll(props, ConfigDefaults.PORT_KEY);
         if (!Str.isNullOrEmpty(portStr)) {
             builder.port(Integer.parseInt(portStr));
         }
 
-        String database = props.getProperty(ConfigDefaults.DATABASE_KEY);
+        String database = PropsUtil.getPropFromAll(props, ConfigDefaults.DATABASE_KEY);
         if (!Str.isNullOrEmpty(database)) {
             builder.database(database);
         }
 
-        String username = props.getProperty(ConfigDefaults.USERNAME_KEY);
+        String username = PropsUtil.getPropFromAll(props, ConfigDefaults.USERNAME_KEY);
         if (!Str.isNullOrEmpty(username)) {
             builder.username(username);
         }
 
-        String password = props.getProperty(ConfigDefaults.PASSWORD_KEY);
+        String password = PropsUtil.getPropFromAll(props, ConfigDefaults.PASSWORD_KEY);
         if (!Str.isNullOrEmpty(password)) {
             builder.password(password);
         }
 
-        String appName = props.getProperty(ConfigDefaults.APP_NAME_KEY);
+        String appName = PropsUtil.getPropFromAll(props, ConfigDefaults.APP_NAME_KEY);
         if (!Str.isNullOrEmpty(appName)) {
             builder.appName(appName);
         }
 
-        String exceptionConverterStr = props.getProperty(ConfigDefaults.EXCEPTION_CONVERTER_KEY);
+        String exceptionConverterStr = PropsUtil.getPropFromAll(props, ConfigDefaults.EXCEPTION_CONVERTER_KEY);
         if (!Str.isNullOrEmpty(exceptionConverterStr)) {
             builder.exceptionConverter(exceptionConverterStr);
         }
 
-        String scalarResultSetHandlerBuilder = props.getProperty(ConfigDefaults.SCALAR_RESULT_SET_HANDLER_BUILDER_KEY);
-        if (!Str.isNullOrEmpty(scalarResultSetHandlerBuilder)) {
-            builder.scalarResultSetHandlerBuilder(scalarResultSetHandlerBuilder);
-        }
-
-        String rowResultSetHandlerBuilder = props.getProperty(ConfigDefaults.ROW_RESULT_SET_HANDLER_BUILDER_KEY);
-        if (!Str.isNullOrEmpty(rowResultSetHandlerBuilder)) {
-            builder.rowResultSetHandlerBuilder(rowResultSetHandlerBuilder);
-        }
-
-        String transactionIsolationLevelStr = props.getProperty(ConfigDefaults.TRANSACTION_ISOLATION_LEVEL_KEY);
+        String transactionIsolationLevelStr = PropsUtil.getPropFromAll(props, ConfigDefaults.TRANSACTION_ISOLATION_LEVEL_KEY);
         if (!Str.isNullOrEmpty(transactionIsolationLevelStr)) {
             builder.transactionIsolationLevelName(transactionIsolationLevelStr);
         }
 
-        String autoCommitStr = props.getProperty(ConfigDefaults.AUTO_COMMIT_KEY);
-        if (!Str.isNullOrEmpty(autoCommitStr)) {
-            builder.autoCommit(autoCommitStr);
+        String scalarResultSetHandlerBuilder = PropsUtil.getPropFromAll(props, ConfigDefaults.SCALAR_RESULT_SET_HANDLER_BUILDER_KEY);
+        if (!Str.isNullOrEmpty(scalarResultSetHandlerBuilder)) {
+            builder.scalarResultSetHandlerBuilder(scalarResultSetHandlerBuilder);
         }
 
-        String typeConverterConfFilesStr = props.getProperty(ConfigDefaults.TYPE_CONVERTER_CONF_FILES_KEY);
+        String typeConverterConfFilesStr = PropsUtil.getPropFromAll(props, ConfigDefaults.TYPE_CONVERTER_CONF_FILES_KEY);
         if (!Str.isNullOrEmpty(typeConverterConfFilesStr)) {
             builder.typeConverterConfFiles(typeConverterConfFilesStr);
         }
 
-        // TODO: start here
+        String rowResultSetHandlerBuilder = PropsUtil.getPropFromAll(props, ConfigDefaults.ROW_RESULT_SET_HANDLER_BUILDER_KEY);
+        if (!Str.isNullOrEmpty(rowResultSetHandlerBuilder)) {
+            builder.rowResultSetHandlerBuilder(rowResultSetHandlerBuilder);
+        }
+
+        String autoCommitStr = PropsUtil.getPropFromAll(props, ConfigDefaults.AUTO_COMMIT_KEY);
+        if (!Str.isNullOrEmpty(autoCommitStr)) {
+            builder.autoCommit(autoCommitStr);
+        }
+
+        String binaryTransferStr = PropsUtil.getPropFromAll(props, ConfigDefaults.BINARY_TRANSFER_KEY);
+        if (!Str.isNullOrEmpty(binaryTransferStr)) {
+            builder.binaryTransfer(binaryTransferStr);
+        }
+
+        String binaryTransferEnable = PropsUtil.getPropFromAll(props, ConfigDefaults.BINARY_TRANSFER_ENABLE_KEY);
+        if (!Str.isNullOrEmpty(binaryTransferEnable)) {
+            builder.binaryTransferEnable(binaryTransferEnable);
+        }
+
+        String binaryTransferDisable = PropsUtil.getPropFromAll(props, ConfigDefaults.BINARY_TRANSFER_DISABLE_KEY);
+        if (!Str.isNullOrEmpty(binaryTransferDisable)) {
+            builder.binaryTransferDisable(binaryTransferDisable);
+        }
+
+        String compatible = PropsUtil.getPropFromAll(props, ConfigDefaults.COMPATIBLE_KEY);
+        if (!Str.isNullOrEmpty(compatible)) {
+            builder.compatible(compatible);
+        }
+
+        String disableColumnSanitizer = PropsUtil.getPropFromAll(props, ConfigDefaults.DISABLE_COLUMN_SANITIZER_KEY);
+        if (!Str.isNullOrEmpty(disableColumnSanitizer)) {
+            builder.disableColumnSanitizer(disableColumnSanitizer);
+        }
+
+        String loginTimeout = PropsUtil.getPropFromAll(props, ConfigDefaults.LOGIN_TIMEOUT_KEY);
+        if (!Str.isNullOrEmpty(loginTimeout)) {
+            builder.loginTimeout(loginTimeout);
+        }
+
+        String logLevel = PropsUtil.getPropFromAll(props, ConfigDefaults.LOG_LEVEL_KEY);
+        if (!Str.isNullOrEmpty(logLevel)) {
+            builder.logLevel(logLevel);
+        }
+
+        // skipping logWriter because it is of type PrintWriter; figure out later
+
+        String prepareThreshold = PropsUtil.getPropFromAll(props, ConfigDefaults.PREPARE_THRESHOLD_KEY);
+        if (!Str.isNullOrEmpty(prepareThreshold)) {
+            builder.prepareThreshold(prepareThreshold);
+        }
+
+        String protocolVersion = PropsUtil.getPropFromAll(props, ConfigDefaults.PROTOCOL_VERSION_KEY);
+        if (!Str.isNullOrEmpty(protocolVersion)) {
+            builder.protocolVersion(protocolVersion);
+        }
+
+        String receiveBufferSize = PropsUtil.getPropFromAll(props, ConfigDefaults.RECEIVE_BUFFER_SIZE_KEY);
+        if (!Str.isNullOrEmpty(receiveBufferSize)) {
+            builder.receiveBufferSize(receiveBufferSize);
+        }
+
+        String sendBufferSize = PropsUtil.getPropFromAll(props, ConfigDefaults.SEND_BUFFER_SIZE_KEY);
+        if (!Str.isNullOrEmpty(sendBufferSize)) {
+            builder.sendBufferSize(sendBufferSize);
+        }
+
+        String stringtype = PropsUtil.getPropFromAll(props, ConfigDefaults.STRING_TYPE_KEY);
+        if (!Str.isNullOrEmpty(stringtype)) {
+            builder.stringType(stringtype);
+        }
+
+        String ssl = PropsUtil.getPropFromAll(props, ConfigDefaults.SSL_KEY);
+        if (!Str.isNullOrEmpty(ssl)) {
+            builder.ssl(ssl);
+        }
+
+        String sslfactory = PropsUtil.getPropFromAll(props, ConfigDefaults.SSL_FACTORY_KEY);
+        if (!Str.isNullOrEmpty(sslfactory)) {
+            builder.sslFactory(sslfactory);
+        }
+
+        String socketTimeout = PropsUtil.getPropFromAll(props, ConfigDefaults.SOCKET_TIMEOUT_KEY);
+        if (!Str.isNullOrEmpty(socketTimeout)) {
+            builder.socketTimeout(socketTimeout);
+        }
+
+        String tcpKeepAlive = PropsUtil.getPropFromAll(props, ConfigDefaults.TCP_KEEP_ALIVE_KEY);
+        if (!Str.isNullOrEmpty(tcpKeepAlive)) {
+            builder.tcpKeepAlive(tcpKeepAlive);
+        }
+
+        String unknownLength = PropsUtil.getPropFromAll(props, ConfigDefaults.UNKNOWN_LENGTH_KEY);
+        if (!Str.isNullOrEmpty(unknownLength)) {
+            builder.unknownLength(unknownLength);
+        }
+
+        String readOnly = PropsUtil.getPropFromAll(props, ConfigDefaults.READ_ONLY_KEY);
+        if (!Str.isNullOrEmpty(readOnly)) {
+            builder.readOnly(readOnly);
+        }
+
+        String holdability = PropsUtil.getPropFromAll(props, ConfigDefaults.HOLDABILITY_KEY);
+        if (!Str.isNullOrEmpty(holdability)) {
+            builder.holdability(holdability);
+        }
 
         return builder.done();
     }
@@ -496,6 +590,16 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
 
         public Builder tcpKeepAlive(String tcpKeepAlive) {
             this.tcpKeepAlive = Boolean.parseBoolean(tcpKeepAlive);
+            return this;
+        }
+
+        public Builder unknownLength(int unknownLength) {
+            this.unknownLength = unknownLength;
+            return this;
+        }
+
+        public Builder unknownLength(String unknownLength) {
+            this.unknownLength = Integer.parseInt(unknownLength);
             return this;
         }
 
