@@ -89,10 +89,14 @@ public final class ConfigDefaults {
     public static final String DEFAULT_STRING_TYPE = null;
     public static final String SSL_KEY = "ssl";
     public static final boolean DEFAULT_SSL = false;
-    public static final String SSL_FACTORY_KEY = "sslFactory";
+    public static final String SSL_FACTORY_KEY = "sslfactory";
     public static final String DEFAULT_SSL_FACTORY = null;
     public static final String SOCKET_TIMEOUT_KEY = "socketTimeout";
     public static final int DEFAULT_SOCKET_TIMEOOUT = 0;
+    public static final String TCP_KEEP_ALIVE_KEY = "tcpKeepAlive";
+    public static final boolean DEFAULT_TCP_KEEP_ALIVE = false;
+    public static final String UNKNOWN_LENGTH_KEY = "unknownLength";
+    public static final int DEFAULT_UNKNOWN_LENGTH = Integer.MAX_VALUE;
 
     private ConfigDefaults() {
         // Utility class

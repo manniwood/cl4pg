@@ -241,6 +241,8 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         private boolean ssl = ConfigDefaults.DEFAULT_SSL;
         private String sslFactory = ConfigDefaults.DEFAULT_SSL_FACTORY;
         private int socketTimeout = ConfigDefaults.DEFAULT_SOCKET_TIMEOOUT;
+        private boolean tcpKeepAlive = ConfigDefaults.DEFAULT_TCP_KEEP_ALIVE;
+        private int unknownLength = ConfigDefaults.DEFAULT_UNKNOWN_LENGTH;
 
         public Builder() {
             // null constructor
@@ -256,9 +258,8 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
-        public Builder port(String portStr) {
-            int port = Integer.parseInt(portStr);
-            this.port = port;
+        public Builder port(String port) {
+            this.port = Integer.parseInt(port);
             return this;
         }
 
@@ -389,8 +390,18 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
+        public Builder loginTimeout(String loginTimeOut) {
+            this.loginTimeout = Integer.parseInt(loginTimeOut);
+            return this;
+        }
+
         public Builder logLevel(int logLevel) {
             this.logLevel = logLevel;
+            return this;
+        }
+
+        public Builder logLevel(String logLevel) {
+            this.logLevel = Integer.parseInt(logLevel);
             return this;
         }
 
@@ -406,8 +417,18 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
+        public Builder prepareThreshold(String prepareThreshold) {
+            this.prepareThreshold = Integer.parseInt(prepareThreshold);
+            return this;
+        }
+
         public Builder protocolVersion(int protocolVersion) {
             this.protocolVersion = protocolVersion;
+            return this;
+        }
+
+        public Builder protocolVersion(String protocolVersion) {
+            this.protocolVersion = Integer.parseInt(protocolVersion);
             return this;
         }
 
@@ -416,8 +437,18 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
+        public Builder receiveBufferSize(String receiveBufferSize) {
+            this.receiveBufferSize = Integer.parseInt(receiveBufferSize);
+            return this;
+        }
+
         public Builder sendBufferSize(int sendBufferSize) {
             this.sendBufferSize = sendBufferSize;
+            return this;
+        }
+
+        public Builder sendBufferSize(String sendBufferSize) {
+            this.sendBufferSize = Integer.parseInt(sendBufferSize);
             return this;
         }
 
@@ -443,6 +474,21 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
 
         public Builder socketTimeout(int socketTimeout) {
             this.socketTimeout = socketTimeout;
+            return this;
+        }
+
+        public Builder socketTimeout(String socketTimeout) {
+            this.socketTimeout = Integer.parseInt(socketTimeout);
+            return this;
+        }
+
+        public Builder tcpKeepAlive(boolean tcpKeepAlive) {
+            this.tcpKeepAlive = tcpKeepAlive;
+            return this;
+        }
+
+        public Builder tcpKeepAlive(String tcpKeepAlive) {
+            this.tcpKeepAlive = Boolean.parseBoolean(tcpKeepAlive);
             return this;
         }
 
@@ -516,8 +562,8 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         ds.setSsl(builder.ssl);
         ds.setSslfactory(builder.sslFactory);
         ds.setSocketTimeout(builder.socketTimeout);
-        ds.setTcpKeepAlive(builder.tcpKeepAlive);  // TODO false
-        ds.setUnknownLength(builder.unknownLength);  // TODO Integer.MAX_VALUE
+        ds.setTcpKeepAlive(builder.tcpKeepAlive);
+        ds.setUnknownLength(builder.unknownLength);
 
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
