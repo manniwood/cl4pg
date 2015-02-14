@@ -23,6 +23,7 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.ds.tomcatjdbc;
 
+import com.manniwood.cl4pg.v1.ConfigDefaults;
 import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
@@ -35,6 +36,11 @@ public class TomcatSessionTest extends AbstractPgSessionTest {
     @Override
     protected DataSourceAdapter configureDataSourceAdapter() {
         return TomcatJDBCDataSourceAdapter.buildFromDefaultConfFile();
+    }
+
+    @Override
+    protected DataSourceAdapter configureSecondDataSourceAdapter() {
+        return TomcatJDBCDataSourceAdapter.buildFromConfFile(ConfigDefaults.PROJ_NAME + "/" + TomcatJDBCDataSourceAdapter.class.getSimpleName() + "2.properties");
     }
 
 }

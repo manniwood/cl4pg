@@ -23,20 +23,19 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.datasourceadapters;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Properties;
-
 import com.manniwood.cl4pg.v1.ConfigDefaults;
 import com.manniwood.cl4pg.v1.PgSession;
+import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
 import com.manniwood.cl4pg.v1.resultsethandlers.RowResultSetHandlerBuilder;
 import com.manniwood.cl4pg.v1.resultsethandlers.ScalarResultSetHandlerBuilder;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
+import com.manniwood.cl4pg.v1.util.PropsUtil;
 import com.manniwood.cl4pg.v1.util.ReflectionUtil;
+import com.manniwood.cl4pg.v1.util.ResourceUtil;
 import com.manniwood.cl4pg.v1.util.SqlCache;
+import com.manniwood.cl4pg.v1.util.Str;
 import com.manniwood.cl4pg.v1.util.TransactionIsolationLevelConverter;
 import org.postgresql.PGConnection;
 import org.postgresql.PGStatement;
@@ -44,11 +43,14 @@ import org.postgresql.ds.PGPoolingDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
-import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
-import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
-import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
-import com.manniwood.cl4pg.v1.util.Str;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * PGPoolingDataSource implementation of DataSourceAdapter, with
@@ -64,11 +66,13 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
 
     public static final String DEFAULT_CONF_FILE = ConfigDefaults.PROJ_NAME + "/" + PgPoolingDataSourceAdapter.class.getSimpleName() + ".properties";
 
-    public static final int DEFAULT_INITIAL_CONNECTIONS = 5;
-    public static final int DEFAULT_MAX_CONNECTIONS = 20;
-
+    // Attributes unique to this data source
+    public static final String DATA_SOURCE_NAME_KEY = "dataSourceName";
+    public static final String DEFAULT_DATA_SOURCE_NAME = null;
     public static final String INITIAL_CONNECTIONS_KEY = "initialConnections";
+    public static final int DEFAULT_INITIAL_CONNECTIONS = 5;
     public static final String MAX_CONNECTIONS_KEY = "maxConnections";
+    public static final int DEFAULT_MAX_CONNECTIONS = 20;
 
     private static final Logger log = LoggerFactory.getLogger(PgPoolingDataSourceAdapter.class);
 
@@ -82,6 +86,8 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
     private final PGPoolingDataSource ds;
     private final int transactionIsolationLevel;
     private final boolean autoCommit;
+    private final boolean readOnly;
+    private final int holdability;
 
     @Override
     public PgSession getSession() {
@@ -95,6 +101,17 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
             conn = ds.getConnection();
             conn.setTransactionIsolation(transactionIsolationLevel);
             conn.setAutoCommit(autoCommit);
+
+            // conn.setCatalog("String catalog");  // Not supported by PostgreSQL
+            // conn.setClientInfo(null);  // Covered by more direct connection setters that we are already using
+            conn.setHoldability(holdability);
+            // conn.setNetworkTimeout(null, 0); // Not implemented by PostgreSQL
+            conn.setReadOnly(readOnly);
+            // conn.setSchema("String schema");  // Not implemented by PostgreSQL
+            // conn.setTypeMap(null);  // Map<String, Class<?>> TODO
+
+            // PGConnection pgConn = (PGConnection) conn;
+            // pgConn.setPrepareThreshold(0);  // Already gets set in data source
         } catch (SQLException e) {
             throw new Cl4pgFailedConnectionException("Could not get connection.", e);
         }
@@ -130,12 +147,10 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
     }
 
     public static PgPoolingDataSourceAdapter buildFromConfFile(String path) {
-        log.debug("Conf file: " + path);
         Properties props = new Properties();
-        InputStream inStream = PgPoolingDataSourceAdapter.class.getClassLoader().getResourceAsStream(path);
+        InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
         if (inStream == null) {
-            throw new Cl4pgConfFileException("Could not find conf file (resource) \"" + path + "\" in classpath \"" + System.getProperty("java.class.path")
-                    + "\"");
+            throw new Cl4pgConfFileException("Could not find conf file \"" + path + "\" in classpath");
         }
         try {
             props.load(inStream);
@@ -145,74 +160,161 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
 
         Builder builder = new PgPoolingDataSourceAdapter.Builder();
 
-        String hostname = props.getProperty(ConfigDefaults.HOSTNAME_KEY);
+        String hostname = PropsUtil.getPropFromAll(props, ConfigDefaults.HOSTNAME_KEY);
         if (!Str.isNullOrEmpty(hostname)) {
             builder.hostname(hostname);
         }
 
-        String portStr = props.getProperty(ConfigDefaults.PORT_KEY);
+        String portStr = PropsUtil.getPropFromAll(props, ConfigDefaults.PORT_KEY);
         if (!Str.isNullOrEmpty(portStr)) {
             builder.port(Integer.parseInt(portStr));
         }
 
-        String database = props.getProperty(ConfigDefaults.DATABASE_KEY);
+        String database = PropsUtil.getPropFromAll(props, ConfigDefaults.DATABASE_KEY);
         if (!Str.isNullOrEmpty(database)) {
             builder.database(database);
         }
 
-        String username = props.getProperty(ConfigDefaults.USERNAME_KEY);
+        String username = PropsUtil.getPropFromAll(props, ConfigDefaults.USERNAME_KEY);
         if (!Str.isNullOrEmpty(username)) {
             builder.username(username);
         }
 
-        String password = props.getProperty(ConfigDefaults.PASSWORD_KEY);
+        String password = PropsUtil.getPropFromAll(props, ConfigDefaults.PASSWORD_KEY);
         if (!Str.isNullOrEmpty(password)) {
             builder.password(password);
         }
 
-        String appName = props.getProperty(ConfigDefaults.APP_NAME_KEY);
+        String appName = PropsUtil.getPropFromAll(props, ConfigDefaults.APP_NAME_KEY);
         if (!Str.isNullOrEmpty(appName)) {
             builder.appName(appName);
         }
 
-        String initialConnectionsStr = props.getProperty(INITIAL_CONNECTIONS_KEY);
-        if (!Str.isNullOrEmpty(initialConnectionsStr)) {
-            builder.initialConnections(Integer.parseInt(initialConnectionsStr));
-        }
-
-        String maxConnectionsStr = props.getProperty(MAX_CONNECTIONS_KEY);
-        if (!Str.isNullOrEmpty(maxConnectionsStr)) {
-            builder.maxConnections(Integer.parseInt(maxConnectionsStr));
-        }
-
-        String exceptionConverterStr = props.getProperty(ConfigDefaults.EXCEPTION_CONVERTER_KEY);
+        String exceptionConverterStr = PropsUtil.getPropFromAll(props, ConfigDefaults.EXCEPTION_CONVERTER_KEY);
         if (!Str.isNullOrEmpty(exceptionConverterStr)) {
             builder.exceptionConverter(exceptionConverterStr);
         }
 
-        String scalarResultSetHandlerBuilder = props.getProperty(ConfigDefaults.SCALAR_RESULT_SET_HANDLER_BUILDER_KEY);
-        if (!Str.isNullOrEmpty(scalarResultSetHandlerBuilder)) {
-            builder.scalarResultSetHandlerBuilder(scalarResultSetHandlerBuilder);
-        }
-
-        String rowResultSetHandlerBuilder = props.getProperty(ConfigDefaults.ROW_RESULT_SET_HANDLER_BUILDER_KEY);
-        if (!Str.isNullOrEmpty(rowResultSetHandlerBuilder)) {
-            builder.rowResultSetHandlerBuilder(rowResultSetHandlerBuilder);
-        }
-
-        String transactionIsolationLevelStr = props.getProperty(ConfigDefaults.TRANSACTION_ISOLATION_LEVEL_KEY);
+        String transactionIsolationLevelStr = PropsUtil.getPropFromAll(props, ConfigDefaults.TRANSACTION_ISOLATION_LEVEL_KEY);
         if (!Str.isNullOrEmpty(transactionIsolationLevelStr)) {
             builder.transactionIsolationLevelName(transactionIsolationLevelStr);
         }
 
-        String autoCommitStr = props.getProperty(ConfigDefaults.AUTO_COMMIT_KEY);
+        String scalarResultSetHandlerBuilder = PropsUtil.getPropFromAll(props, ConfigDefaults.SCALAR_RESULT_SET_HANDLER_BUILDER_KEY);
+        if (!Str.isNullOrEmpty(scalarResultSetHandlerBuilder)) {
+            builder.scalarResultSetHandlerBuilder(scalarResultSetHandlerBuilder);
+        }
+
+        String typeConverterConfFilesStr = PropsUtil.getPropFromAll(props, ConfigDefaults.TYPE_CONVERTER_CONF_FILES_KEY);
+        if (!Str.isNullOrEmpty(typeConverterConfFilesStr)) {
+            builder.typeConverterConfFiles(typeConverterConfFilesStr);
+        }
+
+        String rowResultSetHandlerBuilder = PropsUtil.getPropFromAll(props, ConfigDefaults.ROW_RESULT_SET_HANDLER_BUILDER_KEY);
+        if (!Str.isNullOrEmpty(rowResultSetHandlerBuilder)) {
+            builder.rowResultSetHandlerBuilder(rowResultSetHandlerBuilder);
+        }
+
+        String autoCommitStr = PropsUtil.getPropFromAll(props, ConfigDefaults.AUTO_COMMIT_KEY);
         if (!Str.isNullOrEmpty(autoCommitStr)) {
             builder.autoCommit(autoCommitStr);
         }
 
-        String typeConverterConfFilesStr = props.getProperty(ConfigDefaults.TYPE_CONVERTER_CONF_FILES_KEY);
-        if (!Str.isNullOrEmpty(typeConverterConfFilesStr)) {
-            builder.typeConverterConfFiles(typeConverterConfFilesStr);
+        String binaryTransferStr = PropsUtil.getPropFromAll(props, ConfigDefaults.BINARY_TRANSFER_KEY);
+        if (!Str.isNullOrEmpty(binaryTransferStr)) {
+            builder.binaryTransfer(binaryTransferStr);
+        }
+
+        String binaryTransferEnable = PropsUtil.getPropFromAll(props, ConfigDefaults.BINARY_TRANSFER_ENABLE_KEY);
+        if (!Str.isNullOrEmpty(binaryTransferEnable)) {
+            builder.binaryTransferEnable(binaryTransferEnable);
+        }
+
+        String binaryTransferDisable = PropsUtil.getPropFromAll(props, ConfigDefaults.BINARY_TRANSFER_DISABLE_KEY);
+        if (!Str.isNullOrEmpty(binaryTransferDisable)) {
+            builder.binaryTransferDisable(binaryTransferDisable);
+        }
+
+        String compatible = PropsUtil.getPropFromAll(props, ConfigDefaults.COMPATIBLE_KEY);
+        if (!Str.isNullOrEmpty(compatible)) {
+            builder.compatible(compatible);
+        }
+
+        String disableColumnSanitizer = PropsUtil.getPropFromAll(props, ConfigDefaults.DISABLE_COLUMN_SANITIZER_KEY);
+        if (!Str.isNullOrEmpty(disableColumnSanitizer)) {
+            builder.disableColumnSanitizer(disableColumnSanitizer);
+        }
+
+        String loginTimeout = PropsUtil.getPropFromAll(props, ConfigDefaults.LOGIN_TIMEOUT_KEY);
+        if (!Str.isNullOrEmpty(loginTimeout)) {
+            builder.loginTimeout(loginTimeout);
+        }
+
+        String logLevel = PropsUtil.getPropFromAll(props, ConfigDefaults.LOG_LEVEL_KEY);
+        if (!Str.isNullOrEmpty(logLevel)) {
+            builder.logLevel(logLevel);
+        }
+
+        // skipping logWriter because it is of type PrintWriter; figure out later
+
+        String prepareThreshold = PropsUtil.getPropFromAll(props, ConfigDefaults.PREPARE_THRESHOLD_KEY);
+        if (!Str.isNullOrEmpty(prepareThreshold)) {
+            builder.prepareThreshold(prepareThreshold);
+        }
+
+        String protocolVersion = PropsUtil.getPropFromAll(props, ConfigDefaults.PROTOCOL_VERSION_KEY);
+        if (!Str.isNullOrEmpty(protocolVersion)) {
+            builder.protocolVersion(protocolVersion);
+        }
+
+        String receiveBufferSize = PropsUtil.getPropFromAll(props, ConfigDefaults.RECEIVE_BUFFER_SIZE_KEY);
+        if (!Str.isNullOrEmpty(receiveBufferSize)) {
+            builder.receiveBufferSize(receiveBufferSize);
+        }
+
+        String sendBufferSize = PropsUtil.getPropFromAll(props, ConfigDefaults.SEND_BUFFER_SIZE_KEY);
+        if (!Str.isNullOrEmpty(sendBufferSize)) {
+            builder.sendBufferSize(sendBufferSize);
+        }
+
+        String stringtype = PropsUtil.getPropFromAll(props, ConfigDefaults.STRING_TYPE_KEY);
+        if (!Str.isNullOrEmpty(stringtype)) {
+            builder.stringType(stringtype);
+        }
+
+        String ssl = PropsUtil.getPropFromAll(props, ConfigDefaults.SSL_KEY);
+        if (!Str.isNullOrEmpty(ssl)) {
+            builder.ssl(ssl);
+        }
+
+        String sslfactory = PropsUtil.getPropFromAll(props, ConfigDefaults.SSL_FACTORY_KEY);
+        if (!Str.isNullOrEmpty(sslfactory)) {
+            builder.sslFactory(sslfactory);
+        }
+
+        String socketTimeout = PropsUtil.getPropFromAll(props, ConfigDefaults.SOCKET_TIMEOUT_KEY);
+        if (!Str.isNullOrEmpty(socketTimeout)) {
+            builder.socketTimeout(socketTimeout);
+        }
+
+        String tcpKeepAlive = PropsUtil.getPropFromAll(props, ConfigDefaults.TCP_KEEP_ALIVE_KEY);
+        if (!Str.isNullOrEmpty(tcpKeepAlive)) {
+            builder.tcpKeepAlive(tcpKeepAlive);
+        }
+
+        String unknownLength = PropsUtil.getPropFromAll(props, ConfigDefaults.UNKNOWN_LENGTH_KEY);
+        if (!Str.isNullOrEmpty(unknownLength)) {
+            builder.unknownLength(unknownLength);
+        }
+
+        String readOnly = PropsUtil.getPropFromAll(props, ConfigDefaults.READ_ONLY_KEY);
+        if (!Str.isNullOrEmpty(readOnly)) {
+            builder.readOnly(readOnly);
+        }
+
+        String holdability = PropsUtil.getPropFromAll(props, ConfigDefaults.HOLDABILITY_KEY);
+        if (!Str.isNullOrEmpty(holdability)) {
+            builder.holdability(holdability);
         }
 
         return builder.done();
@@ -228,14 +330,35 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
         private String exceptionConverterStr = ConfigDefaults.DEFAULT_EXCEPTION_CONVERTER_CLASS;
         private ExceptionConverter exceptionConverter = null;
         private int transactionIsolationLevel = ConfigDefaults.DEFAULT_TRANSACTION_ISOLATION_LEVEL;
-        private int initialConnections = DEFAULT_INITIAL_CONNECTIONS;
-        private int maxConnections = DEFAULT_MAX_CONNECTIONS;
         private String typeConverterConfFiles = null;
         private String scalarResultSetHandlerBuilderStr = ConfigDefaults.DEFAULT_SCALAR_RESULT_SET_HANDLER_BUILDER;
         private ScalarResultSetHandlerBuilder scalarResultSetHandlerBuilder = null;
         private String rowResultSetHandlerBuilderStr = ConfigDefaults.DEFAULT_ROW_RESULT_SET_HANDLER_BUILDER;
         private RowResultSetHandlerBuilder rowResultSetHandlerBuilder = null;
         private boolean autoCommit = ConfigDefaults.DEFAULT_AUTO_COMMIT;
+        private boolean binaryTransfer = ConfigDefaults.DEFAULT_BINARY_TRANSFER;
+        private String binaryTransferEnable = ConfigDefaults.DEFAULT_BINARY_TRANSFER_ENABLE;
+        private String binaryTransferDisable = ConfigDefaults.DEFAULT_BINARY_TRANSFER_DISABLE;
+        private String compatible = ConfigDefaults.DEFAULT_COMPATIBLE;
+        private boolean disableColumnSanitiser = ConfigDefaults.DEFAULT_DISABLE_COLUMN_SANITIZER;
+        private int loginTimeout = ConfigDefaults.DEFAULT_LOGIN_TIMEOUT;
+        private int logLevel = ConfigDefaults.DEFAULT_LOG_LEVEL;
+        private PrintWriter logWriter = ConfigDefaults.DEFAULT_LOG_WRITER;
+        private int prepareThreshold = ConfigDefaults.DEFAULT_PREPARE_THRESHOLD;
+        private int protocolVersion = ConfigDefaults.DEFAULT_PROTOCOL_VERSION;
+        private  int receiveBufferSize = ConfigDefaults.DEFAULT_RECEIVE_BUFFER_SIZE;
+        private int sendBufferSize = ConfigDefaults.DEFAULT_SEND_BUFFER_SIZE;
+        private String stringType = ConfigDefaults.DEFAULT_STRING_TYPE;
+        private boolean ssl = ConfigDefaults.DEFAULT_SSL;
+        private String sslFactory = ConfigDefaults.DEFAULT_SSL_FACTORY;
+        private int socketTimeout = ConfigDefaults.DEFAULT_SOCKET_TIMEOOUT;
+        private boolean tcpKeepAlive = ConfigDefaults.DEFAULT_TCP_KEEP_ALIVE;
+        private int unknownLength = ConfigDefaults.DEFAULT_UNKNOWN_LENGTH;
+        private boolean readOnly = ConfigDefaults.DEFAULT_READ_ONLY;
+        private int holdability = ConfigDefaults.DEFAULT_HOLDABILITY;
+        private int initialConnections = DEFAULT_INITIAL_CONNECTIONS;
+        private int maxConnections = DEFAULT_MAX_CONNECTIONS;
+        private String dataSourceName = DEFAULT_DATA_SOURCE_NAME;
 
         public Builder() {
             // null constructor
@@ -251,9 +374,8 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
-        public Builder port(String portStr) {
-            int port = Integer.parseInt(portStr);
-            this.port = port;
+        public Builder port(String port) {
+            this.port = Integer.parseInt(port);
             return this;
         }
 
@@ -274,16 +396,6 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
 
         public Builder appName(String appName) {
             this.appName = appName;
-            return this;
-        }
-
-        public Builder initialConnections(int initialConnections) {
-            this.initialConnections = initialConnections;
-            return this;
-        }
-
-        public Builder maxConnections(int maxConnections) {
-            this.maxConnections = maxConnections;
             return this;
         }
 
@@ -354,6 +466,193 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
+        public Builder binaryTransfer(boolean binaryTransfer) {
+            this.binaryTransfer = binaryTransfer;
+            return this;
+        }
+
+        public Builder binaryTransfer(String binaryTransfer) {
+            this.binaryTransfer = Boolean.parseBoolean(binaryTransfer);
+            return this;
+        }
+
+        public Builder binaryTransferEnable(String binaryTransferEnable) {
+            this.binaryTransferEnable = binaryTransferEnable;
+            return this;
+        }
+
+        public Builder binaryTransferDisable(String binaryTransferDisable) {
+            this.binaryTransferDisable = binaryTransferDisable;
+            return this;
+        }
+
+        public Builder compatible(String compatible) {
+            this.compatible = compatible;
+            return this;
+        }
+
+        public Builder disableColumnSanitizer(boolean disableColumnSanitizer) {
+            this.disableColumnSanitiser = disableColumnSanitizer;
+            return this;
+        }
+
+        public Builder disableColumnSanitizer(String disableColumnSanitizer) {
+            this.disableColumnSanitiser = Boolean.parseBoolean(disableColumnSanitizer);
+            return this;
+        }
+
+        public Builder loginTimeout(int loginTimeout) {
+            this.loginTimeout = loginTimeout;
+            return this;
+        }
+
+        public Builder loginTimeout(String loginTimeOut) {
+            this.loginTimeout = Integer.parseInt(loginTimeOut);
+            return this;
+        }
+
+        public Builder logLevel(int logLevel) {
+            this.logLevel = logLevel;
+            return this;
+        }
+
+        public Builder logLevel(String logLevel) {
+            this.logLevel = Integer.parseInt(logLevel);
+            return this;
+        }
+
+        public Builder logWriter(PrintWriter logWriter) {
+            this.logWriter = logWriter;
+            return this;
+        }
+        // THOUGHT: make version of this that takes a string and instantiates the correct printwriter?
+        // Would have to have a null constructor, though.
+
+        public Builder prepareThreshold(int prepareThreshold) {
+            this.prepareThreshold = prepareThreshold;
+            return this;
+        }
+
+        public Builder prepareThreshold(String prepareThreshold) {
+            this.prepareThreshold = Integer.parseInt(prepareThreshold);
+            return this;
+        }
+
+        public Builder protocolVersion(int protocolVersion) {
+            this.protocolVersion = protocolVersion;
+            return this;
+        }
+
+        public Builder protocolVersion(String protocolVersion) {
+            this.protocolVersion = Integer.parseInt(protocolVersion);
+            return this;
+        }
+
+        public Builder receiveBufferSize(int receiveBufferSize) {
+            this.receiveBufferSize = receiveBufferSize;
+            return this;
+        }
+
+        public Builder receiveBufferSize(String receiveBufferSize) {
+            this.receiveBufferSize = Integer.parseInt(receiveBufferSize);
+            return this;
+        }
+
+        public Builder sendBufferSize(int sendBufferSize) {
+            this.sendBufferSize = sendBufferSize;
+            return this;
+        }
+
+        public Builder sendBufferSize(String sendBufferSize) {
+            this.sendBufferSize = Integer.parseInt(sendBufferSize);
+            return this;
+        }
+
+        public Builder stringType(String stringType) {
+            this.stringType = stringType;
+            return this;
+        }
+
+        public Builder ssl(boolean ssl) {
+            this.ssl = ssl;
+            return this;
+        }
+
+        public Builder ssl(String ssl) {
+            this.ssl = Boolean.parseBoolean(ssl);
+            return this;
+        }
+
+        public Builder sslFactory(String sslFactory) {
+            this.sslFactory = sslFactory;
+            return this;
+        }
+
+        public Builder socketTimeout(int socketTimeout) {
+            this.socketTimeout = socketTimeout;
+            return this;
+        }
+
+        public Builder socketTimeout(String socketTimeout) {
+            this.socketTimeout = Integer.parseInt(socketTimeout);
+            return this;
+        }
+
+        public Builder tcpKeepAlive(boolean tcpKeepAlive) {
+            this.tcpKeepAlive = tcpKeepAlive;
+            return this;
+        }
+
+        public Builder tcpKeepAlive(String tcpKeepAlive) {
+            this.tcpKeepAlive = Boolean.parseBoolean(tcpKeepAlive);
+            return this;
+        }
+
+        public Builder unknownLength(int unknownLength) {
+            this.unknownLength = unknownLength;
+            return this;
+        }
+
+        public Builder unknownLength(String unknownLength) {
+            this.unknownLength = Integer.parseInt(unknownLength);
+            return this;
+        }
+
+        public Builder readOnly(boolean readOnly) {
+            this.readOnly = readOnly;
+            return this;
+        }
+
+        public Builder readOnly(String readOnly) {
+            this.readOnly = Boolean.parseBoolean(readOnly);
+            return this;
+        }
+
+        public Builder holdability(int holdability) {
+            this.holdability = holdability;
+            return this;
+        }
+
+        public Builder holdability(String holdability) {
+            this.holdability = Integer.parseInt(holdability);
+            return this;
+        }
+
+        public Builder initialConnections(int initialConnections) {
+            this.initialConnections = initialConnections;
+            return this;
+        }
+
+        public Builder maxConnections(int maxConnections) {
+            this.maxConnections = maxConnections;
+            return this;
+        }
+
+        public Builder dataSourceName(String dataSourceName) {
+            this.dataSourceName = dataSourceName;
+            return this;
+        }
+
         public PgPoolingDataSourceAdapter done() {
             if (this.exceptionConverter == null) {
                 if (Str.isNullOrEmpty(this.exceptionConverterStr)) {
@@ -385,7 +684,16 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
         scalarResultSetHandlerBuilder = null;
         rowResultSetHandlerBuilder = null;
         autoCommit = false;
+        readOnly = false;
+        holdability = -1;
     }
+
+    // NOTE that https://jdbc.postgresql.org/documentation/94/connect.html#connection-parameters shows that
+    // you can pass more parameters to Postgres' JDBC driver using DriverManager to get connections
+    // instead of using DataSource to get connections. However, using DriverManager to get connections
+    // precludes the use of connection pooling!
+    // TODO: explain this in docs. For instance, kerberosServerName can only be set using DriverManager.getConnection,
+    // not using DataSource.getConnection(). Lame.
 
     private PgPoolingDataSourceAdapter(Builder builder) {
         ds = new PGPoolingDataSource();
@@ -398,29 +706,34 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
         ds.setUser(builder.username);
         ds.setPassword(builder.password);
         ds.setApplicationName(builder.appName);
-        ds.setInitialConnections(builder.initialConnections);
-        ds.setMaxConnections(builder.maxConnections);
 
-        // TODO
-        /*
-        ds.setBinaryTransfer();
-        ds.setBinaryTransferDisable();
-        ds.setBinaryTransferEnable();
-        ds.setCompatible();
-        ds.setDisableColumnSanitiser();
-        ds.setLoginTimeout();
-        ds.setLogLevel();
-        ds.setLogWriter();
-        ds.setPrepareThreshold();
-        ds.setProtocolVersion();
-        ds.setReceiveBufferSize();
-        ds.setSendBufferSize();
-        ds.setSocketTimeout();
-        ds.setSsl();
-        ds.setSslfactory();
-        ds.setStringType();
-        ds.setTcpKeepAlive();
-        ds.setUnknownLength(); */
+        // Most defaults are listed in org.postgresql.ds.common.BaseDataSource
+        ds.setBinaryTransfer(builder.binaryTransfer);
+        ds.setBinaryTransferEnable(builder.binaryTransferEnable);
+        ds.setBinaryTransferDisable(builder.binaryTransferDisable);
+        ds.setCompatible(builder.compatible);
+        ds.setDisableColumnSanitiser(builder.disableColumnSanitiser);
+        try {
+            ds.setLoginTimeout(builder.loginTimeout);
+        } catch (SQLException e) {
+            throw new Cl4pgFailedConnectionException("Connection to URL " + url + " failed while trying to set login timeout to <<TODO: APPEND LOGIN TIMEOUT>>", e);
+        }
+        ds.setLogLevel(builder.logLevel);
+        try {
+            ds.setLogWriter(builder.logWriter);
+        } catch (SQLException e) {
+            throw new Cl4pgFailedConnectionException("Connection to URL " + url + " failed while trying to set log writer <<TODO: APPEND LOGIN TIMEOUT>>", e);
+        }
+        ds.setPrepareThreshold(builder.prepareThreshold);
+        ds.setProtocolVersion(builder.protocolVersion);
+        ds.setReceiveBufferSize(builder.receiveBufferSize);
+        ds.setSendBufferSize(builder.sendBufferSize);
+        ds.setStringType(builder.stringType);
+        ds.setSsl(builder.ssl);
+        ds.setSslfactory(builder.sslFactory);
+        ds.setSocketTimeout(builder.socketTimeout);
+        ds.setTcpKeepAlive(builder.tcpKeepAlive);
+        ds.setUnknownLength(builder.unknownLength);
 
         log.info("Application Name: {}", builder.appName);
         transactionIsolationLevel = builder.transactionIsolationLevel;
@@ -429,6 +742,13 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
         scalarResultSetHandlerBuilder = builder.scalarResultSetHandlerBuilder;
         rowResultSetHandlerBuilder = builder.rowResultSetHandlerBuilder;
         autoCommit = builder.autoCommit;
+        readOnly = builder.readOnly;
+        holdability = builder.holdability;
+
+        ds.setInitialConnections(builder.initialConnections);
+        ds.setMaxConnections(builder.maxConnections);
+        ds.setDataSourceName(builder.dataSourceName);
+
     }
 
     @Override
@@ -455,5 +775,4 @@ public class PgPoolingDataSourceAdapter implements DataSourceAdapter {
     public RowResultSetHandlerBuilder getRowResultSetHandlerBuilder() {
         return rowResultSetHandlerBuilder;
     }
-
 }

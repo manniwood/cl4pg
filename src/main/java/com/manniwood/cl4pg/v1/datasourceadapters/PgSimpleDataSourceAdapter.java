@@ -23,6 +23,26 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.datasourceadapters;
 
+import com.manniwood.cl4pg.v1.ConfigDefaults;
+import com.manniwood.cl4pg.v1.PgSession;
+import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
+import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
+import com.manniwood.cl4pg.v1.resultsethandlers.RowResultSetHandlerBuilder;
+import com.manniwood.cl4pg.v1.resultsethandlers.ScalarResultSetHandlerBuilder;
+import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
+import com.manniwood.cl4pg.v1.util.PropsUtil;
+import com.manniwood.cl4pg.v1.util.ReflectionUtil;
+import com.manniwood.cl4pg.v1.util.ResourceUtil;
+import com.manniwood.cl4pg.v1.util.SqlCache;
+import com.manniwood.cl4pg.v1.util.Str;
+import com.manniwood.cl4pg.v1.util.TransactionIsolationLevelConverter;
+import org.postgresql.PGConnection;
+import org.postgresql.PGStatement;
+import org.postgresql.ds.PGSimpleDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -31,22 +51,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
-
-import com.manniwood.cl4pg.v1.ConfigDefaults;
-import com.manniwood.cl4pg.v1.PgSession;
-import com.manniwood.cl4pg.v1.resultsethandlers.RowResultSetHandlerBuilder;
-import com.manniwood.cl4pg.v1.resultsethandlers.ScalarResultSetHandlerBuilder;
-import com.manniwood.cl4pg.v1.util.*;
-import org.postgresql.PGConnection;
-import org.postgresql.PGStatement;
-import org.postgresql.ds.PGSimpleDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.manniwood.cl4pg.v1.exceptionconverters.ExceptionConverter;
-import com.manniwood.cl4pg.v1.exceptions.Cl4pgConfFileException;
-import com.manniwood.cl4pg.v1.exceptions.Cl4pgFailedConnectionException;
-import com.manniwood.cl4pg.v1.typeconverters.TypeConverterStore;
 
 /**
  * PGSimpleDataSource implementation of DataSourceAdapter, with
@@ -138,7 +142,7 @@ public class PgSimpleDataSourceAdapter implements DataSourceAdapter {
         Properties props = new Properties();
         InputStream inStream = ResourceUtil.class.getClassLoader().getResourceAsStream(path);
         if (inStream == null) {
-            throw new Cl4pgConfFileException("Could not find conf file \"" + path + "\"");
+            throw new Cl4pgConfFileException("Could not find conf file \"" + path + "\" in classpath");
         }
         try {
             props.load(inStream);

@@ -23,6 +23,7 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.ds.pgpooling;
 
+import com.manniwood.cl4pg.v1.ConfigDefaults;
 import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
@@ -35,6 +36,11 @@ public class PgPoolingSessionTest extends AbstractPgSessionTest {
     @Override
     protected DataSourceAdapter configureDataSourceAdapter() {
         return PgPoolingDataSourceAdapter.buildFromDefaultConfFile();
+    }
+
+    @Override
+    protected DataSourceAdapter configureSecondDataSourceAdapter() {
+        return PgPoolingDataSourceAdapter.buildFromConfFile(ConfigDefaults.PROJ_NAME + "/" + PgPoolingDataSourceAdapter.class.getSimpleName() + "2.properties");
     }
 
 }

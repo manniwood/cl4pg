@@ -102,6 +102,7 @@ public abstract class AbstractPgSessionTest {
     }
 
     protected abstract DataSourceAdapter configureDataSourceAdapter();
+    protected abstract DataSourceAdapter configureSecondDataSourceAdapter();
 
     @AfterClass
     public void tearDown() {
@@ -159,7 +160,7 @@ public abstract class AbstractPgSessionTest {
         expected.add("baz");
         expected.add("bal");
 
-        DataSourceAdapter adapter2 = configureDataSourceAdapter();
+        DataSourceAdapter adapter2 = configureSecondDataSourceAdapter();
         PgSession pgSession2 = adapter2.getSession();
 
         pgSession2.pgListen("foo \" bar");
