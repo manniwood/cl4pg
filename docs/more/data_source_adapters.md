@@ -12,14 +12,12 @@ Other implementations of `java.sql.DataSource` generally provide
 database connection pooling facilities, so that `getConnection()`
 and `close()` only get and return a database connection to a pool.
 
-Cl4pg currently provides four data source adapters:
+Cl4pg currently provides two data source adapters:
 
 Name                         | Default Conf File                            | Wraps this DataSource
 -----------------------------|----------------------------------------------|------------------
 PgSimpleDataSourceAdapter    | cl4pg/PgSimpleDataSourceAdapter.properties   | PGSimpleDataSource
-PgPoolingDataSourceAdapter   | cl4pg/PgPoolingDataSourceAdapter.properties  | PGPoolingDataSource
 HikariCpDataSourceAdapter    | cl4pg/HikariCpDataSourceAdapter.properties   | [HikariDataSource](http://brettwooldridge.github.io/HikariCP/)
-TomcatJDBCDataSourceAdapter  | cl4pg/TomcatJDBCDataSourceAdapter.properties | [TomcatJDBCDataSource](https://people.apache.org/~fhanik/jdbc-pool/jdbc-pool.html)
 
 The reason why each is called a data source adapter is because
 each implementation of `com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter`
@@ -35,9 +33,7 @@ in your classpath, and the following snippet of Java will get you started:
 
 ```Java
 DataSourceAdapter dsa = PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
-DataSourceAdapter dsa = PgPoolingDataSourceAdapter.buildFromDefaultConfFile();
 DataSourceAdapter dsa = HikariCpDataSourceAdapter.buildFromDefaultConfFile();
-DataSourceAdapter dsa = TomcatJDBCDataSourceAdapter.buildFromDefaultConfFile();
 ```
 
 However, if you need the configuration file to have a different name, each
@@ -73,31 +69,12 @@ port                          | 5432                      |
 database                      | postgres                  | 
 user                          | postgres                  | 
 password                      | postgres                  | 
-ApplicationName               | cl4pg                     | Shows up in the `application_name` 
-                              |                           | column of `pg_stat_activity`
-ExceptionConverter            | com.manniwood.        |
-                              | cl4pg.v1.             |
-                              | exceptionconverters.  |
-                              | DefaultExceptionConverter |
-TransactionIsolationLevel     | read committed            | Other valid values are
-                              |                           | read uncommitted
-                              |                           | repeatable read
-                              |                           | serializable
-                              |                           | though please note that 
-                              |                           | read uncommitted
-                              |                           | doesn't actually work for 
-                              |                           | PostgreSQL
+ApplicationName               | cl4pg                     | Shows up in the `application_name` column of `pg_stat_activity`
+ExceptionConverter            | com.manniwood.cl4pg.v1.exceptionconverters.DefaultExceptionConverter |
+TransactionIsolationLevel     | read committed            | Other valid values are read uncommitted repeatable read serializable though please note that read uncommitted doesn't actually work for PostgreSQL
 AutoCommit                    | false                     |
-ScalarResultSetHandlerBuilder | com.manniwood.        |
-                              | cl4pg.v1.             |
-                              | resultsethandlers.    |
-                              | GuessScalarResult-    |
-                              | SetHandlerBuilder         | 
-RowResultSetHandlerBuilder    | com.manniwood.        |
-                              | cl4pg.v1.             |
-                              | resultsethandlers.    |
-                              | GuessConstructorResult- |
-                              | SetHandlerBuilder         |
+ScalarResultSetHandlerBuilder | com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarResultSetHandlerBuilder |
+RowResultSetHandlerBuilder    | com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorResultSetHandlerBuilder |
 
 
 TODO: start here; document adapter-specific properties next, and make sure they

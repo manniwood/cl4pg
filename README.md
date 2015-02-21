@@ -36,8 +36,7 @@ You get a connection to the database like so:
 // in the classpath --- the default conf file for this adapter.
 // For PgSimpleDataSourceAdapter, every getSession()
 // opens a new connection to the database, and every close() closes it.
-// However, for PgPoolingDataSourceAdapter, HikariCpDataSourceAdapter,
-// and TomcatJDBCDataSourceAdapter, getSession() and close() get and return
+// However, for HikariCpDataSourceAdapter, getSession() and close() get and return
 // database connections from the pools managed by those adapters.
 DataSourceAdapter adapter = PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
 
@@ -945,12 +944,8 @@ PgSession pgSession = adapter.getSession();
 pgSession.close();
 ```
 
-For other applications, such as web apps, you will use one of the
-data source adapters that uses a connection pool, such as
-`HikariCpDataSourceAdapter` or `TomcatJDBCDataSourceAdapter`.
-(Feel free to use PgPoolingDataSourceAdapter as well, seeing as
-it conveniently wraps the PostgreSQL JDBC driver's `PGPoolingDataSource`.
-Just bear in mind that it is not a very sophisticated connection pool.)
+For other applications, such as web apps, you will use the
+data source adapter that uses a connection pool, `HikariCpDataSourceAdapter`.
 
 For this sort of adapter, your usage will look more like this:
 
