@@ -3,8 +3,7 @@
 
 - Make dependent on 9.4 version of pg driver
 
-- Ensure adapter-specific config settings are
-working and documented
+- Make dependent on latest version of HikariCP
 
 - Write .procSelect
 - Write .qProcSelect
@@ -26,8 +25,6 @@ for compound attributes impossible).
 from within, let's say, a webapp using connection pooling.
 
 - Write documentation in docs/more
-
-- Ensure configuration is easy and documented.
 
 - Write typeconverters for all types in PgJDBC driver (including array types)
 
