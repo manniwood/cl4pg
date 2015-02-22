@@ -26,6 +26,7 @@ package com.manniwood.cl4pg.v1;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.Properties;
 
 /**
  * Configuration defaults for Cl4Pg. Note that many of them are taken from org.postgresql.ds.common.BaseDataSource. The
@@ -40,6 +41,8 @@ public final class ConfigDefaults {
 
     public static final String PROJ_NAME = "cl4pg";
     public static final String BUILTIN_TYPE_CONVERTERS_CONF_FILE = PROJ_NAME + "/BuiltinTypeConverters.properties";
+
+    public static final String URL_PREAMBLE = "jdbc:postgresql://";
 
     public static final String HOSTNAME_KEY = "hostname";
     public static final String DEFAULT_HOSTNAME = "localhost";
@@ -105,9 +108,76 @@ public final class ConfigDefaults {
     public static final boolean DEFAULT_READ_ONLY = false;
     public static final String HOLDABILITY_KEY = "holdability";
     public static final int DEFAULT_HOLDABILITY = ResultSet.CLOSE_CURSORS_AT_COMMIT;
+    public static final String SSL_FACTORY_ARG_KEY = "sslfactoryarg";
+    public static final String DEFAULT_SSL_FACTORY_ARG = null;
+    public static final String ALLOW_ENCODING_CHANGES_KEY = "allowEncodingChanges";
+    public static final String DEFAULT_ALLOW_ENCODING_CHANGES = null;
+    public static final String CHAR_SET_KEY = "charSet";
+    public static final String DEFAULT_CHAR_SET = null;
+    public static final String LOG_UNCLOSED_CONNECTIONS_KEY = "logUnclosedConnections";
+    public static final boolean DEFAULT_LOG_UNCLOSED_CONNECTIONS = false;
+    public static final String CONNECT_TIMEOUT_KEY = "connectTimeout";
+    public static final int DEFAULT_CONNECT_TIMEOUT = 0;
+    public static final String KERBEROS_SERVER_NAME_KEY = "kerberosServerName";
+    public static final String DEFAULT_KERBEROS_SERVER_NAME = null;
+    public static final java.lang.String JAAS_APPLICATION_NAME_KEY = "jaasApplicationName";
+    public static final java.lang.String DEFAULT_JAAS_APPLICATION_NAME = null;
+    public static final String GSS_LIB_KEY = "gsslib";
+    public static final String DEFAULT_GSS_LIB = null;
+    public static final String SSPI_SERVICE_CLASS_KEY = "sspiServiceClass";
+    public static final String DEFAULT_SSPI_SERVICE_CLASS = null;
+    public static final String USE_SPNEGO_KEY = "useSpnego";
+    public static final boolean DEFAULT_USE_SPNEGO = false;
+    public static final String ASSUME_MIN_SERVER_VERSION_KEY = "assumeMinServerVersion";
+    public static final String DEFAULT_ASSUME_MIN_SERVER_VERSION = null;
+    public static final String CURRENT_SCHEMA_KEY = "currentSchema";
+    public static final String DEFAULT_CURRENT_SCHEMA = null;
+    public static final String TARGET_SERVER_TYPE_KEY = "targetServerType";
+    public static final String DEFAULT_TARGET_SERVER_TYPE = null;
+    public static final String HOST_RECHECK_SECONDS_KEY = "hostRecheckSeconds";
+    public static final int DEFAULT_HOST_RECHECK_SECONDS = 10;
+    public static final String LOAD_BALANCE_HOSTS_KEY = "loadBalanceHosts";
+    public static final boolean DEFAULT_LOAD_BALANCE_HOSTS = false;
+
+    // HikariCP
+    public static final String DATA_SOURCE_NAME_KEY = "dataSourceName";
+    public static final String DEFAULT_DATA_SOURCE_NAME = null;
+    public static final String MINUMUM_IDLE_KEY = "minumumIdle";
+    public static final int DEFAULT_MINIMUM_IDLE = 5;
+    public static final String MAXIMUM_POOL_SIZE_KEY = "maximumPoolSize";
+    public static final int DEFAULT_MAXIMUM_POOL_SIZE = 20;
+    public static final String CONNECTION_CUSTOMIZER_CLASS_NAME_KEY = "connectionCustomizerClassName";
+    public static final String DEFAULT_CONNECTION_CUSTOMIZER_CLASS_NAME = null;
+    public static final String CONNECTION_INIT_SQL_KEY = "connectionInitSql";
+    public static final String DEFAULT_CONNECTION_INIT_SQL = null;
+    public static final String CONNECTION_TEST_QUERY_KEY = "connectionTestQuery";
+    public static final String CONNECTION_TIMEOUT_KEY = "connectionTimeout";
+    public static final String IDLE_TIMEOUT_KEY = "idleTimeout";
+    public static final String INITIALIZATION_FAIL_FAST_KEY = "initializationFailFast";
+    public static final String ISOLATE_INTERNAL_QUERIES_KEY = "isolateInternalQueries";
+    public static final String JDBC_4_CONNECTION_TEST_KEY = "jdbc4ConnectionTest";
+    public static final String LEAK_DETECTION_THRESHOLD_KEY = "leakDetectionThreshold";
+    public static final String MAX_LIFETIME_KEY = "maxLifetime";
+    public static final String METRICS_TRACKER_CLASS_NAME_KEY = "metricsTrackerClassName";
+    public static final String POOL_NAME_KEY = "poolName";
+    public static final String REGISTER_MBEANS_KEY = "registerMbeans";
 
     private ConfigDefaults() {
         // Utility class
     }
 
+    /**
+     * Sets a few sane defaults
+     * @return
+     */
+    public static void setDefaults(Properties props) {
+        props.setProperty(HOSTNAME_KEY, DEFAULT_HOSTNAME);
+        props.setProperty(USERNAME_KEY, DEFAULT_USERNAME);
+        props.setProperty(PASSWORD_KEY, DEFAULT_PASSWORD);
+        props.setProperty(DATABASE_KEY, DEFAULT_DATABASE);
+        props.setProperty(PORT_KEY, String.valueOf(DEFAULT_PORT));
+        props.setProperty(APP_NAME_KEY, DEFAULT_APP_NAME);
+        props.setProperty(AUTO_COMMIT_KEY, String.valueOf(DEFAULT_AUTO_COMMIT));
+        props.setProperty(TRANSACTION_ISOLATION_LEVEL_KEY, String.valueOf(DEFAULT_TRANSACTION_ISOLATION_LEVEL));
+    }
 }
