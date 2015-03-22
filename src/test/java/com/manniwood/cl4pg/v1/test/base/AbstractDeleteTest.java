@@ -61,10 +61,10 @@ public abstract class AbstractDeleteTest {
         pgSession.commit();
 
         expectedUser = new User();
-        expectedUser.setEmployeeId(AbstractPgSessionTest.THIRD_EMPLOYEE_ID);
-        expectedUser.setId(UUID.fromString(AbstractPgSessionTest.THIRD_ID));
-        expectedUser.setName(AbstractPgSessionTest.THIRD_USERNAME);
-        expectedUser.setPassword(AbstractPgSessionTest.THIRD_PASSWORD);
+        expectedUser.setEmployeeId(AbstractSetApplicationNameTest.THIRD_EMPLOYEE_ID);
+        expectedUser.setId(UUID.fromString(AbstractSetApplicationNameTest.THIRD_ID));
+        expectedUser.setName(AbstractSetApplicationNameTest.THIRD_USERNAME);
+        expectedUser.setPassword(AbstractSetApplicationNameTest.THIRD_PASSWORD);
     }
 
     protected abstract DataSourceAdapter configureDataSourceAdapter();
@@ -89,7 +89,7 @@ public abstract class AbstractDeleteTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
+                .args(UUID.fromString(AbstractSetApplicationNameTest.THIRD_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -103,7 +103,7 @@ public abstract class AbstractDeleteTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
+                .args(UUID.fromString(AbstractSetApplicationNameTest.THIRD_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -132,7 +132,7 @@ public abstract class AbstractDeleteTest {
 
         UpdateV del = Update.usingVariadicArgs()
                 .file("sql/delete_user.sql")
-                .args(UUID.fromString(AbstractPgSessionTest.THIRD_ID))
+                .args(UUID.fromString(AbstractSetApplicationNameTest.THIRD_ID))
                 .done();
         pgSession.run(del);
         pgSession.commit();

@@ -21,25 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package com.manniwood.cl4pg.v1.test.ds.hikaricp;
-
-import com.manniwood.cl4pg.v1.ConfigDefaults;
-import org.testng.annotations.Test;
+package com.manniwood.cl4pg.v1.test.ds.pgsimple;
 
 import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
-import com.manniwood.cl4pg.v1.datasourceadapters.HikariCpDataSourceAdapter;
-import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
+import com.manniwood.cl4pg.v1.datasourceadapters.PgSimpleDataSourceAdapter;
+import com.manniwood.cl4pg.v1.test.base.AbstractRollbackTest;
+import com.manniwood.cl4pg.v1.test.base.AbstractSelectTest;
+import org.testng.annotations.Test;
 
 @Test
-public class HikariSessionTest extends AbstractPgSessionTest {
+public class PgSimpleRollbackTest extends AbstractRollbackTest {
 
     @Override
     protected DataSourceAdapter configureDataSourceAdapter() {
-        return HikariCpDataSourceAdapter.buildFromDefaultConfFile();
+        return PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
     }
 
-    @Override
-    protected DataSourceAdapter configureSecondDataSourceAdapter() {
-        return HikariCpDataSourceAdapter.buildFromConfFile(ConfigDefaults.PROJ_NAME + "/" + HikariCpDataSourceAdapter.class.getSimpleName() + "2.properties");
-    }
 }

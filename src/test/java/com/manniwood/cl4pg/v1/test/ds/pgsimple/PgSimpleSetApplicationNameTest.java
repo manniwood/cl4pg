@@ -23,24 +23,18 @@ THE SOFTWARE.
  */
 package com.manniwood.cl4pg.v1.test.ds.pgsimple;
 
-import com.manniwood.cl4pg.v1.ConfigDefaults;
 import org.testng.annotations.Test;
 
 import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.datasourceadapters.PgSimpleDataSourceAdapter;
-import com.manniwood.cl4pg.v1.test.base.AbstractPgSessionTest;
+import com.manniwood.cl4pg.v1.test.base.AbstractSetApplicationNameTest;
 
 @Test
-public class PgSimpleSessionTest extends AbstractPgSessionTest {
+public class PgSimpleSetApplicationNameTest extends AbstractSetApplicationNameTest {
 
     @Override
     protected DataSourceAdapter configureDataSourceAdapter() {
         return PgSimpleDataSourceAdapter.buildFromDefaultConfFile();
-    }
-
-    @Override
-    protected DataSourceAdapter configureSecondDataSourceAdapter() {
-        return PgSimpleDataSourceAdapter.buildFromConfFile(ConfigDefaults.PROJ_NAME + "/" + PgSimpleDataSourceAdapter.class.getSimpleName() + "2.properties");
     }
 
 }

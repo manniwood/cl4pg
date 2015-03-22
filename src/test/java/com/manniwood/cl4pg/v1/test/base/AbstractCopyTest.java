@@ -55,7 +55,7 @@ public abstract class AbstractCopyTest {
     @BeforeClass
     public void init() throws IOException {
 
-        Files.deleteIfExists(Paths.get(AbstractPgSessionTest.TEST_COPY_FILE));
+        Files.deleteIfExists(Paths.get(AbstractSetApplicationNameTest.TEST_COPY_FILE));
 
         adapter = configureDataSourceAdapter();
 
@@ -66,18 +66,18 @@ public abstract class AbstractCopyTest {
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
-        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_1),
-                                          AbstractPgSessionTest.USERNAME_1,
-                                          AbstractPgSessionTest.PASSWORD_1,
-                                          AbstractPgSessionTest.EMPLOYEE_ID_1));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_2),
-                                          AbstractPgSessionTest.USERNAME_2,
-                                          AbstractPgSessionTest.PASSWORD_2,
-                                          AbstractPgSessionTest.EMPLOYEE_ID_2));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_3),
-                                          AbstractPgSessionTest.USERNAME_3,
-                                          AbstractPgSessionTest.PASSWORD_3,
-                                          AbstractPgSessionTest.EMPLOYEE_ID_3));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractSetApplicationNameTest.ID_1),
+                                          AbstractSetApplicationNameTest.USERNAME_1,
+                                          AbstractSetApplicationNameTest.PASSWORD_1,
+                                          AbstractSetApplicationNameTest.EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractSetApplicationNameTest.ID_2),
+                                          AbstractSetApplicationNameTest.USERNAME_2,
+                                          AbstractSetApplicationNameTest.PASSWORD_2,
+                                          AbstractSetApplicationNameTest.EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractSetApplicationNameTest.ID_3),
+                                          AbstractSetApplicationNameTest.USERNAME_3,
+                                          AbstractSetApplicationNameTest.PASSWORD_3,
+                                          AbstractSetApplicationNameTest.EMPLOYEE_ID_3));
 
         for (ImmutableUser u : usersToLoad) {
             pgSession.<ImmutableUser>insert(u, "sql/insert_user.sql");
@@ -95,11 +95,11 @@ public abstract class AbstractCopyTest {
 
     @Test(priority = 0)
     public void testCopy() {
-        pgSession.qCopyOut("copy users to stdout", AbstractPgSessionTest.TEST_COPY_FILE);
+        pgSession.qCopyOut("copy users to stdout", AbstractSetApplicationNameTest.TEST_COPY_FILE);
         // can safely roll back, because file has already been created
         pgSession.rollback();
 
-        pgSession.qCopyIn("copy dup_users from stdin", AbstractPgSessionTest.TEST_COPY_FILE);
+        pgSession.qCopyIn("copy dup_users from stdin", AbstractSetApplicationNameTest.TEST_COPY_FILE);
         pgSession.commit();
 
         // Let's use sql to do the checking for us

@@ -24,10 +24,10 @@ THE SOFTWARE.
 package com.manniwood.cl4pg.v1.test.base;
 
 import com.manniwood.cl4pg.v1.ConfigDefaults;
-import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
 import com.manniwood.cl4pg.v1.commands.DDL;
 import com.manniwood.cl4pg.v1.commands.Select;
+import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.exceptions.Cl4pgException;
 import com.manniwood.cl4pg.v1.resultsethandlers.GuessSettersListHandler;
 import com.manniwood.cl4pg.v1.test.etc.User;
@@ -54,8 +54,8 @@ import java.util.UUID;
  * @author mwood
  *
  */
-public abstract class AbstractPgSessionTest {
-    private final static Logger log = LoggerFactory.getLogger(AbstractPgSessionTest.class);
+public abstract class AbstractInsertTest {
+    private final static Logger log = LoggerFactory.getLogger(AbstractInsertTest.class);
 
     public static final String TEST_COPY_FILE = "/tmp/users.copy";
 
@@ -102,7 +102,6 @@ public abstract class AbstractPgSessionTest {
     }
 
     protected abstract DataSourceAdapter configureDataSourceAdapter();
-    protected abstract DataSourceAdapter configureSecondDataSourceAdapter();
 
     @AfterClass
     public void tearDown() {
@@ -148,108 +147,4 @@ public abstract class AbstractPgSessionTest {
         Assert.assertEquals(actual, expected, "users must match");
     }
 
-    @Test(priority = 2)
-    public void testListenNotify() {
-        // According to Pg docs, "Except for dropping later instances of
-        // duplicate notifications,
-        // NOTIFY guarantees that notifications from the same transaction get
-        // delivered in the order they were sent."
-        // So, an ordered list should be a good thing to test against.
-        List<String> expected = new ArrayList<>();
-        expected.add("bar");
-        expected.add("baz");
-        expected.add("bal");
-
-        DataSourceAdapter adapter2 = configureSecondDataSourceAdapter();
-        PgSession pgSession2 = adapter2.getSession();
-
-        pgSession2.pgListen("foo \" bar");
-        pgSession2.commit();
-
-        for (String s : expected) {
-            pgSession.pgNotify("foo \" bar", s);
-        }
-        pgSession.commit();
-
-        // Ensure you can do other queries on the listening session and not lose
-        // the notifications just because you have run a query and committed,
-        // but not yet retrieved the notifications.
-        GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
-        pgSession.run(Select.<User> usingVariadicArgs()
-                .file("sql/select_user_guess_setters.sql")
-                .args(UUID.fromString(TEST_ID))
-                .resultSetHandler(handler)
-                .done());
-        pgSession2.commit();
-
-        PGNotification[] notifications = pgSession2.getNotifications();
-        pgSession2.commit();
-
-        List<String> actual = new ArrayList<>();
-        for (PGNotification notification : notifications) {
-            log.info("notification name {}, parameter: {}, pid: {}", notification.getName(), notification.getParameter(), notification.getPID());
-            actual.add(notification.getParameter());
-        }
-        Assert.assertEquals(actual, expected, "Notifications must all be recieved, in the same order");
-        pgSession2.close();
-        adapter2.close();
-    }
-
-    @Test(priority = 3)
-    public void testExceptions() {
-        pgSession.qDdl("drop table users");
-        pgSession.ddl("sql/create_temp_constrained_users_table.sql");
-        pgSession.commit();
-
-        User expected = createExpectedUser();
-        pgSession.insert(expected, "sql/insert_user.sql");
-        pgSession.commit();
-        boolean correctlyCaughtException = false;
-        try {
-            pgSession.insert(expected, "sql/insert_user.sql");
-            pgSession.commit();
-        } catch (UserAlreadyExistsException e) {
-            log.info("Cannot insert user twice!");
-            log.info("Exception: " + e.toString(), e);
-            correctlyCaughtException = true;
-        }
-
-        // put the original tmp users table back
-        pgSession.qDdl("drop table users");
-        pgSession.ddl("sql/create_temp_users_table.sql");
-        pgSession.commit();
-        Assert.assertTrue(correctlyCaughtException, "Had to catch custom exception");
-    }
-
-    @Test(priority = 4)
-    public void testRollback() {
-        Cl4pgException expectedException = null;
-        try {
-            pgSession.run(DDL.config().sql("select flurby").done());
-        } catch (Cl4pgException e) {
-            expectedException = e;
-        }
-        Assert.assertNotNull(expectedException);
-        log.info("test correctly caught following exception", expectedException);
-
-        /*
-         * Because of successful rollback, this next select should work, and we
-         * should NOT get this following exception: ERROR: 25P02: current
-         * transaction is aborted, commands ignored until end of transaction
-         * block
-         */
-        Integer count = pgSession.qSelectOneScalar("select 1");
-        Assert.assertEquals(count.intValue(),
-                            1,
-                            "Statement needs to return 1");
-    }
-
-    @Test(priority = 5)
-    public void testApplicationNameIsSet() {
-        String actualAppName = pgSession.qSelectOne(
-                "select application_name from pg_stat_activity where application_name = #{java.lang.String}",
-                String.class,
-                ConfigDefaults.DEFAULT_APP_NAME);
-        Assert.assertEquals(actualAppName, ConfigDefaults.DEFAULT_APP_NAME, "App name needs to be " + ConfigDefaults.DEFAULT_APP_NAME);
-    }
 }

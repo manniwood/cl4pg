@@ -25,9 +25,6 @@ package com.manniwood.cl4pg.v1.test.base;
 
 import com.manniwood.cl4pg.v1.datasourceadapters.DataSourceAdapter;
 import com.manniwood.cl4pg.v1.PgSession;
-import com.manniwood.cl4pg.v1.commands.*;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorListHandler;
-import com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarListHandler;
 import com.manniwood.cl4pg.v1.test.etc.ImmutableUser;
 import com.manniwood.cl4pg.v1.test.etc.TwoInts;
 import org.testng.Assert;
@@ -70,18 +67,18 @@ public abstract class AbstractStoredProcTest {
         pgSession.commit();
 
         List<ImmutableUser> usersToLoad = new ArrayList<>();
-        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_1),
-                                          AbstractPgSessionTest.USERNAME_1,
-                                          AbstractPgSessionTest.PASSWORD_1,
-                                          AbstractPgSessionTest.EMPLOYEE_ID_1));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_2),
-                                          AbstractPgSessionTest.USERNAME_2,
-                                          AbstractPgSessionTest.PASSWORD_2,
-                                          AbstractPgSessionTest.EMPLOYEE_ID_2));
-        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_3),
-                                          AbstractPgSessionTest.USERNAME_3,
-                                          AbstractPgSessionTest.PASSWORD_3,
-                                          AbstractPgSessionTest.EMPLOYEE_ID_3));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractSetApplicationNameTest.ID_1),
+                                          AbstractSetApplicationNameTest.USERNAME_1,
+                                          AbstractSetApplicationNameTest.PASSWORD_1,
+                                          AbstractSetApplicationNameTest.EMPLOYEE_ID_1));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractSetApplicationNameTest.ID_2),
+                                          AbstractSetApplicationNameTest.USERNAME_2,
+                                          AbstractSetApplicationNameTest.PASSWORD_2,
+                                          AbstractSetApplicationNameTest.EMPLOYEE_ID_2));
+        usersToLoad.add(new ImmutableUser(UUID.fromString(AbstractSetApplicationNameTest.ID_3),
+                                          AbstractSetApplicationNameTest.USERNAME_3,
+                                          AbstractSetApplicationNameTest.PASSWORD_3,
+                                          AbstractSetApplicationNameTest.EMPLOYEE_ID_3));
 
         for (ImmutableUser u : usersToLoad) {
             pgSession.insert(u, "sql/insert_user.sql");
@@ -245,10 +242,10 @@ public abstract class AbstractStoredProcTest {
 
     @Test(priority = 8)
     public void testRefCursorProcV() {
-        ImmutableUser expected = new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_3),
-                                                   AbstractPgSessionTest.USERNAME_3,
-                                                   AbstractPgSessionTest.PASSWORD_3,
-                                                   AbstractPgSessionTest.EMPLOYEE_ID_3);
+        ImmutableUser expected = new ImmutableUser(UUID.fromString(AbstractSetApplicationNameTest.ID_3),
+                                                   AbstractSetApplicationNameTest.USERNAME_3,
+                                                   AbstractSetApplicationNameTest.PASSWORD_3,
+                                                   AbstractSetApplicationNameTest.EMPLOYEE_ID_3);
         ImmutableUser actual = pgSession.qProcSelectOne(
                 expected,
                 "{ #{refcursor} = call get_user_by_id(#{getId}) }",
@@ -259,10 +256,10 @@ public abstract class AbstractStoredProcTest {
 
     @Test(priority = 9)
     public void testRefCursorProcB() {
-        ImmutableUser expected = new ImmutableUser(UUID.fromString(AbstractPgSessionTest.ID_3),
-                                                   AbstractPgSessionTest.USERNAME_3,
-                                                   AbstractPgSessionTest.PASSWORD_3,
-                                                   AbstractPgSessionTest.EMPLOYEE_ID_3);
+        ImmutableUser expected = new ImmutableUser(UUID.fromString(AbstractSetApplicationNameTest.ID_3),
+                                                   AbstractSetApplicationNameTest.USERNAME_3,
+                                                   AbstractSetApplicationNameTest.PASSWORD_3,
+                                                   AbstractSetApplicationNameTest.EMPLOYEE_ID_3);
         ImmutableUser actual = pgSession.qProcSelectOne(
                 "{ #{refcursor} = call get_user_by_id(#{java.util.UUID}) }",
                 ImmutableUser.class,

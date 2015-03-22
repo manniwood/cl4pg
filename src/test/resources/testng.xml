@@ -3,22 +3,30 @@
     <test verbose="2" name="mpjw" annotations="JDK" preserve-order="true">
         <classes>
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariCopyTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariListenNotifyTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariDeleteTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariInsertTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariSelectTest" />
-            <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariSessionTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariSetApplicationNameTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariStoredProcTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariUpdateTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariInsertReturningTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariUpdateReturningTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariExceptionTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariRollbackTest" />
 
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleCopyTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleListenNotifyTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleDeleteTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleInsertTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleSelectTest" />
-            <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleSessionTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleSetApplicationNameTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleStoredProcTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleUpdateTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleInsertReturningTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleUpdateReturningTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleExceptionTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleRollbackTest" />
 
             <!--  type tests -->
             <class name="com.manniwood.cl4pg.v1.test.types.BooleanTest" />

@@ -59,17 +59,17 @@ public abstract class AbstractSelectTest {
     private static User createExpectedUser() {
         User expected;
         expected = new User();
-        expected.setEmployeeId(AbstractPgSessionTest.TEST_EMPLOYEE_ID);
-        expected.setId(UUID.fromString(AbstractPgSessionTest.TEST_ID));
-        expected.setName(AbstractPgSessionTest.TEST_USERNAME);
-        expected.setPassword(AbstractPgSessionTest.TEST_PASSWORD);
+        expected.setEmployeeId(AbstractSetApplicationNameTest.TEST_EMPLOYEE_ID);
+        expected.setId(UUID.fromString(AbstractSetApplicationNameTest.TEST_ID));
+        expected.setName(AbstractSetApplicationNameTest.TEST_USERNAME);
+        expected.setPassword(AbstractSetApplicationNameTest.TEST_PASSWORD);
         return expected;
     }
 
     private static User createUserWithNulls() {
         User expected;
         expected = new User();
-        expected.setId(UUID.fromString(AbstractPgSessionTest.USER_WITH_NULLS_TEST_ID));
+        expected.setId(UUID.fromString(AbstractSetApplicationNameTest.USER_WITH_NULLS_TEST_ID));
         return expected;
     }
 
@@ -101,7 +101,7 @@ public abstract class AbstractSelectTest {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
-                .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
+                .args(UUID.fromString(AbstractSetApplicationNameTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -116,7 +116,7 @@ public abstract class AbstractSelectTest {
         ExplicitSettersListHandler<User> handler = new ExplicitSettersListHandler<User>(User.class);
         pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_use_setters.sql")
-                .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
+                .args(UUID.fromString(AbstractSetApplicationNameTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -129,7 +129,7 @@ public abstract class AbstractSelectTest {
     public void testGuessConstructorListHandler() {
         List<ImmutableUser> users = pgSession.select("sql/select_user_guess_setters.sql",
                 ImmutableUser.class,
-                UUID.fromString(AbstractPgSessionTest.TEST_ID));
+                UUID.fromString(AbstractSetApplicationNameTest.TEST_ID));
         pgSession.rollback();
         ImmutableUser actualImmutable = users.get(0);
 
@@ -140,7 +140,7 @@ public abstract class AbstractSelectTest {
     public void testGuessConstructorListHandlerOne() {
         ImmutableUser actualImmutable = pgSession.selectOne("sql/select_user_guess_setters.sql",
                 ImmutableUser.class,
-                UUID.fromString(AbstractPgSessionTest.TEST_ID));
+                UUID.fromString(AbstractSetApplicationNameTest.TEST_ID));
         pgSession.rollback();
 
         Assert.assertTrue(Users.equals(actualImmutable, expected), "users must match");
@@ -151,7 +151,7 @@ public abstract class AbstractSelectTest {
         ExplicitConstructorListHandler<ImmutableUser> handler = new ExplicitConstructorListHandler<ImmutableUser>(ImmutableUser.class);
         pgSession.run(Select.<ImmutableUser> usingVariadicArgs()
                 .file("sql/select_user_use_constructor.sql")
-                .args(UUID.fromString(AbstractPgSessionTest.TEST_ID))
+                .args(UUID.fromString(AbstractSetApplicationNameTest.TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
@@ -229,7 +229,7 @@ public abstract class AbstractSelectTest {
         GuessSettersListHandler<User> handler = new GuessSettersListHandler<User>(User.class);
         pgSession.run(Select.<User> usingVariadicArgs()
                 .file("sql/select_user_guess_setters.sql")
-                .args(UUID.fromString(AbstractPgSessionTest.USER_WITH_NULLS_TEST_ID))
+                .args(UUID.fromString(AbstractSetApplicationNameTest.USER_WITH_NULLS_TEST_ID))
                 .resultSetHandler(handler)
                 .done());
         pgSession.rollback();
