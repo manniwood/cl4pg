@@ -6,9 +6,8 @@ group = 'com.manniwood'
 version = '1.0.0-SNAPSHOT'
 description = "cl4pg --- The Convenience Library for PostgreSQL"
 
-ext.pgJDBC = 'org.postgresql:postgresql:9.3-1101-jdbc4'
-ext.hikariCP = 'com.zaxxer:HikariCP-java6:2.0.1'
-ext.tomcatJDBC = 'org.apache.tomcat:tomcat-jdbc:8.0.15'
+ext.pgJDBC = 'org.postgresql:postgresql:9.4-1201-jdbc41'
+ext.hikariCP = 'com.zaxxer:HikariCP-java6:2.3.4'
 
 repositories {
     mavenCentral()
@@ -18,7 +17,6 @@ dependencies {
     compile pgJDBC
     compile 'org.slf4j:slf4j-api:1.7.7'
     compile hikariCP
-    compile tomcatJDBC
     testCompile 'org.testng:testng:6.8.8'
     testCompile 'ch.qos.logback:logback-core:1.1.2'
     testCompile 'ch.qos.logback:logback-classic:1.1.2'
@@ -29,8 +27,6 @@ configurations {
     runtime.exclude module: pgJDBC
     // If the user is not using HikariCP, then it isn't a runtime dependency.
     runtime.exclude module: hikariCP
-    // If the user is not using Tomcat JDBC, then it isn't a runtime dependency.
-    runtime.exclude module: tomcatJDBC
 }
 
 test {

@@ -146,8 +146,6 @@ public final class ConfigDefaults {
     public static final int DEFAULT_MINIMUM_IDLE = 5;
     public static final String MAXIMUM_POOL_SIZE_KEY = "maximumPoolSize";
     public static final int DEFAULT_MAXIMUM_POOL_SIZE = 20;
-    public static final String CONNECTION_CUSTOMIZER_CLASS_NAME_KEY = "connectionCustomizerClassName";
-    public static final String DEFAULT_CONNECTION_CUSTOMIZER_CLASS_NAME = null;
     public static final String CONNECTION_INIT_SQL_KEY = "connectionInitSql";
     public static final String DEFAULT_CONNECTION_INIT_SQL = null;
     public static final String CONNECTION_TEST_QUERY_KEY = "connectionTestQuery";
@@ -155,10 +153,8 @@ public final class ConfigDefaults {
     public static final String IDLE_TIMEOUT_KEY = "idleTimeout";
     public static final String INITIALIZATION_FAIL_FAST_KEY = "initializationFailFast";
     public static final String ISOLATE_INTERNAL_QUERIES_KEY = "isolateInternalQueries";
-    public static final String JDBC_4_CONNECTION_TEST_KEY = "jdbc4ConnectionTest";
     public static final String LEAK_DETECTION_THRESHOLD_KEY = "leakDetectionThreshold";
     public static final String MAX_LIFETIME_KEY = "maxLifetime";
-    public static final String METRICS_TRACKER_CLASS_NAME_KEY = "metricsTrackerClassName";
     public static final String POOL_NAME_KEY = "poolName";
     public static final String REGISTER_MBEANS_KEY = "registerMbeans";
 

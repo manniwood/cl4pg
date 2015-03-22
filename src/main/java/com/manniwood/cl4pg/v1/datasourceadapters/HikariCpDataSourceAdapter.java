@@ -625,16 +625,6 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
             return this;
         }
 
-        public Builder jdbc4ConnectionTest(String jdbc4ConnectionTest) {
-            props.getProperty(ConfigDefaults.JDBC_4_CONNECTION_TEST_KEY, jdbc4ConnectionTest);
-            return this;
-        }
-
-        public Builder jdbc4ConnectionTest(boolean jdbc4ConnectionTest) {
-            props.getProperty(ConfigDefaults.JDBC_4_CONNECTION_TEST_KEY, String.valueOf(jdbc4ConnectionTest));
-            return this;
-        }
-
         public Builder leakDetectionThreshold(String leakDetectionThreshold) {
             props.getProperty(ConfigDefaults.LEAK_DETECTION_THRESHOLD_KEY, leakDetectionThreshold);
             return this;
@@ -652,11 +642,6 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
 
         public Builder maxLifetime(long maxLifetime) {
             props.getProperty(ConfigDefaults.MAX_LIFETIME_KEY, String.valueOf(maxLifetime));
-            return this;
-        }
-
-        public Builder metricsTrackerClassName(String metricsTrackerClassName) {
-            props.getProperty(ConfigDefaults.METRICS_TRACKER_CLASS_NAME_KEY, metricsTrackerClassName);
             return this;
         }
 
@@ -739,11 +724,6 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
             config.setMaximumPoolSize(Integer.parseInt(prop));
         }
 
-        prop = connProps.getProperty(ConfigDefaults.CONNECTION_CUSTOMIZER_CLASS_NAME_KEY);
-        if (!Str.isNullOrEmpty(prop)) {
-            config.setConnectionCustomizerClassName(prop);
-        }
-
         prop = connProps.getProperty(ConfigDefaults.CONNECTION_INIT_SQL_KEY);
         if (!Str.isNullOrEmpty(prop)) {
             config.setConnectionInitSql(prop);
@@ -774,11 +754,6 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
             config.setIsolateInternalQueries(Boolean.parseBoolean(prop));
         }
 
-        prop = connProps.getProperty(ConfigDefaults.JDBC_4_CONNECTION_TEST_KEY);
-        if (!Str.isNullOrEmpty(prop)) {
-            config.setJdbc4ConnectionTest(Boolean.parseBoolean(prop));
-        }
-
         prop = connProps.getProperty(ConfigDefaults.LEAK_DETECTION_THRESHOLD_KEY);
         if (!Str.isNullOrEmpty(prop)) {
             config.setLeakDetectionThreshold(Long.parseLong(prop));
@@ -787,11 +762,6 @@ public class HikariCpDataSourceAdapter implements DataSourceAdapter {
         prop = connProps.getProperty(ConfigDefaults.MAX_LIFETIME_KEY);
         if (!Str.isNullOrEmpty(prop)) {
             config.setMaxLifetime(Long.parseLong(prop));
-        }
-
-        prop = connProps.getProperty(ConfigDefaults.METRICS_TRACKER_CLASS_NAME_KEY);
-        if (!Str.isNullOrEmpty(prop)) {
-            config.setMetricsTrackerClassName(prop);
         }
 
         prop = connProps.getProperty(ConfigDefaults.POOL_NAME_KEY);
