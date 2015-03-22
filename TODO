@@ -1,9 +1,9 @@
 
 -------- v1.0.x
 
-- Make dependent on 9.4 version of pg driver
+- split out session test into better named tests
 
-- Make dependent on latest version of HikariCP
+- show fluent use for each example
 
 - Write .procSelect
 - Write .qProcSelect

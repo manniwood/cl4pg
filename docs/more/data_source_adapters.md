@@ -60,6 +60,12 @@ property names do not follow a case convention; this reflects that fact that
 some of the property names are what the underlying PostgreSQL JDBC driver uses,
 and the underlying JDBC driver did not follow a case convention for property names.
 
+Please see the 
+[PostgreSQL JDBC connection parameter documentation](https://jdbc.postgresql.org/documentation/94/connect.html#connection-parameters)
+for the meanings of all of the settings common to all adapters.
+These settings get passed straight through to the Properties object that is passed to
+`DriverManager.getConnection(url, props)` when a connection is requested from PostgreSQL JDBC.
+
 ## Common to all adapters
 
 Name                          | Default                   | Notes
@@ -75,9 +81,66 @@ TransactionIsolationLevel     | read committed            | Other valid values a
 AutoCommit                    | false                     |
 ScalarResultSetHandlerBuilder | com.manniwood.cl4pg.v1.resultsethandlers.GuessScalarResultSetHandlerBuilder |
 RowResultSetHandlerBuilder    | com.manniwood.cl4pg.v1.resultsethandlers.GuessConstructorResultSetHandlerBuilder |
+binaryTransfer                | false                     |
+binaryTransferEnable          | null                      |
+binaryTransferDisable         | null                      |
+compatible                    | null                      |
+disableColumnSanitizer        | false                     |
+loginTimeout                  | 0                         |
+logLevel                      | 0                         |
+logWriter                     | null                      |
+prepareThreshold              | 5                         |
+protocolVersion               | 0                         |
+receiveBufferSize             | -1                        |
+sendBufferSize                | -1                        |
+stringtype                    | null                      |
+ssl                           | false                     |
+sslfactory                    | null                      |
+socketTimeout                 | 0                         |
+tcpKeepAlive                  | false                     |
+unknownLength                 | Integer.MAX_VALUE         |
+readOnly                      | false                     |
+holdability                   | ResultSet.CLOSE_CURSORS_AT_COMMIT |
+sslfactoryarg                 | null                      |
+allowEncodingChanges          | null                      |
+charSet                       | null                      |
+logUnclosedConnections        | false                     |
+connectTimeout                | 0                         |
+kerberosServerName            | null                      |
+jaasApplicationName           | null                      |
+gsslib                        | null                      |
+sspiServiceClass              | null                      |
+useSpnego                     | false                     |
+assumeMinServerVersion        | null                      |
+currentSchema                 | null                      |
+targetServerType              | null                      |
+hostRecheckSeconds            | 10                        |
+loadBalanceHosts              | false                     |
+
+## Only used by HikariCP
+
+These HikariCP-only settings are documented at the
+[HikariCP site](https://github.com/brettwooldridge/HikariCP).
+Note that when these settings are not present in the cl4pg
+config file, they don't get set in the `Properites` object
+that gets handed to `DriverManager.getConnection(url, props)` ---
+which means that the HikariCP default setting gets used.
 
 
-TODO: start here; document adapter-specific properties next, and make sure they
-are even processed by each adapter
+Name                          | Default                   | Notes
+------------------------------|---------------------------|--------
+dataSourceName                | null                      | HikariCP default
+maximumPoolSize               | 10                        | HikariCP default
+minumumIdle                   | same as maxumimPoolSize   | HikariCP default
+connectionInitSql             | none                      | HikariCP default
+connectionTestQuery           | none                      | HikariCP default
+connectionTimeout             | 30000 (30 seconds)        | HikariCP default
+idleTimeout                   | 600000 (10 minutes)       | HikariCP default
+initializationFailFast        | true                      | HikariCP default
+isolateInternalQueries        | false                     | HikariCP default
+leakDetectionThreshold        | 0                         | HikariCP default
+maxLifetime                   | 1800000 (30 minutes)      | HikariCP default
+poolName                      | auto-generated            | HikariCP default
+registerMbeans                | false                     | HikariCP default
 
 
