@@ -1,9 +1,23 @@
 
 -------- v1.0.x
 
-- split out session test into better named tests
+- Document fluent use for each example
 
-- show fluent use for each example
+- Document why reflection is used to call constructors
+or setters directly rather than using hacky bytecode injection
+tricks to set the attributes directly instead (makes setters
+for compound attributes impossible).
+
+- Document why v1 is in package names.
+
+- Document how beans need no special markup.
+
+- Document how to use pgSession in try/catch checkout/return
+from within, let's say, a webapp using connection pooling.
+
+- Write documentation in docs/more
+
+-------- v1.1.x
 
 - Write .procSelect
 - Write .qProcSelect
@@ -14,22 +28,7 @@
 - Write .procSelectOneScalar
 - Write .qProcSelectOneScalar
 
-- Document why reflection is used to call constructors
-or setters directly rather than using hacky bytecode injection
-tricks to set the attributes directly instead (makes setters
-for compound attributes impossible).
-
-- Document how beans need no special markup.
-
-- Document how to use pgSession in try/catch checkout/return
-from within, let's say, a webapp using connection pooling.
-
-- Write documentation in docs/more
-
 - Write typeconverters for all types in PgJDBC driver (including array types)
-
--------- v1.1.x
-
 
 - selectReport that returns map of string:colname string:value
 for use in quick reporting displays where all values
