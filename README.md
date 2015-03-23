@@ -106,6 +106,16 @@ from the classpath once, on startup,
 into an unmodifiable map, allowing multiple threads to read
 from the cache of loaded SQL files without contention or slowdown.
 
+### fluent api
+
+If you prefer a fluent API, it is not as terse, but makes each argument
+essentially a named argument. For DDL, it's especially not worthwhile:
+
+```
+pgSession.run(DDL.config().sql("sql/create_temp_users_table.sql").done());
+pgSession.commit();
+```
+
 ## Load
 
 Let's assume we have the following PostgreSQL copy file named /tmp/users.copy
@@ -120,6 +130,18 @@ We could load our users table from that file like so:
 
 ```Java
 pgSession.qCopyIn("copy users from stdin", "/tmp/users.copy");
+pgSesion.commit();
+```
+
+### fluent api
+
+With the fluent api, the above command looks like:
+
+```
+pgSession.run(CopyFileIn.config()
+                .copyFile("/tmp/users.copy")
+                .sql("copy users from stdin")
+                .done());
 pgSesion.commit();
 ```
 
@@ -140,6 +162,21 @@ pgSession.rollback();  // no need to commit
 Simple things should be simple. Cl4pg determines the correct type converter
 based on the return type (`Long`, in this example) and
 converts the column "count( * )" to a Java Long object.
+
+### fluent api
+
+With the fluent API, it's a little clearer what goes on under the hood,
+but, generally, the terser API is preferable.
+
+```
+ResultSetHandler<Long> handler = new GuessScalarListHandler<Long>();
+run(Select.<Long> usingVariadicArgs()
+        .sql("select count(*) from users")
+        .resultSetHandler(handler)
+        .done());
+List<Long> list = handler.getList();
+Long count = list.get(0);
+```
 
 ### One Row, Many Columns as a Bean
 

@@ -52,36 +52,11 @@ import java.util.UUID;
 public abstract class AbstractExceptionTest {
     private final static Logger log = LoggerFactory.getLogger(AbstractExceptionTest.class);
 
-    public static final String TEST_COPY_FILE = "/tmp/users.copy";
-
     public static final String TEST_PASSWORD = "passwd";
     public static final String TEST_USERNAME = "Hubert";
     public static final Integer TEST_EMPLOYEE_ID = 13;
     public static final String TEST_ID = "99999999-a4fa-49fc-b6b4-62eca118fbf7";
 
-    public static final String USER_WITH_NULLS_TEST_ID = "88888888-a4fa-49fc-b6b4-62eca118fbf7";
-
-    public static final String THIRD_PASSWORD = "blarg";
-    public static final String THIRD_USERNAME = "Manni";
-    public static final Integer THIRD_EMPLOYEE_ID = 12;
-    public static final String THIRD_ID = "77777777-a4fa-49fc-b6b4-62eca118fbf7";
-
-    public static final String UPDATED_THIRD_PASSWORD = "updated blarg";
-    public static final String UPDATED_THIRD_USERNAME = "Updated Manni";
-    public static final Integer UPDATED_THIRD_EMPLOYEE_ID = 89;
-
-    public static final String ID_1 = "11111111-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String ID_2 = "22222222-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String ID_3 = "33333333-a4fa-49fc-b6b4-62eca118fbf7";
-    public static final String USERNAME_1 = "user one";
-    public static final String USERNAME_2 = "user two";
-    public static final String USERNAME_3 = "user three";
-    public static final String PASSWORD_1 = "password one";
-    public static final String PASSWORD_2 = "password two";
-    public static final String PASSWORD_3 = "password three";
-    public static final Integer EMPLOYEE_ID_1 = 1;
-    public static final Integer EMPLOYEE_ID_2 = 2;
-    public static final Integer EMPLOYEE_ID_3 = 3;
 
     private PgSession pgSession;
     private DataSourceAdapter adapter;
@@ -149,35 +124,4 @@ public abstract class AbstractExceptionTest {
         Assert.assertTrue(correctlyCaughtException, "Had to catch custom exception");
     }
 
-    @Test(priority = 4)
-    public void testRollback() {
-        Cl4pgException expectedException = null;
-        try {
-            pgSession.run(DDL.config().sql("select flurby").done());
-        } catch (Cl4pgException e) {
-            expectedException = e;
-        }
-        Assert.assertNotNull(expectedException);
-        log.info("test correctly caught following exception", expectedException);
-
-        /*
-         * Because of successful rollback, this next select should work, and we
-         * should NOT get this following exception: ERROR: 25P02: current
-         * transaction is aborted, commands ignored until end of transaction
-         * block
-         */
-        Integer count = pgSession.qSelectOneScalar("select 1");
-        Assert.assertEquals(count.intValue(),
-                            1,
-                            "Statement needs to return 1");
-    }
-
-    @Test(priority = 5)
-    public void testApplicationNameIsSet() {
-        String actualAppName = pgSession.qSelectOne(
-                "select application_name from pg_stat_activity where application_name = #{java.lang.String}",
-                String.class,
-                ConfigDefaults.DEFAULT_APP_NAME);
-        Assert.assertEquals(actualAppName, ConfigDefaults.DEFAULT_APP_NAME, "App name needs to be " + ConfigDefaults.DEFAULT_APP_NAME);
-    }
 }
