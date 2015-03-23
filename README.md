@@ -170,10 +170,11 @@ but, generally, the terser API is preferable.
 
 ```
 ResultSetHandler<Long> handler = new GuessScalarListHandler<Long>();
-run(Select.<Long> usingVariadicArgs()
+pgSession.run(Select.<Long> usingVariadicArgs()
         .sql("select count(*) from users")
         .resultSetHandler(handler)
         .done());
+pgSession.rollback();  // no need to commit
 List<Long> list = handler.getList();
 Long count = list.get(0);
 ```
@@ -315,6 +316,23 @@ UUID, String, String, Integer. We would therefore look for a constructor
 matching the signature `ImmutableUser(UUID, String, String, Integer)`,
 and use that constructor to build our ImmutableUser instance.
 
+### fluent api
+
+Again, the fluent API is more verbose, but it also gives a better look at
+what is going on under the hood of the terse API.
+
+```
+ResultSetHandler<ImmutableUser> handler = new GuessConstructorListHandler<>(ImmutableUser.class)
+pgSession.run(Select.<ImmutableUser> usingVariadicArgs()
+        .file("sql/find_user_by_id.sql")
+        .args(UUID.fromString("99999999-a4fa-49fc-b6b4-62eca118fbf7"))
+        .resultSetHandler(handler)
+        .done());
+pgSession.rollback();  // no need to commit
+List<R> list = handler.getList();
+list.get(0);
+```
+
 ### Many Rows, Many Columns as a List of Beans
 
 Let's say you want to return a list of users whose `employee_id`s are
@@ -355,6 +373,8 @@ List<ImmutableUser> users = pgSession.select("sql/find_user_gt_emp_id.sql",
                          42);
 pgSession.rollback();  // no need to commit
 ```
+
+TODO: show fluent API use
 
 ### Using a Bean Instead of Variadic Args
 
