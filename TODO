@@ -1,8 +1,6 @@
 
 -------- v1.0.x
 
-- Document fluent use for each example
-
 - Document why reflection is used to call constructors
 or setters directly rather than using hacky bytecode injection
 tricks to set the attributes directly instead (makes setters
@@ -11,9 +9,6 @@ for compound attributes impossible).
 - Document why v1 is in package names.
 
 - Document how beans need no special markup.
-
-- Document how to use pgSession in try/catch checkout/return
-from within, let's say, a webapp using connection pooling.
 
 - Write documentation in docs/more
 
