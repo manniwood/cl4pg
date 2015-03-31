@@ -118,7 +118,7 @@ from the cache of loaded SQL files without contention or slowdown.
 If you prefer a fluent API, it is not as terse, but makes each argument
 essentially a named argument. For DDL, it's especially not worthwhile:
 
-```
+```Java
 pgSession.run(DDL.config().sql("sql/create_temp_users_table.sql").done());
 pgSession.commit();
 ```
@@ -144,7 +144,7 @@ pgSesion.commit();
 
 With the fluent api, the above command looks like:
 
-```
+```Java
 pgSession.run(CopyFileIn.config()
                 .copyFile("/tmp/users.copy")
                 .sql("copy users from stdin")
@@ -175,7 +175,7 @@ converts the column "count( * )" to a Java Long object.
 With the fluent API, it's a little clearer what goes on under the hood,
 but, generally, the terser API is preferable.
 
-```
+```Java
 ResultSetHandler<Long> handler = new GuessScalarListHandler<Long>();
 pgSession.run(Select.<Long> usingVariadicArgs()
         .sql("select count(*) from users")
@@ -328,7 +328,7 @@ and use that constructor to build our ImmutableUser instance.
 Again, the fluent API is more verbose, but it also gives a better look at
 what is going on under the hood of the terse API.
 
-```
+```Java
 ResultSetHandler<ImmutableUser> handler = new GuessConstructorListHandler<>(ImmutableUser.class)
 pgSession.run(Select.<ImmutableUser> usingVariadicArgs()
         .file("sql/find_user_by_id.sql")
@@ -383,7 +383,7 @@ pgSession.rollback();  // no need to commit
 
 ### fluent api
 
-```
+```Java
 ResultSetHandler<ImmutableUser> handler = new GuessConstructorListHandler<>(ImmutableUser.class)
 pgSession.run(Select.<ImmutableUser> usingVariadicArgs()
         .file("sql/find_user_gt_emp_id.sql")
@@ -452,7 +452,7 @@ pgSession.rollback();  // no need to commit
 
 ### fluent api
 
-```
+```Java
 ResultSetHandler<ImmutableUser> handler = new GuessConstructorListHandler<>(ImmutableUser.class)
 pgSession.run(Select.<ImmutableUser> usingBeanArg()
         .file("sql/find_user_by_bean_id.sql")
@@ -510,7 +510,7 @@ pgSession.rollback();  // no need to commit
 
 ### fluent api
 
-```
+```Java
 ResultSetHandler<ImmutableUser> handler = new GuessConstructorListHandler<>(ImmutableUser.class)
 pgSession.run(Select.<ImmutableUser> usingBeanArg()
         .file("sql/find_user_gt_emp_id_bean.sql")
@@ -588,7 +588,7 @@ pgSession.commit();  // don't forget!
 
 ### fluent api
 
-```
+```Java
 pgSession.run(Insert.usingVariadicArgs()
         .file("sql/insert_user_variadic.sql")
         .args("00000000-a4fa-49fc-b6b4-62eca118fbf7",
@@ -647,7 +647,7 @@ pgSession.commit();  // don't forget!
 
 ### fluent api
 
-```
+```Java
 pgSession.run(Insert.usingBeanArg()
     .file("sql/insert_user.sql")
     .arg(newUser)
