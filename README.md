@@ -381,9 +381,21 @@ List<ImmutableUser> users = pgSession.select("sql/find_user_gt_emp_id.sql",
 pgSession.rollback();  // no need to commit
 ```
 
-TODO: show fluent API use
+### fluent api
 
-### Using a Bean Instead of Variadic Args
+```
+ResultSetHandler<ImmutableUser> handler = new GuessConstructorListHandler<>(ImmutableUser.class)
+pgSession.run(Select.<ImmutableUser> usingVariadicArgs()
+        .file("sql/find_user_gt_emp_id.sql")
+        .args(42)
+        .resultSetHandler(handler)
+        .done());
+pgSession.rollback();  // no need to commit
+List<R> list = handler.getList();
+```
+
+
+### Using an argument Bean Instead of Variadic Args
 
 So far, we have shown the utility of selecting our ImmutableUser by variadic args.
 If we only have an ID for a user, we can just hand that ID to `pgSession.select` or
@@ -391,7 +403,7 @@ If we only have an ID for a user, we can just hand that ID to `pgSession.select`
 in the correct spot in our SQL template.
 
 There may be other times when you have values you would like to get pulled out of
-a bean to fill in the parameters of our SQL template. This is possible to! Instead of using
+a bean to fill in the parameters of our SQL template. This is possible too! Instead of using
 `pgSession.select("some SQL", SomeReturn.class, variadic args...)`, you would use
 `pgSession.select(SomeBean, "some SQL", SomeReturn.class)`. It's a nice calling convention:
 if you want to use variadic args, they go as the last arguments to `pgSession.select`, but
@@ -438,6 +450,20 @@ ImmutableUser actualImmutable = pgSession.selectOne(findMe,
 pgSession.rollback();  // no need to commit
 ```
 
+### fluent api
+
+```
+ResultSetHandler<ImmutableUser> handler = new GuessConstructorListHandler<>(ImmutableUser.class)
+pgSession.run(Select.<ImmutableUser> usingBeanArg()
+        .file("sql/find_user_by_bean_id.sql")
+        .arg(findMe)
+        .resultSetHandler(handler)
+        .done());
+pgSession.rollback();  // no need to commit
+List<R> list = handler.getList();
+list.get(0);
+```
+
 Or, returning to our example of finding users whose `employee_id` is greater than 42:
 
 Let's assume a file named `sql/find_user_gt_emp_id_bean.sql` in your classpath
@@ -476,10 +502,23 @@ ImmutableUser findMe = new ImmutableUser(
     null,
     42);
 
-ImmutableUser actualImmutable = pgSession.selectOne(findMe,
+List<ImmutableUser> users = pgSession.select(findMe,
                                  "sql/find_user_gt_emp_id_bean.sql",
                                  ImmutableUser.class);
 pgSession.rollback();  // no need to commit
+```
+
+### fluent api
+
+```
+ResultSetHandler<ImmutableUser> handler = new GuessConstructorListHandler<>(ImmutableUser.class)
+pgSession.run(Select.<ImmutableUser> usingBeanArg()
+        .file("sql/find_user_gt_emp_id_bean.sql")
+        .arg(findMe)
+        .resultSetHandler(handler)
+        .done());
+pgSession.rollback();  // no need to commit
+List<R> list = handler.getList();
 ```
 
 ### Using Setters Instead of Constructors, and More!
@@ -487,6 +526,9 @@ pgSession.rollback();  // no need to commit
 There are many more ways to select data from cl4pg and map it to your Java
 objects. For instance, you do not have to use immutable beans: You can use
 beans with null constructors and build them using setter methods instead!
+You can also write your own `ResultSetHandler`s so that you can get full control
+over your object mappings, _and_ not have to incur the cost of using reflection,
+which is how cl4pg has to do its mappings.
 [Details here.](docs/more/select.md)
 
 ## Insert
@@ -544,6 +586,19 @@ pgSession.insert("sql/insert_user_variadic.sql",
 pgSession.commit();  // don't forget!
 ```
 
+### fluent api
+
+```
+pgSession.run(Insert.usingVariadicArgs()
+        .file("sql/insert_user_variadic.sql")
+        .args("00000000-a4fa-49fc-b6b4-62eca118fbf7",
+                null,
+                "password",
+                42)
+        .done());
+pgSession.commit();  // don't forget!
+```
+
 If we assume this SQL file on the classpath
 (in `src/main/resources` in your Java project if you are using the Maven project layout):
 
@@ -589,6 +644,16 @@ ImmutableUser newUser = new ImmutableUser(
 pgSession.insert(newUser, "sql/insert_user.sql");
 pgSession.commit();  // don't forget!
 ```
+
+### fluent api
+
+```
+pgSession.run(Insert.usingBeanArg()
+    .file("sql/insert_user.sql")
+    .arg(newUser)
+    .done());
+```
+
 
 ## Exception Handling
 

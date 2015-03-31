@@ -14,6 +14,7 @@
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariUpdateReturningTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariExceptionTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariRollbackTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.hikaricp.HikariFluentApiTest" />
 
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleCopyTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleListenNotifyTest" />
@@ -27,6 +28,7 @@
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleUpdateReturningTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleExceptionTest" />
             <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleRollbackTest" />
+            <class name="com.manniwood.cl4pg.v1.test.ds.pgsimple.PgSimpleFluentApiTest" />
 
             <!--  type tests -->
             <class name="com.manniwood.cl4pg.v1.test.types.BooleanTest" />
