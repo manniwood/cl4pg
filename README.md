@@ -1,5 +1,9 @@
 # cl4pg: The Convenience Library for PostgreSQL
 
+## This is abandonware
+
+Feel free to fork, though!
+
 ## Build and Test
 
 [Look here for how to build and test cl4pg](docs/dev/build_and_run.md)
